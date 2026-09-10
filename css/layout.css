@@ -1,0 +1,88 @@
+﻿/**
+ * InfinityPlay - Layout Grid & Containers
+ */
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-body);
+}
+
+/* Header Container */
+.header-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+}
+
+/* Main Dashboard 3-Column Layout */
+.dashboard-layout {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  max-width: 1840px;
+  margin: 0 auto;
+}
+
+/* Left Sidebar Layout */
+.left-sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  position: sticky;
+  top: var(--header-height);
+  height: calc(100vh - var(--header-height));
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px 12px 20px 14px;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-subtle);
+  transition: transform var(--transition-base), width var(--transition-base);
+  z-index: 90;
+}
+
+/* Center Content */
+.main-content {
+  flex: 1;
+  min-width: 0;
+  padding: 18px 18px 40px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Right Sidebar Layout */
+.right-sidebar {
+  width: var(--right-sidebar-width);
+  flex-shrink: 0;
+  position: sticky;
+  top: var(--header-height);
+  height: calc(100vh - var(--header-height));
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 18px 18px 40px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  z-index: 80;
+}
+
+/* Overlay for Mobile Sidebar */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 85;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-base);
+}
+.sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}

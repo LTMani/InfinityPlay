@@ -1,0 +1,339 @@
+﻿/**
+ * InfinityPlay - Category Cards & Game Cards
+ */
+
+/* ==========================================================================
+   1. EXPLORE CATEGORIES (Horizontal 8 Cards)
+   ========================================================================== */
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+.category-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 10px 6px 12px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.category-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 15px rgba(139, 92, 246, 0.25);
+}
+
+.category-card:hover::before {
+  opacity: 1;
+}
+
+.category-card.active {
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.35);
+  background: rgba(14, 25, 48, 0.85);
+}
+
+.category-thumbnail-wrapper {
+  width: 100%;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.category-thumb-img {
+  max-height: 48px;
+  max-width: 90%;
+  object-fit: contain;
+  transition: transform var(--transition-base);
+}
+
+.category-card:hover .category-thumb-img {
+  transform: scale(1.1);
+}
+
+.category-label {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+/* Category Accent Glows */
+.category-card[data-category="Racing"]:hover { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 0 16px rgba(239, 68, 68, 0.3); }
+.category-card[data-category="Adventure"]:hover { border-color: rgba(14, 165, 233, 0.6); box-shadow: 0 0 16px rgba(14, 165, 233, 0.3); }
+.category-card[data-category="Simulation"]:hover { border-color: rgba(234, 179, 8, 0.6); box-shadow: 0 0 16px rgba(234, 179, 8, 0.3); }
+.category-card[data-category="Puzzle"]:hover { border-color: rgba(168, 85, 247, 0.6); box-shadow: 0 0 16px rgba(168, 85, 247, 0.3); }
+.category-card[data-category="Sports"]:hover { border-color: rgba(16, 185, 129, 0.6); box-shadow: 0 0 16px rgba(16, 185, 129, 0.3); }
+.category-card[data-category="Strategy"]:hover { border-color: rgba(245, 158, 11, 0.6); box-shadow: 0 0 16px rgba(245, 158, 11, 0.3); }
+.category-card[data-category="Arcade"]:hover { border-color: rgba(139, 92, 246, 0.6); box-shadow: 0 0 16px rgba(139, 92, 246, 0.3); }
+.category-card[data-category="Survival"]:hover { border-color: rgba(249, 115, 22, 0.6); box-shadow: 0 0 16px rgba(249, 115, 22, 0.3); }
+
+
+/* ==========================================================================
+   2. TOP GAMES SECTION (4 Large Showcase Cards)
+   ========================================================================== */
+.top-games-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.top-game-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.top-game-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(59, 130, 246, 0.45);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 24px rgba(59, 130, 246, 0.25);
+}
+
+.top-game-media {
+  position: relative;
+  width: 100%;
+  height: 124px;
+  overflow: hidden;
+  background: #090c17;
+}
+
+.top-game-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-smooth);
+}
+.top-game-card:hover .top-game-img {
+  transform: scale(1.06);
+}
+
+/* Floating Favorite Button */
+.card-fav-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(10, 14, 26, 0.7);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  z-index: 5;
+  transition: all var(--transition-fast);
+}
+.card-fav-btn:hover {
+  background: rgba(236, 72, 153, 0.25);
+  color: var(--color-pink);
+  transform: scale(1.1);
+}
+.card-fav-btn.favorited {
+  color: var(--color-pink);
+  background: rgba(236, 72, 153, 0.2);
+}
+
+/* Bottom Information Area */
+.top-game-info {
+  padding: 10px 14px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.top-game-title {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-game-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.top-game-category {
+  font-size: 0.78rem;
+  color: #7b8ea8;
+  font-weight: 500;
+}
+
+.top-game-rating-plays {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.top-game-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.top-game-rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+.top-game-rating .star {
+  color: var(--color-gold);
+}
+.top-game-plays-count {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+
+/* ==========================================================================
+   3. ALL GAMES SECTION (10 Compact Cards)
+   ========================================================================== */
+.all-games-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 9px;
+  width: 100%;
+}
+
+.compact-game-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.compact-game-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(139, 92, 246, 0.45);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), 0 0 14px rgba(139, 92, 246, 0.25);
+}
+
+.compact-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #090c17;
+}
+
+.compact-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-base);
+}
+.compact-game-card:hover .compact-img {
+  transform: scale(1.08);
+}
+
+/* Quick Play Overlay on Hover */
+.compact-play-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 14, 26, 0.65);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+.compact-game-card:hover .compact-play-overlay {
+  opacity: 1;
+}
+
+.compact-play-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gradient-play);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+}
+
+.compact-info {
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.compact-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.compact-category {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.compact-rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-top: 2px;
+}
+.compact-rating .star {
+  color: var(--color-gold);
+  font-size: 0.68rem;
+}

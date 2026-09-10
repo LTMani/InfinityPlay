@@ -1,0 +1,206 @@
+/**
+ * InfinityPlay - Responsive Breakpoints & Mobile Optimization
+ */
+
+/* ==========================================================================
+   1. Large Displays (1440px - 1600px)
+   ========================================================================== */
+@media (max-width: 1440px) {
+  :root {
+    --sidebar-width: 210px;
+    --right-sidebar-width: 290px;
+  }
+  
+  .hero-title {
+    font-size: 1.85rem;
+  }
+}
+
+/* ==========================================================================
+   2. Medium Desktops & Tablets Landscape (1025px - 1280px)
+   ========================================================================== */
+@media (max-width: 1280px) {
+  .all-games-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+
+  .categories-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .top-games-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ==========================================================================
+   3. Tablets Portrait & Small Laptops (769px - 1024px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  /* Left Sidebar converts to sliding drawer */
+  .left-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    z-index: 150;
+    transform: translateX(-100%);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
+  }
+  
+  .left-sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Right Sidebar moves below main content */
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .right-sidebar {
+    width: 100%;
+    position: static;
+    height: auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .promo-climb-card {
+    grid-column: span 2;
+  }
+
+  .header-center {
+    max-width: 380px;
+  }
+}
+
+/* ==========================================================================
+   4. Mobile Devices (481px - 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  :root {
+    --header-height: 60px;
+  }
+
+  .top-header {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .brand-tagline {
+    display: none;
+  }
+
+  .brand-logo-img {
+    height: 38px;
+    max-width: 140px;
+  }
+
+  .header-center {
+    display: none;
+  }
+  
+  /* Mobile search toggle if needed */
+  .search-shortcut {
+    display: none;
+  }
+
+  .main-content {
+    padding: 14px 12px 30px 12px;
+    gap: 18px;
+  }
+
+  .hero-banner {
+    min-height: 180px;
+    padding: 18px 20px;
+    background-position: center right;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .hero-desc {
+    font-size: 0.76rem;
+  }
+
+  .categories-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+    gap: 10px;
+  }
+  .category-card {
+    min-width: 100px;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  .top-games-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .all-games-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .right-sidebar {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .promo-climb-card {
+    grid-column: span 1;
+  }
+
+  .profile-name {
+    display: none;
+  }
+  .profile-chevron {
+    display: none;
+  }
+  .profile-pill {
+    padding: 2px;
+    border: none;
+  }
+}
+
+/* ==========================================================================
+   5. Small Mobile Phones (320px - 480px)
+   ========================================================================== */
+@media (max-width: 480px) {
+  .hero-banner {
+    min-height: 160px;
+    padding: 14px 16px;
+  }
+
+  .hero-title {
+    font-size: 1.3rem;
+  }
+
+  .hero-desc br {
+    display: none;
+  }
+
+  .btn-hero-play {
+    padding: 8px 16px;
+    font-size: 0.82rem;
+  }
+
+  .my-games-btn span {
+    display: none;
+  }
+  .my-games-btn {
+    padding: 8px;
+  }
+
+  .all-games-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

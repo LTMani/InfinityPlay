@@ -1,0 +1,116 @@
+/**
+ * InfinityPlay - Chess Mobile & Tablet Responsive Stylesheet
+ */
+
+@media (max-width: 1024px) {
+  .chess-arena-container {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 20px;
+  }
+
+  .chess-side-panel {
+    max-height: 600px;
+  }
+
+  .chess-board-wrapper {
+    max-width: 520px;
+  }
+
+  .player-hud-card {
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chess-nav-header {
+    padding: 0 14px;
+    height: 58px;
+  }
+
+  .chess-brand-badge {
+    display: none;
+  }
+
+  .chess-arena-container {
+    padding: 10px;
+    gap: 16px;
+  }
+
+  .chess-board-wrapper {
+    max-width: 100%;
+    padding: 6px;
+  }
+
+  .player-hud-card {
+    padding: 8px 12px;
+    max-width: 100%;
+  }
+
+  .player-hud-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.95rem;
+  }
+
+  .player-hud-name {
+    font-size: 0.88rem;
+  }
+
+  .player-timer {
+    font-size: 1.25rem;
+    padding: 4px 10px;
+    min-width: 72px;
+  }
+
+  .chess-controls-bar {
+    gap: 6px;
+  }
+
+  .control-btn {
+    padding: 6px 10px;
+    font-size: 0.76rem;
+  }
+
+  .filter-pills-row {
+    gap: 4px;
+  }
+
+  .diff-btn, .tc-btn {
+    padding: 3px 8px;
+    font-size: 0.7rem;
+  }
+
+  .side-tab-btn {
+    padding: 10px 6px;
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-back-dashboard span {
+    display: none;
+  }
+
+  .chess-brand-text {
+    font-size: 0.98rem;
+  }
+
+  .chess-board-wrapper {
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  .coord-label {
+    font-size: 0.55rem;
+  }
+
+  .promo-choice-btn {
+    padding: 10px 4px;
+  }
+
+  .promo-symbol {
+    font-size: 1.8rem;
+  }
+}
+
