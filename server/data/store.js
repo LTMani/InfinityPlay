@@ -4,6 +4,25 @@
 
 const games = [
   {
+    id: 'railway-commander',
+    name: 'Railway Commander',
+    category: 'Simulation',
+    rating: 5.0,
+    plays: 24200,
+    playsFormatted: '24.2K',
+    rank: 2,
+    badge: 'NEW 2.5D',
+    isTop: true,
+    thumbnail: 'assets/games/thumb_railway_commander.svg',
+    topThumbnail: 'assets/games/top_railway_commander.svg',
+    description: 'Take control of powerful trains, follow signals, master speed limits, and become the ultimate railway driver.',
+    tags: ['Simulation', 'Train', 'Driving', 'Signals', 'Missions'],
+    releaseDate: '2026-09-11',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/railway-commander/index.html',
+    playMode: 'embed'
+  },
+  {
     id: 'city-drive',
     name: 'City Drive',
     category: 'Racing',
