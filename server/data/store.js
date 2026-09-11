@@ -70,7 +70,8 @@ const games = [
     description: 'Construct thriving medieval kingdoms and futuristic cities. Balance economy, infrastructure, defense towers, and the well-being of your citizens.',
     tags: ['Strategy', 'Management', 'Sandbox', 'Tactical'],
     releaseDate: '2026-03-22',
-    developer: 'Citadel Interactive'
+    developer: 'Citadel Interactive',
+    gameUrl: 'games/city-builder/index.html'
   },
   {
     id: 'football-legends',
@@ -204,6 +205,7 @@ let recentlyPlayed = [
 ];
 
 let userFavorites = ['ultimate-racing', 'city-builder'];
+let citySaves = {};
 
 const users = [
   {
@@ -595,5 +597,18 @@ module.exports = {
     if (profileData.title) user.title = profileData.title;
     const { password, ...safeUser } = user;
     return safeUser;
+  },
+
+  getCitySave(userId) {
+    return citySaves[userId] || null;
+  },
+
+  saveCitySave(userId, city) {
+    citySaves[userId] = city;
+    return city;
+  },
+
+  getAllCitySaves() {
+    return Object.values(citySaves);
   }
 };

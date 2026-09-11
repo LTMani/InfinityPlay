@@ -71,7 +71,8 @@ const gamesData = [
     description: 'Construct thriving medieval kingdoms and futuristic cities. Balance economy, infrastructure, defense towers, and the well-being of your citizens.',
     tags: ['Strategy', 'Management', 'Sandbox', 'Tactical'],
     releaseDate: '2026-03-22',
-    developer: 'Citadel Interactive'
+    developer: 'Citadel Interactive',
+    gameUrl: 'games/city-builder/index.html'
   },
   {
     id: 'football-legends',

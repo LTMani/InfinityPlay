@@ -113,3 +113,25 @@
   }
 }
 
+
+@media (max-width: 768px) {
+  .battle-top-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .battle-destruction-card {
+    min-width: 100%;
+    order: 3;
+  }
+  .battle-bottom-tray {
+    max-width: 95%;
+    overflow-x: auto;
+  }
+  .unit-training-grid {
+    grid-template-columns: 1fr;
+  }
+  .world-node-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

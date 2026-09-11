@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>City Builder — InfinityPlay Strategy Games</title>
-  <meta name="description" content="Construct thriving medieval kingdoms and futuristic cities. Balance economy, resources, military, and world conquests in this deep strategy city builder.">
+  <meta name="description" content="Construct thriving medieval kingdoms and futuristic cities. Balance economy, resources, and expansion in this deep strategy city builder.">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="../../assets/logos/favicon.png">
@@ -28,10 +28,10 @@
   <div class="city-app-container">
     
     <!-- ======================================================================
-         1. TOP HUD RESOURCE BAR
+         1. TOP HUD RESOURCE & PROGRESSION BAR
          ====================================================================== -->
     <header class="city-top-hud">
-      <!-- Left: Exit & City Profile -->
+      <!-- Left: Exit, City Profile, Level, XP & Power -->
       <div class="hud-group">
         <div class="hud-brand-pill">
           <a href="../../index.html" class="btn-hud-exit" id="btnExitGame" title="Exit to InfinityPlay Platform">
@@ -40,10 +40,16 @@
           </a>
 
           <div class="hud-city-info">
-            <span class="hud-city-name" id="hudCityName">Metropolis</span>
-            <div class="hud-sub-info">
+            <div class="hud-city-top-row">
+              <span class="hud-city-name" id="hudCityName">Metropolis</span>
+              <span class="hud-player-level" id="hudPlayerLevel">Lv. 1</span>
+            </div>
+            <div class="hud-city-stats-row">
               <span class="hud-city-pop" id="hudPopulation">Pop: 50</span>
-              <span class="hud-city-power" id="hudCityPower" title="Empire City Power Rating">⚡ 280</span>
+              <span class="hud-city-power">⚔️ <strong id="hudCityPower">450</strong></span>
+            </div>
+            <div class="hud-xp-track" title="Experience to next Mayor Level">
+              <div class="hud-xp-fill" id="hudXpFill" style="width: 20%;"></div>
             </div>
           </div>
         </div>
@@ -53,12 +59,12 @@
       <div class="hud-group">
         <div class="hud-resources-pill">
           <!-- Gold -->
-          <div class="hud-res-item">
+          <div class="hud-res-item" title="Gold Coins: Used for construction, training and trade">
             <span class="hud-res-icon">🪙</span>
             <div class="hud-res-data">
               <div class="hud-res-num-row">
                 <span class="hud-res-val" id="res_gold_val">1,000</span>
-                <span class="hud-res-rate" id="res_gold_rate">+12/m</span>
+                <span class="hud-res-rate" id="res_gold_rate">+16/m</span>
               </div>
               <div class="hud-res-progress">
                 <div class="hud-res-progress-fill fill-gold" id="res_gold_bar" style="width: 20%;"></div>
@@ -67,12 +73,12 @@
           </div>
 
           <!-- Wood -->
-          <div class="hud-res-item">
+          <div class="hud-res-item" title="Timber: Core material for buildings and archers">
             <span class="hud-res-icon">🪵</span>
             <div class="hud-res-data">
               <div class="hud-res-num-row">
                 <span class="hud-res-val" id="res_wood_val">800</span>
-                <span class="hud-res-rate" id="res_wood_rate">+16/m</span>
+                <span class="hud-res-rate" id="res_wood_rate">+20/m</span>
               </div>
               <div class="hud-res-progress">
                 <div class="hud-res-progress-fill fill-wood" id="res_wood_bar" style="width: 20%;"></div>
@@ -81,12 +87,12 @@
           </div>
 
           <!-- Stone -->
-          <div class="hud-res-item">
+          <div class="hud-res-item" title="Quarried Stone: Essential for defenses, walls and heavy armor">
             <span class="hud-res-icon">🪨</span>
             <div class="hud-res-data">
               <div class="hud-res-num-row">
                 <span class="hud-res-val" id="res_stone_val">600</span>
-                <span class="hud-res-rate" id="res_stone_rate">+14/m</span>
+                <span class="hud-res-rate" id="res_stone_rate">+18/m</span>
               </div>
               <div class="hud-res-progress">
                 <div class="hud-res-progress-fill fill-stone" id="res_stone_bar" style="width: 15%;"></div>
@@ -95,12 +101,12 @@
           </div>
 
           <!-- Food -->
-          <div class="hud-res-item">
+          <div class="hud-res-item" title="Provisions: Nourishes citizens and recruits infantry">
             <span class="hud-res-icon">🌾</span>
             <div class="hud-res-data">
               <div class="hud-res-num-row">
                 <span class="hud-res-val" id="res_food_val">500</span>
-                <span class="hud-res-rate" id="res_food_rate">+20/m</span>
+                <span class="hud-res-rate" id="res_food_rate">+24/m</span>
               </div>
               <div class="hud-res-progress">
                 <div class="hud-res-progress-fill fill-food" id="res_food_bar" style="width: 12%;"></div>
@@ -110,14 +116,14 @@
         </div>
       </div>
 
-      <!-- Right: Gems & Quick Controls -->
+      <!-- Right: Premium Gems & Quick Controls -->
       <div class="hud-group">
-        <div class="hud-gems-pill" title="Premium Gems (For instant speedups & rare wonders)">
+        <div class="hud-gems-pill" title="Gems: Instant build/train speedups">
           <span>💎</span>
           <span id="resGemsVal">50</span>
         </div>
 
-        <button class="btn-hud-icon" id="btnCenterMap" title="Center on Town Hall">
+        <button class="btn-hud-icon" id="btnCenterMap" title="Center on Command Center">
           <span>🎯</span>
         </button>
 
@@ -132,7 +138,7 @@
          ====================================================================== -->
     <div class="placement-banner" id="placementBanner">
       <div class="placement-desc">
-        Constructing <strong id="placementBuildingName">Building</strong> — Click on an open green tile to place.
+        Constructing <strong id="placementBuildingName">Building</strong> — Click green tile to construct.
       </div>
       <button class="btn-cancel-placement" id="btnCancelPlacement">✕ Cancel</button>
     </div>
@@ -145,7 +151,48 @@
     </div>
 
     <!-- ======================================================================
-         4. BUILDING INSPECTOR DRAWER
+         4. TACTICAL REAL-TIME BATTLE HUD OVERLAY
+         ====================================================================== -->
+    <div class="battle-hud-overlay" id="battleHudOverlay">
+      <!-- Top Battle Status Bar -->
+      <div class="battle-top-bar">
+        <div class="battle-target-info">
+          <span class="battle-target-badge">CAMPAIGN ASSAULT</span>
+          <h2 class="battle-target-name" id="battleNodeName">Whispering Glade</h2>
+        </div>
+
+        <div class="battle-destruction-card">
+          <div class="battle-destruction-header">
+            <span>DESTRUCTION</span>
+            <strong id="battleDestructionPercent">0%</strong>
+          </div>
+          <div class="battle-destruction-track">
+            <div class="battle-destruction-fill" id="battleDestructionFill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="battle-controls">
+          <button class="btn-battle-retreat" id="btnBattleRetreat" title="Retreat forces back to city">
+            🏳️ Retreat
+          </button>
+        </div>
+      </div>
+
+      <!-- Instruction Banner -->
+      <div class="battle-deploy-banner">
+        <span>⚔️ Select a unit below and click anywhere on the green outer perimeter to deploy troops!</span>
+      </div>
+
+      <!-- Bottom Unit Deployment Tray -->
+      <div class="battle-bottom-tray">
+        <div class="battle-deploy-list" id="battleDeployUnitsContainer">
+          <!-- Dynamic Unit Deploy Cards -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         5. BUILDING INSPECTOR DRAWER
          ====================================================================== -->
     <aside class="inspector-drawer" id="buildingInspectorDrawer">
       <div class="inspector-header">
@@ -178,27 +225,27 @@
     </aside>
 
     <!-- ======================================================================
-         5. BOTTOM ACTION DOCK
+         6. BOTTOM ACTION DOCK
          ====================================================================== -->
     <footer class="city-bottom-dock">
-      <button class="dock-btn primary-dock" id="btnDockBuild" title="Open Building Catalog">
+      <button class="dock-btn primary-dock" id="btnDockBuild" title="Open Architectural Catalog">
         <span class="dock-btn-icon">🏗️</span>
         <span class="dock-btn-label">BUILD</span>
       </button>
 
-      <button class="dock-btn" id="btnDockArmy" title="Recruit Troops & Military Command">
+      <button class="dock-btn" id="btnDockArmy" title="Troop Recruitment & Training Queue">
         <span class="dock-btn-icon">⚔️</span>
         <span class="dock-btn-label">ARMY</span>
       </button>
 
-      <button class="dock-btn" id="btnDockWorld" title="World Map & AI Battles">
+      <button class="dock-btn" id="btnDockWorld" title="Campaign Map & Stronghold Battles">
         <span class="dock-btn-icon">🗺️</span>
         <span class="dock-btn-label">WORLD</span>
       </button>
 
-      <button class="dock-btn" id="btnDockResearch" title="Academy of Science Research">
+      <button class="dock-btn" id="btnDockResearch" title="Academy of Science Tech Tree">
         <span class="dock-btn-icon">🔬</span>
-        <span class="dock-btn-label">RESEARCH</span>
+        <span class="dock-btn-label">TECH</span>
       </button>
 
       <button class="dock-btn" id="btnDockMarket" title="Grand Bazaar Resource Exchange">
@@ -206,19 +253,19 @@
         <span class="dock-btn-label">MARKET</span>
       </button>
 
-      <button class="dock-btn" id="btnDockRankings" title="Rankings & Daily Missions">
+      <button class="dock-btn" id="btnDockQuests" title="Daily Missions, Achievements & Leaderboards">
         <span class="dock-btn-icon">🏆</span>
-        <span class="dock-btn-label">RANKINGS</span>
+        <span class="dock-btn-label">MISSIONS</span>
       </button>
     </footer>
 
     <!-- ======================================================================
-         6. MODALS
+         7. GAME MODALS
          ====================================================================== -->
 
     <!-- A. Build Menu Modal -->
     <div class="city-modal-overlay" id="buildModal">
-      <div class="city-modal-box" style="max-width: 780px;">
+      <div class="city-modal-box">
         <div class="city-modal-header">
           <div class="city-modal-title">
             <span>🏗️</span>
@@ -244,13 +291,13 @@
       </div>
     </div>
 
-    <!-- B. Army Barracks & Troop Training Modal -->
+    <!-- B. Army Training Grounds Modal -->
     <div class="city-modal-overlay" id="armyModal">
-      <div class="city-modal-box" style="max-width: 740px;">
+      <div class="city-modal-box" style="max-width: 820px;">
         <div class="city-modal-header">
           <div class="city-modal-title">
             <span>⚔️</span>
-            <span>War Command & Troop Barracks</span>
+            <span>Training Grounds — Military Recruitment</span>
           </div>
           <button class="inspector-close-btn city-modal-close">✕</button>
         </div>
@@ -261,43 +308,26 @@
       </div>
     </div>
 
-    <!-- C. World Map Campaign Modal -->
-    <div class="city-modal-overlay" id="worldModal">
-      <div class="city-modal-box" style="max-width: 820px;">
+    <!-- C. World Campaign Map Modal -->
+    <div class="city-modal-overlay" id="worldMapModal">
+      <div class="city-modal-box" style="max-width: 860px;">
         <div class="city-modal-header">
           <div class="city-modal-title">
             <span>🗺️</span>
-            <span>World Map — Frontier Expeditions</span>
+            <span>World Campaign — Strongholds of the Realm</span>
           </div>
           <button class="inspector-close-btn city-modal-close">✕</button>
         </div>
 
-        <div class="city-modal-body" id="worldModalBody">
+        <div class="city-modal-body" id="worldMapModalBody">
           <!-- Rendered by CityApp -->
         </div>
       </div>
     </div>
 
-    <!-- D. Tactical Battle Report Modal -->
-    <div class="city-modal-overlay" id="battleModal">
-      <div class="city-modal-box" style="max-width: 540px;">
-        <div class="city-modal-header">
-          <div class="city-modal-title" id="battleModalTitle">
-            <span>⚔️</span>
-            <span>Battle Results</span>
-          </div>
-          <button class="inspector-close-btn city-modal-close">✕</button>
-        </div>
-
-        <div class="city-modal-body" id="battleModalBody">
-          <!-- Rendered by CityApp -->
-        </div>
-      </div>
-    </div>
-
-    <!-- E. Grand Bazaar Market Modal -->
+    <!-- D. Grand Bazaar Market Modal -->
     <div class="city-modal-overlay" id="marketModal">
-      <div class="city-modal-box" style="max-width: 540px;">
+      <div class="city-modal-box" style="max-width: 560px;">
         <div class="city-modal-header">
           <div class="city-modal-title">
             <span>⚖️</span>
@@ -312,9 +342,9 @@
       </div>
     </div>
 
-    <!-- F. Academy of Science Research Modal -->
+    <!-- E. Academy of Science Research Modal -->
     <div class="city-modal-overlay" id="researchModal">
-      <div class="city-modal-box">
+      <div class="city-modal-box" style="max-width: 780px;">
         <div class="city-modal-header">
           <div class="city-modal-title">
             <span>🔬</span>
@@ -329,25 +359,28 @@
       </div>
     </div>
 
-    <!-- G. Rankings & Daily Missions Modal -->
-    <div class="city-modal-overlay" id="rankingsModal">
-      <div class="city-modal-box" style="max-width: 600px;">
+    <!-- F. Quests, Missions & Leaderboard Modal -->
+    <div class="city-modal-overlay" id="questsModal">
+      <div class="city-modal-box" style="max-width: 720px;">
         <div class="city-modal-header">
           <div class="city-modal-title">
             <span>🏆</span>
-            <span>Empire Hall of Fame & Daily Missions</span>
+            <span>Empire Missions & Milestones</span>
           </div>
           <button class="inspector-close-btn city-modal-close">✕</button>
         </div>
 
-        <div class="city-modal-body">
-          <div class="build-tabs" style="margin-bottom: 16px;">
-            <button class="build-tab-btn rank-tab-btn active" data-tab="missions">Daily Missions</button>
-            <button class="build-tab-btn rank-tab-btn" data-tab="leaderboard">Empire Rankings</button>
-          </div>
-          <div id="rankingsModalBody">
-            <!-- Rendered by CityApp -->
-          </div>
+        <div class="city-modal-body" id="questsModalBody">
+          <!-- Rendered by CityApp -->
+        </div>
+      </div>
+    </div>
+
+    <!-- G. Battle Results Modal -->
+    <div class="city-modal-overlay" id="battleResultModal">
+      <div class="city-modal-box" style="max-width: 520px;">
+        <div class="city-modal-body" id="battleResultModalBody">
+          <!-- Rendered by CityApp -->
         </div>
       </div>
     </div>
@@ -365,7 +398,7 @@
 
         <div class="city-modal-body">
           <div id="offlineModalBody"></div>
-          <button class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;" onclick="CityApp.game.closeAllDrawers()">
+          <button class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 14px;" onclick="CityApp.game.closeAllDrawers()">
             Claim Resources & Enter City
           </button>
         </div>
