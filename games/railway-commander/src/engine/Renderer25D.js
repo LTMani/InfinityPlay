@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Railway Commander - 2.5D Perspective Railway Renderer
  * Renders pseudo-3D perspective railway tracks, ballast, ties, catenary wires,
  * 3D station platforms, stop markers, 3-aspect optical signals with bloom,
@@ -42,8 +42,10 @@ export class Renderer25D {
   resize() {
     const rect = this.canvas.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    this.canvas.width = Math.floor(rect.width * dpr);
-    this.canvas.height = Math.floor(rect.height * dpr);
+    const cssW = (rect.width > 0 ? rect.width : window.innerWidth) || 800;
+    const cssH = (rect.height > 0 ? rect.height : window.innerHeight) || 600;
+    this.canvas.width = Math.floor(cssW * dpr);
+    this.canvas.height = Math.floor(cssH * dpr);
     this.width = this.canvas.width;
     this.height = this.canvas.height;
   }
