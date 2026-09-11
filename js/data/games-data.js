@@ -193,6 +193,21 @@ const gamesData = [
     releaseDate: '2026-09-10',
     developer: 'InfinityPlay',
     gameUrl: 'games/chess/index.html'
+  },
+  {
+    id: "memory-match",
+    name: "Memory Match",
+    category: "Puzzle",
+    rating: 4.8,
+    plays: 0,
+    tags: [
+        "Puzzle",
+        "Memory",
+        "Casual"
+    ],
+    developer: "InfinityPlay Studios",
+    thumbnail: "assets/games/thumb_memory_match.jpg",
+    gameUrl: "games/memory-match/index.html"
   }
 ];
 
