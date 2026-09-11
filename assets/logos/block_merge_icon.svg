@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <filter id="iconGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <linearGradient id="iconGrad2048" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+
+    <linearGradient id="iconGradBoard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#11182d"/>
+      <stop offset="100%" stop-color="#080c18"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded App Icon Background -->
+  <rect x="4" y="4" width="92" height="92" rx="22" fill="url(#iconGradBoard)" stroke="rgba(0, 240, 255, 0.4)" stroke-width="2" filter="url(#iconGlow)"/>
+
+  <!-- Mini 2x2 Grid Layout -->
+  <!-- Top Left: 2 -->
+  <rect x="16" y="16" width="30" height="30" rx="7" fill="#1e293b" stroke="#334155" stroke-width="1.2"/>
+  <text x="31" y="37" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="800" text-anchor="middle">2</text>
+
+  <!-- Top Right: 4 -->
+  <rect x="54" y="16" width="30" height="30" rx="7" fill="#0e7490" stroke="#06b6d4" stroke-width="1.2"/>
+  <text x="69" y="37" fill="#ecfeff" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="800" text-anchor="middle">4</text>
+
+  <!-- Bottom: Merged 2048 Block -->
+  <g filter="url(#iconGlow)">
+    <rect x="16" y="52" width="68" height="32" rx="8" fill="url(#iconGrad2048)" stroke="#ffffff" stroke-width="1.5"/>
+    <text x="50" y="74" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="900" text-anchor="middle" letter-spacing="0.5">2048</text>
+  </g>
+</svg>

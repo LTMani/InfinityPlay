@@ -11,6 +11,7 @@
       this.bindKeyboardShortcut();
       this.bindMyGamesButton();
       this.bindBrandLogo();
+      this.bindBlockMergeLogo();
     },
 
     bindSidebarToggle() {
@@ -103,6 +104,35 @@
           }
           window.scrollTo({ top: 0, behavior: 'smooth' });
         });
+      }
+    },
+
+    bindBlockMergeLogo() {
+      const launchBlockMerge = (e) => {
+        e.preventDefault();
+        const games = (window.InfinityPlay && window.InfinityPlay.gamesData) || [];
+        const game = games.find(g => g.id === 'block-merge') || {
+          id: 'block-merge',
+          name: 'Block Merge',
+          gameUrl: 'games/block-merge/index.html',
+          playMode: 'embed'
+        };
+
+        if (window.InfinityPlay && window.InfinityPlay.App && typeof window.InfinityPlay.App.launchEmbeddedGame === 'function') {
+          window.InfinityPlay.App.launchEmbeddedGame(game);
+        } else {
+          window.location.href = 'games/block-merge/index.html';
+        }
+      };
+
+      const headerLogo = document.getElementById('headerBlockMergeLogo');
+      if (headerLogo) {
+        headerLogo.addEventListener('click', launchBlockMerge);
+      }
+
+      const sidebarBtn = document.getElementById('sidebarBlockMergeBtn');
+      if (sidebarBtn) {
+        sidebarBtn.addEventListener('click', launchBlockMerge);
       }
     }
   };

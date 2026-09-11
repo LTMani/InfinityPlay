@@ -81,3 +81,4 @@ Expected output:
    - Select **BLOCK MERGE** from the **Puzzle** category.
 2. **Standalone**:
    - Double-click `start-game.bat` or open `games/block-merge/index.html` directly.
+

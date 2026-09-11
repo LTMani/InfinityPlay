@@ -5,3 +5,4 @@ echo  Initializing BLOCK MERGE Puzzle Game...
 echo ========================================================
 start "" "%~dp0index.html"
 exit
+
