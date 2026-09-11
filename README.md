@@ -114,6 +114,11 @@ Anyone on any smartphone, tablet, laptop, or desktop browser can instantly open 
    - Economy balancing, infrastructure, defense towers, and citizen happiness
 7. **Memory Match** (Puzzle • ★ 4.8 • 3.5K Plays • **Playable Memory Game**)
    - Multi-grid visual pattern matching and brain training
+8. **Block Merge** (Puzzle • ★ 5.0 • 16.5K Plays • **Playable 2048 Number Merge Puzzle**)
+   - Exact 2048 directional compression & single-merge rule implementation
+   - 1-move undo system & continuous local auto-save / resume modal
+   - Procedural Web Audio API sound synthesis (swooshes, chords, pitch-scaled merge chimes)
+   - Responsive 4×4 grid layout with touch swipe gestures & mobile scroll prevention
 
 ### 🌟 Showcase Titles:
 8. **Shadow Adventure** (Adventure • ★ 4.7 • 8.1K Plays)

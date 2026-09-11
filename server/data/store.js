@@ -252,6 +252,25 @@ const games = [
     developer: 'InfinityPlay Studios',
     gameUrl: 'games/pseudoko/index.html',
     playMode: 'embed'
+  },
+  {
+    id: 'block-merge',
+    name: 'Block Merge',
+    category: 'Puzzle',
+    rating: 5.0,
+    plays: 16500,
+    playsFormatted: '16.5K',
+    rank: null,
+    badge: 'HOT',
+    isTop: false,
+    thumbnail: 'assets/games/thumb_block_merge.svg',
+    topThumbnail: 'assets/games/top_block_merge.svg',
+    description: 'Slide matching blocks to merge numbers, score massive points, and reach the legendary 2048 tile and beyond. Features snappy animations, 1-step undo, sound synthesis, and touch gestures.',
+    tags: ['Puzzle', '2048', 'Brain Teaser', 'Logic', 'Casual'],
+    releaseDate: '2026-09-11',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/block-merge/index.html',
+    playMode: 'embed'
   }
 ];
 
