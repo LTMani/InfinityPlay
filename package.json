@@ -1,0 +1,21 @@
+﻿{
+  "name": "infinityplay",
+  "version": "1.0.0",
+  "description": "One Platform. Infinite Play. - Modern Multi-Game Gaming Platform",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js"
+  },
+  "keywords": [
+    "gaming",
+    "dashboard",
+    "html5",
+    "css3",
+    "vanilla-js",
+    "nodejs",
+    "api"
+  ],
+  "author": "LTMani",
+  "license": "MIT"
+}

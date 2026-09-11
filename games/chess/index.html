@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess Grandmaster — InfinityPlay Strategy Games</title>
+  <meta name="description" content="Play production-quality Chess online. Single Player with 4 adaptive AI levels, real-time multiplayer with matchmaking and private rooms, daily tactical puzzles, and match replay.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../../assets/logos/favicon.png">
+  <link rel="shortcut icon" href="../../favicon.ico">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- InfinityPlay Design Tokens & Global CSS -->
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/reset.css">
+  
+  <!-- Chess Specific Stylesheets -->
+  <link rel="stylesheet" href="css/chess-board.css">
+  <link rel="stylesheet" href="css/chess-ui.css">
+  <link rel="stylesheet" href="css/chess-responsive.css">
+</head>
+<body class="chess-game-body">
+
+  <div class="chess-app-layout">
+    
+    <!-- ======================================================================
+         1. TOP NAVIGATION HEADER
+         ====================================================================== -->
+    <header class="chess-nav-header">
+      <div class="chess-nav-left">
+        <a href="../../index.html" class="btn-back-dashboard" id="btnExitGame" title="Exit to InfinityPlay Platform">
+          <span>⮌</span>
+          <span>InfinityPlay</span>
+        </a>
+
+        <div class="chess-brand-title">
+          <span class="chess-brand-icon">♞</span>
+          <span class="chess-brand-text">Chess Grandmaster</span>
+          <span class="chess-brand-badge">Strategy</span>
+        </div>
+      </div>
+
+      <div class="chess-nav-right">
+        <button class="nav-action-btn btn-glow-cyan" id="btnOpenMultiplayerModal" title="Play Online Multiplayer">
+          <span>🌐</span>
+          <span>Multiplayer</span>
+        </button>
+
+        <button class="nav-action-btn" id="btnOpenSettings" title="Game Settings & Themes">
+          <span>⚙</span>
+          <span>Settings</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ======================================================================
+         2. MAIN ARENA (CHESSBOARD & SIDE PANEL)
+         ====================================================================== -->
+    <main class="chess-arena-container">
+      
+      <!-- LEFT COLUMN: HUD & BOARD -->
+      <section class="chess-board-column">
+        
+        <!-- Top Player Card (Opponent / AI) -->
+        <div class="player-hud-card" id="playerCardBlack">
+          <div class="player-hud-left">
+            <div class="player-hud-avatar" id="blackPlayerAvatar">🤖</div>
+            <div class="player-hud-info">
+              <div class="player-hud-name" id="blackPlayerName">
+                MEDIUM AI
+              </div>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span class="player-hud-elo" id="blackPlayerElo">1450 ELO</span>
+                <div class="captured-tray" id="blackCapturedTray"></div>
+                <span class="advantage-badge" id="blackAdvantageBadge" style="display:none;">+0</span>
+              </div>
+            </div>
+          </div>
+          <div class="player-timer" id="blackTimerDisplay">10:00</div>
+        </div>
+
+        <!-- AI Thinking Indicator Bar -->
+        <div class="ai-thinking-bar" id="aiThinkingIndicator">
+          <div class="ai-spinner"></div>
+          <span id="aiThinkingText">AI is calculating optimal strategy...</span>
+        </div>
+
+        <!-- The Responsive Chessboard Container -->
+        <div id="chessBoardContainer"></div>
+
+        <!-- Bottom Player Card (You / White) -->
+        <div class="player-hud-card active-turn" id="playerCardWhite">
+          <div class="player-hud-left">
+            <div class="player-hud-avatar" id="whitePlayerAvatar">T</div>
+            <div class="player-hud-info">
+              <div class="player-hud-name" id="whitePlayerName">
+                Tharun
+              </div>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span class="player-hud-elo" id="whitePlayerElo">2150 ELO</span>
+                <div class="captured-tray" id="whiteCapturedTray"></div>
+                <span class="advantage-badge" id="whiteAdvantageBadge" style="display:none;">+0</span>
+              </div>
+            </div>
+          </div>
+          <div class="player-timer" id="whiteTimerDisplay">10:00</div>
+        </div>
+
+        <!-- Action Controls Bar -->
+        <div class="chess-controls-bar">
+          <button class="control-btn btn-primary-action" id="btnNewGame" title="Start New Match">
+            <span>▶</span>
+            <span>New Game</span>
+          </button>
+          <button class="control-btn" id="btnUndo" title="Undo Move (Single Player)">
+            <span>↺</span>
+            <span>Undo</span>
+          </button>
+          <button class="control-btn" id="btnDraw" title="Offer Draw">
+            <span>🤝</span>
+            <span>Offer Draw</span>
+          </button>
+          <button class="control-btn" id="btnResign" title="Resign Game">
+            <span>🏳</span>
+            <span>Resign</span>
+          </button>
+          <button class="control-btn" id="btnFlip" title="Flip Board Orientation">
+            <span>🔄</span>
+            <span>Flip</span>
+          </button>
+        </div>
+
+        <!-- Difficulty Pills Selector -->
+        <div class="filter-pills-row">
+          <span style="font-size:0.74rem; font-weight:800; color:var(--text-muted); margin-right:4px;">AI LEVEL:</span>
+          <button class="diff-btn" data-difficulty="easy">Easy (950)</button>
+          <button class="diff-btn active" data-difficulty="medium">Medium (1450)</button>
+          <button class="diff-btn" data-difficulty="hard">Hard (1850)</button>
+          <button class="diff-btn" data-difficulty="expert">Expert (2250)</button>
+        </div>
+
+        <!-- Time Control Pills Selector -->
+        <div class="filter-pills-row" style="margin-top:2px;">
+          <span style="font-size:0.74rem; font-weight:800; color:var(--text-muted); margin-right:4px;">CLOCK:</span>
+          <button class="tc-btn" data-tc="bullet_1">1m Bullet</button>
+          <button class="tc-btn" data-tc="blitz_3">3m Blitz</button>
+          <button class="tc-btn" data-tc="blitz_5">5m Blitz</button>
+          <button class="tc-btn active" data-tc="rapid_10">10m Rapid</button>
+          <button class="tc-btn" data-tc="rapid_15">15m Rapid</button>
+          <button class="tc-btn" data-tc="classical_30">30m Classic</button>
+        </div>
+
+      </section>
+
+      <!-- RIGHT COLUMN: INTERACTIVE TABS & PANELS -->
+      <aside class="chess-side-panel">
+        
+        <!-- Tab Navigation Bar -->
+        <div class="side-tabs-header">
+          <button class="side-tab-btn active" data-tab="moves">
+            <span>♟</span>
+            <span>Moves</span>
+          </button>
+          <button class="side-tab-btn" data-tab="multiplayer">
+            <span>💬</span>
+            <span>Chat &amp; Room</span>
+          </button>
+          <button class="side-tab-btn" data-tab="puzzle">
+            <span>🧩</span>
+            <span>Daily Puzzle</span>
+          </button>
+          <button class="side-tab-btn" data-tab="replay">
+            <span>🎬</span>
+            <span>Replay</span>
+          </button>
+          <button class="side-tab-btn" data-tab="leaderboard">
+            <span>🏆</span>
+            <span>Ranks</span>
+          </button>
+        </div>
+
+        <!-- TAB 1: MOVES HISTORY -->
+        <div class="tab-panel active" id="tabPanel_moves">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <strong style="font-size:0.86rem; color:#ffffff;">Match Move History</strong>
+            <button class="control-btn" id="copyFenBtn" style="padding:4px 8px; font-size:0.72rem;">Copy FEN</button>
+          </div>
+          <div class="move-history-table" id="moveHistoryList">
+            <div class="empty-history">Game started. Waiting for first move...</div>
+          </div>
+        </div>
+
+        <!-- TAB 2: MULTIPLAYER & CHAT -->
+        <div class="tab-panel" id="tabPanel_multiplayer">
+          <!-- Room Status Card -->
+          <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:10px; padding:12px; margin-bottom:12px;">
+            <div style="font-size:0.72rem; font-weight:700; color:var(--color-cyan); text-transform:uppercase; margin-bottom:6px;">
+              Active Room Info
+            </div>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="shareRoomCodeInput" value="NOT IN ROOM" readonly style="background:var(--bg-input); border:1px solid var(--border-subtle); border-radius:6px; color:#ffffff; font-weight:800; font-size:0.85rem; padding:6px 10px; flex:1;">
+              <button class="control-btn" id="copyRoomCodeBtn" style="padding:6px 12px;">Copy</button>
+            </div>
+          </div>
+
+          <!-- Chat Messages Container -->
+          <div class="chat-messages-container" id="chatMessagesContainer">
+            <div class="chat-msg system-msg">
+              <span class="chat-body">Welcome to real-time multiplayer chess! Chat with your opponent or send emojis below.</span>
+            </div>
+          </div>
+
+          <!-- Quick Emoji Row -->
+          <div class="quick-emojis-row">
+            <button class="quick-emoji-btn" title="Thumbs Up">👍</button>
+            <button class="quick-emoji-btn" title="Clapping">👏</button>
+            <button class="quick-emoji-btn" title="Big Brain">🧠</button>
+            <button class="quick-emoji-btn" title="Battle">⚔</button>
+            <button class="quick-emoji-btn" title="Fire">🔥</button>
+            <button class="quick-emoji-btn" title="Crown">👑</button>
+            <button class="quick-emoji-btn" title="Thinking">🤔</button>
+          </div>
+
+          <!-- Quick Chat Phrases -->
+          <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:6px;">
+            <button class="control-btn quick-chat-phrase" style="padding:3px 8px; font-size:0.7rem;">Good luck!</button>
+            <button class="control-btn quick-chat-phrase" style="padding:3px 8px; font-size:0.7rem;">Well played!</button>
+            <button class="control-btn quick-chat-phrase" style="padding:3px 8px; font-size:0.7rem;">Good game!</button>
+          </div>
+
+          <!-- Chat Input -->
+          <div class="chat-input-wrapper">
+            <input type="text" class="chat-text-input" id="chatTextInput" placeholder="Type a message..." maxlength="120">
+            <button class="control-btn btn-primary-action" id="chatSendBtn" style="padding:8px 14px;">Send</button>
+          </div>
+        </div>
+
+        <!-- TAB 3: DAILY PUZZLE -->
+        <div class="tab-panel" id="tabPanel_puzzle">
+          <div class="puzzle-card-header">
+            <div class="puzzle-title" id="puzzleTitle">The Royal Knight Fork</div>
+            <div class="puzzle-desc" id="puzzleDesc">Find the devastating knight fork that regains material with advantage.</div>
+            <div class="puzzle-hint-box" id="puzzleHintText"></div>
+          </div>
+
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button class="control-btn btn-primary-action" id="puzzleHintBtn" style="flex:1;">
+              <span>💡</span>
+              <span>Get Tactical Hint</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB 4: REPLAY & ANALYSIS -->
+        <div class="tab-panel" id="tabPanel_replay">
+          <div class="replay-controls-box">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-size:0.86rem; color:#ffffff;">Move Analysis</strong>
+              <span style="font-size:0.76rem; color:var(--color-cyan); font-weight:700;" id="replayMoveCounter">Move 0 / 0</span>
+            </div>
+
+            <div class="replay-nav-row">
+              <button class="replay-btn" id="replayFirstBtn" title="First Move">|◀</button>
+              <button class="replay-btn" id="replayPrevBtn" title="Previous Move">◀</button>
+              <button class="replay-btn" id="replayPlayPauseBtn" title="Auto Play / Pause">▶ Play</button>
+              <button class="replay-btn" id="replayNextBtn" title="Next Move">▶</button>
+              <button class="replay-btn" id="replayLastBtn" title="Last Move">▶|</button>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <button class="control-btn btn-primary-action" id="copyPgnBtn" style="flex:1;">
+              <span>📋</span>
+              <span>Copy PGN</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB 5: LEADERBOARD -->
+        <div class="tab-panel" id="tabPanel_leaderboard">
+          <div style="margin-bottom:12px;">
+            <strong style="font-size:0.88rem; color:#ffffff;">Global Chess Leaderboard</strong>
+            <p style="font-size:0.74rem; color:var(--text-muted); margin-top:2px;">Top ranked players on InfinityPlay</p>
+          </div>
+          <div id="chessLeaderboardContainer"></div>
+        </div>
+
+      </aside>
+
+    </main>
+
+  </div>
+
+
+  <!-- ==========================================================================
+       MODALS
+       ========================================================================== -->
+
+  <!-- 1. PAWN PROMOTION MODAL -->
+  <div class="modal-overlay" id="promotionModal">
+    <div class="modal-card" style="max-width:380px; text-align:center;">
+      <h3 style="font-size:1.3rem; font-weight:800; color:#ffffff; margin:0;">Pawn Promotion</h3>
+      <p style="font-size:0.82rem; color:var(--text-secondary); margin-top:4px;">Choose your promoted piece:</p>
+      <div class="promo-choices"></div>
+    </div>
+  </div>
+
+  <!-- 2. GAME OVER MODAL -->
+  <div class="modal-overlay" id="gameOverModal">
+    <div class="modal-card" style="text-align:center;">
+      <button class="modal-close-btn">&times;</button>
+      <div class="game-over-header">
+        <div style="font-size:2.8rem; margin-bottom:8px;">👑</div>
+        <h2 class="game-over-title" id="gameOverTitle">VICTORY!</h2>
+        <div class="game-over-subtitle" id="gameOverSubtitle">Outstanding tactical strategy</div>
+        <div style="margin-top:10px; font-size:0.8rem; color:var(--text-muted);" id="gameOverReason">Result: CHECKMATE</div>
+        <div class="elo-change-badge gain" id="gameOverEloChange">+16 ELO</div>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:20px;">
+        <button class="control-btn btn-primary-action" id="gameOverRematchBtn" style="flex:1; padding:12px;">
+          <span>⚔</span>
+          <span>Rematch</span>
+        </button>
+        <button class="control-btn" id="gameOverNewBtn" style="flex:1; padding:12px;">
+          <span>▶</span>
+          <span>New Game</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. DRAW OFFER PROMPT MODAL -->
+  <div class="modal-overlay" id="drawOfferModal">
+    <div class="modal-card" style="text-align:center;">
+      <h3 style="font-size:1.25rem; font-weight:800; color:#ffffff; margin:0;">Draw Offer</h3>
+      <p class="draw-offer-text" style="font-size:0.85rem; color:var(--text-secondary); margin-top:8px; line-height:1.4;">
+        Your opponent has offered a draw.
+      </p>
+      <div style="display:flex; gap:10px; margin-top:18px;">
+        <button class="control-btn btn-primary-action" id="drawAcceptBtn" style="flex:1; padding:10px;">Accept Draw</button>
+        <button class="control-btn" id="drawDeclineBtn" style="flex:1; padding:10px; color:#f87171;">Decline</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. MULTIPLAYER ROOM SETUP MODAL -->
+  <div class="modal-overlay" id="multiplayerModal">
+    <div class="modal-card" style="max-width:440px;">
+      <button class="modal-close-btn">&times;</button>
+      <div style="text-align:center; margin-bottom:18px;">
+        <div style="font-size:2rem; margin-bottom:6px;">🌐</div>
+        <h3 style="font-size:1.35rem; font-weight:800; color:#ffffff; margin:0;">Online Multiplayer</h3>
+        <p style="font-size:0.82rem; color:var(--text-secondary); margin-top:4px;">Compete live against players worldwide</p>
+      </div>
+
+      <!-- Quick Matchmaking -->
+      <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:12px; padding:16px; margin-bottom:14px; text-align:center;">
+        <div style="font-size:0.85rem; font-weight:700; color:#ffffff; margin-bottom:6px;">Instant Matchmaking</div>
+        <p style="font-size:0.76rem; color:var(--text-muted); margin-bottom:12px;">Get matched with an opponent of similar skill rating</p>
+        <button class="control-btn btn-primary-action" id="btnStartMatchmaking" style="width:100%; padding:10px; justify-content:center;">
+          <span>⚡</span>
+          <span>Find Match Now</span>
+        </button>
+      </div>
+
+      <!-- Private Room Creation & Join -->
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button class="control-btn" id="btnCreatePrivateRoom" style="padding:10px; justify-content:center; background:rgba(139,92,246,0.15); border-color:rgba(139,92,246,0.35); color:#c4b5fd;">
+          <span>➕</span>
+          <span>Create Private Room</span>
+        </button>
+
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="joinRoomCodeInput" placeholder="Enter Room Code (e.g. KNG-739)" style="flex:1; background:var(--bg-input); border:1px solid var(--border-subtle); border-radius:8px; padding:8px 12px; color:#ffffff; font-size:0.85rem; text-transform:uppercase;">
+          <button class="control-btn btn-primary-action" id="btnJoinRoomSubmit" style="padding:8px 16px;">Join</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. SETTINGS & THEMES MODAL -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-card">
+      <button class="modal-close-btn">&times;</button>
+      <h3 style="font-size:1.3rem; font-weight:800; color:#ffffff; margin:0 0 16px 0;">Chess Settings &amp; Themes</h3>
+
+      <!-- Board Themes -->
+      <div style="margin-bottom:16px;">
+        <label style="font-size:0.8rem; font-weight:700; color:var(--color-cyan); text-transform:uppercase; letter-spacing:0.05em;">
+          Board Visual Theme
+        </label>
+        <div class="theme-picker-row">
+          <div class="theme-dot active" data-theme="cyber" style="background:linear-gradient(135deg,#0c1222,#1a2540);" title="Cyber Neon"></div>
+          <div class="theme-dot" data-theme="wood" style="background:linear-gradient(135deg,#b58863,#f0d9b5);" title="Classic Wood"></div>
+          <div class="theme-dot" data-theme="slate" style="background:linear-gradient(135deg,#1e293b,#475569);" title="Midnight Slate"></div>
+          <div class="theme-dot" data-theme="emerald" style="background:linear-gradient(135deg,#769656,#eeeed2);" title="Emerald Tournament"></div>
+          <div class="theme-dot" data-theme="glass" style="background:linear-gradient(135deg,#162035,#243354);" title="Glass Frost"></div>
+        </div>
+      </div>
+
+      <!-- Sound FX Toggle -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-top:1px solid var(--border-subtle);">
+        <div>
+          <strong style="color:#ffffff; font-size:0.88rem; display:block;">Audio Sound Effects (SFX)</strong>
+          <span style="font-size:0.76rem; color:var(--text-muted);">Procedural sound cues for moves, checks, and timers</span>
+        </div>
+        <input type="checkbox" id="soundToggleInput" checked style="width:18px; height:18px; cursor:pointer;">
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       SCRIPTS LOADING
+       ========================================================================== -->
+  <!-- 1. Rules Engine -->
+  <script src="js/engine/chess-rules.js"></script>
+
+  <!-- 2. AI Engine -->
+  <script src="js/engine/chess-ai.js"></script>
+
+  <!-- 3. Web Audio Synthesizer -->
+  <script src="js/engine/chess-audio.js"></script>
+
+  <!-- 4. Real-time Multiplayer Socket & SSE Client -->
+  <script src="js/multiplayer/chess-socket.js"></script>
+
+  <!-- 5. Features -->
+  <script src="js/features/chess-stats.js"></script>
+  <script src="js/features/chess-puzzles.js"></script>
+  <script src="js/features/chess-replay.js"></script>
+
+  <!-- 6. UI & Board Components -->
+  <script src="js/ui/chess-board.js"></script>
+  <script src="js/ui/chess-ui.js"></script>
+
+  <!-- 7. Master Application Coordinator -->
+  <script src="js/chess-app.js"></script>
+
+</body>
+</html>
+

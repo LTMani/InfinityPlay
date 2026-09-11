@@ -1,0 +1,102 @@
+﻿/**
+ * InfinityPlay - Left Sidebar Navigation
+ */
+.sidebar-nav-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sidebar-heading {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #55627a;
+  padding: 8px 12px 4px 12px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  user-select: none;
+}
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.nav-link.active {
+  background: var(--gradient-active-nav);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45);
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  font-size: 1.05rem;
+  color: inherit;
+}
+
+/* Bottom Promo Card */
+.sidebar-promo-card {
+  background: linear-gradient(180deg, #101526 0%, #0c101d 100%);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: var(--radius-md);
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  margin-top: 16px;
+}
+
+.promo-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.promo-subtitle {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.btn-sidebar-signin {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--gradient-btn-primary);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 3px 12px rgba(59, 130, 246, 0.35);
+  transition: all var(--transition-base);
+}
+.btn-sidebar-signin:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.15);
+  box-shadow: 0 5px 18px rgba(0, 240, 255, 0.5);
+}

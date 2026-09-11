@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bus Simulator - InfinityPlay</title>
+  <link rel="stylesheet" href="css/game-ui.css">
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="bus-loading" id="busLoadingScreen">
+    <div class="bus-loading-content">
+      <div class="bus-spinner"></div>
+      <div class="bus-loading-text">Loading South Indian Bus Simulator...</div>
+      <div class="bus-loading-subtext">Andhra Pradesh &amp; Telangana</div>
+    </div>
+  </div>
+
+  <!-- Game Canvas -->
+  <canvas id="game-canvas" width="1280" height="720"></canvas>
+
+  <!-- UI Canvas (overlays on top of game) -->
+  <canvas id="ui-canvas" width="1280" height="720"></canvas>
+
+  <!-- HTML UI Overlay -->
+  <div class="bus-ui-overlay" id="bus-ui-overlay"></div>
+
+  <!-- Scripts Loading Order (matches engine dependency hierarchy) -->
+
+  <!-- 1. Engine Core -->
+  <script src="js/engine/EventManager.js"></script>
+  <script src="js/engine/InputManager.js"></script>
+  <script src="js/engine/AssetLoader.js"></script>
+  <script src="js/engine/Renderer.js"></script>
+  <script src="js/engine/GameEngine.js"></script>
+
+  <!-- 2. Config -->
+   <script src="js/config/GameConfig.js"></script>
+   <script src="js/config/ControlsConfig.js"></script>
+   <script src="js/config/CustomizationPresets.js"></script>
+   <script src="js/config/TrafficConfig.js"></script>
+   <script src="js/config/PassengerConfig.js"></script>
+
+   <!-- 3. Data -->
+   <script src="js/data/regions.js"></script>
+   <script src="js/data/bus-types.js"></script>
+   <script src="js/data/TrafficVehicleTypes.js"></script>
+   <script src="js/data/routes.js"></script>
+  <script src="js/data/economy.js"></script>
+  <script src="js/data/customization.js"></script>
+<script src="js/data/private-travels.js"></script>
+   <script src="js/data/achievements.js"></script>
+
+   <!-- Phase 7: Service types and fictional operators -->
+   <script src="js/data/service-types.js"></script>
+   <script src="js/data/operators.js"></script>
+
+  <!-- 4. Entities -->
+  <script src="js/entities/Entity.js"></script>
+  <script src="js/entities/Vehicle.js"></script>
+  <script src="js/entities/Bus.js"></script>
+  <script src="js/entities/TrafficVehicle.js"></script>
+  <script src="js/entities/Passenger.js"></script>
+  <script src="js/entities/Player.js"></script>
+
+   <!-- 5. World -->
+   <script src="js/world/POI.js"></script>
+   <script src="js/world/landmarks/EnvironmentObject.js"></script>
+   <script src="js/world/landmarks/TollGate.js"></script>
+   <script src="js/world/landmarks/FuelStation.js"></script>
+   <script src="js/world/landmarks/TeaStall.js"></script>
+   <script src="js/world/landmarks/Restaurant.js"></script>
+   <script src="js/world/landmarks/Market.js"></script>
+   <script src="js/world/Road.js"></script>
+   <script src="js/world/roads/CurvedRoad.js"></script>
+   <script src="js/world/roads/Intersection.js"></script>
+   <script src="js/world/roads/Roundabout.js"></script>
+   <script src="js/world/City.js"></script>
+   <script src="js/world/BusStop.js"></script>
+   <script src="js/world/bus_stations/BusStation.js"></script>
+   <script src="js/world/Region.js"></script>
+   <script src="js/world/data/APWorldData.js"></script>
+   <script src="js/world/WorldGenerator.js"></script>
+   <script src="js/world/Map.js"></script>
+
+  <!-- 6. Systems (ordered by dependency) -->
+  <script src="js/systems/GameLoopSystem.js"></script>
+  <script src="js/systems/GameInitSystem.js"></script>
+  <script src="js/systems/InputSystem.js"></script>
+  <script src="js/systems/MovementSystem.js"></script>
+  <script src="js/systems/CameraSystem.js"></script>
+  <script src="js/systems/CollisionSystem.js"></script>
+  <script src="js/systems/RoadSystem.js"></script>
+  <script src="js/systems/TrafficSystem.js"></script>
+  <script src="js/systems/AIVehicleSystem.js"></script>
+  <script src="js/systems/RouteSystem.js"></script>
+  <script src="js/systems/BusStopSystem.js"></script>
+  <script src="js/systems/PassengerSystem.js"></script>
+  <script src="js/systems/BoardingSystem.js"></script>
+  <script src="js/systems/DropOffSystem.js"></script>
+  <script src="js/systems/TicketSystem.js"></script>
+  <script src="js/systems/TripSystem.js"></script>
+  <script src="js/systems/MissionSystem.js"></script>
+  <script src="js/systems/NavigationSystem.js"></script>
+  <script src="js/systems/DayNightSystem.js"></script>
+  <script src="js/systems/WeatherSystem.js"></script>
+  <script src="js/systems/FuelSystem.js"></script>
+  <script src="js/systems/DamageSystem.js"></script>
+  <script src="js/systems/MaintenanceSystem.js"></script>
+<script src="js/systems/GarageSystem.js"></script>
+   <script src="js/systems/OperatorSystem.js"></script>
+   <script src="js/systems/GarageConfig.js"></script>
+   <script src="js/systems/SaveLoadSystem.js"></script>
+  <script src="js/systems/AchievementSystem.js"></script>
+  <script src="js/systems/ProgressionSystem.js"></script>
+
+  <!-- 7. UI -->
+  <script src="js/ui/UIManager.js"></script>
+  <script src="js/ui/HUD.js"></script>
+  <script src="js/ui/MenuSystem.js"></script>
+  <script src="js/ui/GarageUI.js"></script>
+  <script src="js/ui/CustomizationUI.js"></script>
+  <script src="js/ui/MissionUI.js"></script>
+  <script src="js/ui/EconomyUI.js"></script>
+
+  <!-- 8. Main Entry Point -->
+  <script src="js/main.js"></script>
+</body>
+</html>

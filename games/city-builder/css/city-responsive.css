@@ -1,0 +1,137 @@
+/**
+ * InfinityPlay - City Builder Responsive Media Queries
+ * Adapts UI for desktop, laptop, tablet, and mobile screens
+ */
+
+@media (max-width: 1024px) {
+  .city-top-hud {
+    gap: 8px;
+  }
+  .hud-resources-pill {
+    padding: 6px 10px;
+    gap: 8px;
+  }
+  .hud-res-progress {
+    width: 42px;
+  }
+  .inspector-drawer {
+    width: 290px;
+  }
+}
+
+@media (max-width: 768px) {
+  .city-top-hud {
+    flex-wrap: wrap;
+    height: auto;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+  }
+
+  .hud-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .hud-resources-pill {
+    width: 100%;
+    justify-content: space-around;
+    padding: 4px 8px;
+    overflow-x: auto;
+  }
+
+  .hud-res-progress {
+    display: none;
+  }
+
+  .hud-city-info {
+    display: none;
+  }
+
+  .build-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trade-selectors {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .trade-arrow {
+    margin: 0;
+    transform: rotate(90deg);
+  }
+
+  .inspector-drawer {
+    top: auto;
+    bottom: 80px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-height: 50vh;
+    transform: translateY(120%);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+  }
+
+  .inspector-drawer.active {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .hud-res-rate {
+    display: none;
+  }
+
+  .city-bottom-dock {
+    bottom: 12px;
+    padding: 4px 8px;
+    gap: 4px;
+    width: 94%;
+    justify-content: space-around;
+  }
+
+  .dock-btn {
+    padding: 6px 8px;
+  }
+
+  .dock-btn-icon {
+    font-size: 1.15rem;
+  }
+
+  .dock-btn-label {
+    font-size: 0.62rem;
+  }
+
+  .city-modal-box {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .city-modal-body {
+    padding: 14px;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .battle-top-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .battle-destruction-card {
+    min-width: 100%;
+    order: 3;
+  }
+  .battle-bottom-tray {
+    max-width: 95%;
+    overflow-x: auto;
+  }
+  .unit-training-grid {
+    grid-template-columns: 1fr;
+  }
+  .world-node-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ultimate Racing — InfinityPlay</title>
+  <meta name="description" content="Experience hyper-realistic high-speed racing across neon cityscapes, alpine passes, and coastal tracks with next-gen supercars.">
+  
+  <link rel="icon" type="image/png" href="../../assets/logos/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/racing.css">
+</head>
+<body>
+
+  <div id="gameContainer">
+    <!-- Main 2.5D Road & Vehicle Canvas -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- ==========================================================================
+         HEADS-UP DISPLAY (HUD)
+         ========================================================================== -->
+    <div id="gameHUD">
+      <!-- Top Row: Position, Lap, Times -->
+      <div class="hud-top-bar">
+        <!-- Rank Position -->
+        <div class="hud-card">
+          <span class="hud-label">Position</span>
+          <div class="hud-value-lg" id="hudPosition">1 / 5</div>
+        </div>
+
+        <!-- Center: Lap Counter -->
+        <div class="hud-card" style="text-align: center;">
+          <span class="hud-label">Circuit</span>
+          <div id="hudLap" class="hud-value-lg">LAP 1 / 3</div>
+        </div>
+
+        <!-- Right: Time & Personal Best -->
+        <div class="hud-card" style="text-align: right;">
+          <span class="hud-label">Time</span>
+          <div class="hud-value-lg" id="hudTime">00:00.000</div>
+          <div class="hud-value-sub" id="hudBestLap">BEST: --:--.---</div>
+        </div>
+      </div>
+
+      <!-- Center Notification Banner -->
+      <div id="hudNotification">CHECKPOINT 1</div>
+
+      <!-- Bottom Left: Nitro Gauge & Drift Multiplier -->
+      <div class="hud-bottom-left">
+        <div class="hud-card hud-nitro-gauge">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="hud-label" style="color: var(--color-cyan);">⚡ Nitro Boost</span>
+            <span id="hudNitroText" style="font-size: 0.78rem; font-weight: 800; color: #ffffff;">100%</span>
+          </div>
+          <div class="hud-nitro-bar-wrap">
+            <div id="hudNitroFill"></div>
+          </div>
+        </div>
+
+        <!-- Active Drift Score Popup -->
+        <div id="hudDriftWrap">
+          <span style="font-size: 0.9rem;">🔥 DRIFT</span>
+          <span id="hudDriftNum">+0</span>
+        </div>
+      </div>
+
+      <!-- Bottom Right: Cyber Speedometer & Mini-map -->
+      <div class="hud-bottom-right">
+        <!-- Minimap Radar -->
+        <div class="hud-card hud-minimap-card">
+          <canvas id="hudMinimap" width="160" height="110"></canvas>
+        </div>
+
+        <!-- Speedometer -->
+        <div class="hud-card hud-speedometer">
+          <span class="hud-label" id="hudGear">GEAR 1</span>
+          <div class="hud-speed-display">
+            <span id="hudSpeedNum">0</span>
+            <span class="hud-speed-unit">KM/H</span>
+          </div>
+          <div class="hud-tachometer-wrap">
+            <div id="hudSpeedBar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Countdown Overlay (3 - 2 - 1 - GO!) -->
+    <div id="overlayCountdown">
+      <div id="countdownText">3</div>
+    </div>
+
+    <!-- ==========================================================================
+         ON-SCREEN RACING CONTROLS & SHORTCUTS
+         ========================================================================== -->
+    <div id="mobileControls">
+      <!-- Quick In-Game Header Controls -->
+      <div class="hud-quick-actions">
+        <button class="hud-action-btn" id="btnQuickPause" title="Pause Game (ESC)">⏸ PAUSE</button>
+        <button class="hud-action-btn" id="btnQuickReset" title="Reset Car to Track (R)">↺ RESET</button>
+        <button class="hud-action-btn" id="btnToggleControls" title="Toggle On-Screen Buttons">🎮 CONTROLS: ON</button>
+      </div>
+
+      <!-- Steering Controls (Bottom Left) -->
+      <div class="touch-cluster-left" id="touchClusterLeft">
+        <button class="touch-btn touch-btn-steer" id="btnTouchLeft" aria-label="Steer Left">
+          <span class="touch-icon">◀</span>
+          <span class="touch-text">STEER L</span>
+        </button>
+        <button class="touch-btn touch-btn-steer" id="btnTouchRight" aria-label="Steer Right">
+          <span class="touch-icon">▶</span>
+          <span class="touch-text">STEER R</span>
+        </button>
+      </div>
+
+      <!-- Pedals & Boost Actions (Bottom Right) -->
+      <div class="touch-cluster-right" id="touchClusterRight">
+        <button class="touch-btn touch-btn-drift" id="btnTouchDrift" aria-label="Drift">
+          <span class="touch-icon">🔥</span>
+          <span class="touch-text">DRIFT</span>
+        </button>
+        <button class="touch-btn touch-btn-nitro" id="btnTouchNitro" aria-label="Nitro Boost">
+          <span class="touch-icon">⚡</span>
+          <span class="touch-text">NITRO</span>
+        </button>
+        <button class="touch-btn touch-btn-brake" id="btnTouchBrake" aria-label="Brake">
+          <span class="touch-icon">▼</span>
+          <span class="touch-text">BRAKE</span>
+        </button>
+        <button class="touch-btn touch-btn-accel" id="btnTouchAccel" aria-label="Gas">
+          <span class="touch-icon">▲</span>
+          <span class="touch-text">GAS</span>
+        </button>
+      </div>
+
+      <!-- Keyboard Guide Legend (Bottom Center) -->
+      <div class="hud-keyboard-legend" id="hudKeyboardLegend">
+        <div class="legend-item"><kbd>W</kbd> <kbd>▲</kbd> <span>Gas</span></div>
+        <div class="legend-item"><kbd>S</kbd> <kbd>▼</kbd> <span>Brake</span></div>
+        <div class="legend-item"><kbd>A</kbd> <kbd>D</kbd> <kbd>◀</kbd> <kbd>▶</kbd> <span>Steer</span></div>
+        <div class="legend-item"><kbd>SPACE</kbd> <span>Drift</span></div>
+        <div class="legend-item"><kbd>SHIFT</kbd> <span>Nitro</span></div>
+        <div class="legend-item"><kbd>R</kbd> <span>Reset</span></div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         OVERLAY 1: MAIN MENU
+         ========================================================================== -->
+    <div class="overlay-screen" id="screenMenu">
+      <div class="menu-logo-wrap">
+        <div class="menu-brand-tag">InfinityPlay Presents</div>
+        <h1 class="menu-title">ULTIMATE RACING</h1>
+        <div class="menu-subtitle">Push Beyond Limits</div>
+      </div>
+
+      <div class="menu-buttons-list">
+        <button class="btn btn-primary" id="btnQuickRace">
+          ⚡ Quick Race
+        </button>
+        <button class="btn btn-secondary" id="btnTimeTrial">
+          ⏱ Time Trial
+        </button>
+        <button class="btn btn-secondary" id="btnChampionship">
+          🏆 Grand Championship
+        </button>
+        <button class="btn btn-secondary" id="btnGarage">
+          🔧 Garage & Upgrades
+        </button>
+        <button class="btn btn-secondary" id="btnTracks">
+          🛣 Select Track
+        </button>
+        <button class="btn btn-ghost" id="btnSettings">
+          ⚙ Settings
+        </button>
+        <button class="btn btn-danger btn-back-infinityplay" style="margin-top: 8px;">
+          ◀ Back to InfinityPlay
+        </button>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         OVERLAY 2: TRACK SELECTION
+         ========================================================================== -->
+    <div class="overlay-screen" id="screenTrackSelect">
+      <div class="screen-header">
+        <h2 class="screen-title">Select Circuit</h2>
+        <button class="btn btn-ghost btn-back-menu">◀ Back to Menu</button>
+      </div>
+
+      <div class="track-grid" id="trackCardsGrid">
+        <!-- Rendered dynamically by game.js -->
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         OVERLAY 3: GARAGE & UPGRADES
+         ========================================================================== -->
+    <div class="overlay-screen" id="screenGarage">
+      <div class="screen-header" style="max-width: 1040px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <h2 class="screen-title">Vehicle Garage</h2>
+          <div style="background: rgba(251, 191, 36, 0.15); border: 1px solid var(--color-gold); padding: 4px 14px; border-radius: 999px; font-weight: 800; font-size: 0.9rem; color: var(--color-gold);">
+            💰 <span id="garageCredits">1,200</span> Credits
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-back-menu">◀ Back to Menu</button>
+      </div>
+
+      <div class="garage-container">
+        <!-- Turntable & Navigation -->
+        <div class="garage-turntable-col">
+          <canvas id="garageCarCanvas" width="480" height="240"></canvas>
+          <div class="garage-nav-row">
+            <button class="btn btn-secondary" id="garagePrevCar">◀ Previous</button>
+            <button class="btn btn-primary" id="garageSelectBtn">Select Car</button>
+            <button class="btn btn-secondary" id="garageNextCar">Next ▶</button>
+          </div>
+          <div id="garageLockBanner" style="display: none; margin-top: 10px; color: #f87171; font-size: 0.85rem; font-weight: 700;"></div>
+        </div>
+
+        <!-- Stats & Upgrades -->
+        <div class="garage-details-col">
+          <div>
+            <h3 id="garageCarName" style="font-size: 1.8rem; font-weight: 900; color: #ffffff;">Velocity X</h3>
+            <span id="garageCarTag" style="color: var(--color-cyan); font-size: 0.85rem; font-weight: 700;">Balanced Cyber Interceptor</span>
+            <p id="garageCarDesc" style="color: var(--text-muted); font-size: 0.82rem; margin-top: 4px; line-height: 1.4;"></p>
+          </div>
+
+          <!-- Specs -->
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="garage-stat-row">
+              <div class="stat-header"><span>Top Speed</span><span class="stat-value">240 KM/H</span></div>
+              <div class="stat-bar-bg"><div class="stat-bar-fill" id="statTopSpeed"></div></div>
+            </div>
+            <div class="garage-stat-row">
+              <div class="stat-header"><span>Acceleration</span><span class="stat-value">7.2</span></div>
+              <div class="stat-bar-bg"><div class="stat-bar-fill" id="statAccel"></div></div>
+            </div>
+            <div class="garage-stat-row">
+              <div class="stat-header"><span>Handling</span><span class="stat-value">7.5</span></div>
+              <div class="stat-bar-bg"><div class="stat-bar-fill" id="statHandling"></div></div>
+            </div>
+            <div class="garage-stat-row">
+              <div class="stat-header"><span>Braking</span><span class="stat-value">7.0</span></div>
+              <div class="stat-bar-bg"><div class="stat-bar-fill" id="statBraking"></div></div>
+            </div>
+            <div class="garage-stat-row">
+              <div class="stat-header"><span>Nitro Capacity</span><span class="stat-value">7.0</span></div>
+              <div class="stat-bar-bg"><div class="stat-bar-fill" id="statNitro"></div></div>
+            </div>
+          </div>
+
+          <!-- Performance Upgrades List -->
+          <div>
+            <span style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; color: var(--color-cyan);">Parts Tuning (Lv. 1-5)</span>
+            <div class="upgrades-list">
+              <div class="upgrade-item">
+                <div><strong>Engine Tuning</strong> <span id="partLvl_engine" style="color: var(--color-cyan); margin-left: 6px;">Lv.1</span></div>
+                <button class="btn btn-secondary" id="partBtn_engine" style="padding: 6px 14px; font-size: 0.8rem;">Upgrade (<span id="partCost_engine">400 CR</span>)</button>
+              </div>
+              <div class="upgrade-item">
+                <div><strong>Twin Turbos</strong> <span id="partLvl_turbo" style="color: var(--color-cyan); margin-left: 6px;">Lv.1</span></div>
+                <button class="btn btn-secondary" id="partBtn_turbo" style="padding: 6px 14px; font-size: 0.8rem;">Upgrade (<span id="partCost_turbo">400 CR</span>)</button>
+              </div>
+              <div class="upgrade-item">
+                <div><strong>Carbon Ceramic Brakes</strong> <span id="partLvl_brakes" style="color: var(--color-cyan); margin-left: 6px;">Lv.1</span></div>
+                <button class="btn btn-secondary" id="partBtn_brakes" style="padding: 6px 14px; font-size: 0.8rem;">Upgrade (<span id="partCost_brakes">400 CR</span>)</button>
+              </div>
+              <div class="upgrade-item">
+                <div><strong>Aero Handling</strong> <span id="partLvl_handling" style="color: var(--color-cyan); margin-left: 6px;">Lv.1</span></div>
+                <button class="btn btn-secondary" id="partBtn_handling" style="padding: 6px 14px; font-size: 0.8rem;">Upgrade (<span id="partCost_handling">400 CR</span>)</button>
+              </div>
+              <div class="upgrade-item">
+                <div><strong>Hyper Nitro Injectors</strong> <span id="partLvl_nitro" style="color: var(--color-cyan); margin-left: 6px;">Lv.1</span></div>
+                <button class="btn btn-secondary" id="partBtn_nitro" style="padding: 6px 14px; font-size: 0.8rem;">Upgrade (<span id="partCost_nitro">400 CR</span>)</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         OVERLAY 4: PAUSE MENU
+         ========================================================================== -->
+    <div class="overlay-screen" id="overlayPause">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h2 style="font-size: 3rem; font-weight: 900; letter-spacing: 0.05em; color: #ffffff;">GAME PAUSED</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Press ESC to return</p>
+      </div>
+
+      <div class="menu-buttons-list">
+        <button class="btn btn-primary" id="btnResume">▶ Resume Race</button>
+        <button class="btn btn-secondary" id="btnRestart">↺ Restart Circuit</button>
+        <button class="btn btn-secondary" id="btnPauseSettings">⚙ Settings</button>
+        <button class="btn btn-danger btn-back-infinityplay">◀ Exit to InfinityPlay</button>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         OVERLAY 5: RACE RESULTS
+         ========================================================================== -->
+    <div class="overlay-screen" id="screenResults">
+      <div class="results-card">
+        <h2 class="results-heading">RACE COMPLETE</h2>
+        <div id="resPersonalBestBanner" style="display: none; background: rgba(16, 185, 129, 0.2); border: 1px solid var(--color-cyan); color: var(--color-cyan); padding: 4px 16px; border-radius: 999px; font-weight: 800; font-size: 0.85rem; margin-bottom: 12px;">
+          ★ NEW PERSONAL BEST LAP!
+        </div>
+        <div id="resLevelUnlockedBanner" style="display: none; background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #fbbf24; padding: 4px 16px; border-radius: 999px; font-weight: 800; font-size: 0.85rem; margin-bottom: 12px;">
+          🔓 NEXT LEVEL UNLOCKED!
+        </div>
+
+        <div class="results-grid">
+          <div class="res-box">
+            <span class="res-label">Finish Position</span>
+            <div class="res-val" id="resPosition" style="color: var(--color-cyan);">1 / 5</div>
+          </div>
+          <div class="res-box">
+            <span class="res-label">Race Time</span>
+            <div class="res-val" id="resTime">02:14.420</div>
+          </div>
+          <div class="res-box">
+            <span class="res-label">Best Lap</span>
+            <div class="res-val" id="resBestLap">00:42.110</div>
+          </div>
+          <div class="res-box">
+            <span class="res-label">Top Speed</span>
+            <div class="res-val" id="resTopSpeed">274 KM/H</div>
+          </div>
+          <div class="res-box">
+            <span class="res-label">Drift Score</span>
+            <div class="res-val" id="resDriftScore">3,450</div>
+          </div>
+          <div class="res-box">
+            <span class="res-label">Credits Earned</span>
+            <div class="res-val" id="resCredits" style="color: var(--color-gold);">+1,250 CR</div>
+          </div>
+          <div class="res-box" style="grid-column: 1 / -1;">
+            <span class="res-label">XP Earned</span>
+            <div class="res-val" id="resXP" style="color: var(--color-pink);">+500 XP</div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 14px;">
+          <button class="btn btn-primary" id="resNextRaceBtn" style="display: none;">Next Championship Race ▶</button>
+          <button class="btn btn-secondary" id="resRetryBtn">↺ Retry</button>
+          <button class="btn btn-secondary" id="resGarageBtn">🔧 Garage</button>
+          <button class="btn btn-ghost" id="resMainMenuBtn">Main Menu</button>
+          <button class="btn btn-danger btn-back-infinityplay">◀ Back to InfinityPlay</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         OVERLAY 6: SETTINGS
+         ========================================================================== -->
+    <div class="overlay-screen" id="screenSettings">
+      <div class="screen-header" style="max-width: 520px;">
+        <h2 class="screen-title">Game Settings</h2>
+        <button class="btn btn-ghost btn-back-menu">◀ Back</button>
+      </div>
+
+      <div style="width: 100%; max-width: 520px; background: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 14px;">
+        <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+          <span>Sound Effects (SFX)</span>
+          <input type="checkbox" id="chkSfx" checked style="width: 20px; height: 20px; accent-color: var(--color-cyan);">
+        </label>
+        <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+          <span>Synthwave Music</span>
+          <input type="checkbox" id="chkMusic" checked style="width: 20px; height: 20px; accent-color: var(--color-cyan);">
+        </label>
+        <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+          <span>Screen Shake Trauma</span>
+          <input type="checkbox" id="chkShake" checked style="width: 20px; height: 20px; accent-color: var(--color-cyan);">
+        </label>
+        <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+          <span>Show Mini-map Radar</span>
+          <input type="checkbox" id="chkMinimap" checked style="width: 20px; height: 20px; accent-color: var(--color-cyan);">
+        </label>
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+            <span>Steering Sensitivity</span>
+          </div>
+          <input type="range" id="inputSens" min="0.5" max="1.8" step="0.1" value="1.0" style="accent-color: var(--color-cyan);">
+        </div>
+        <div style="margin-top: 14px;">
+          <button class="btn btn-secondary" id="btnFullscreen" style="width: 100%;">⛶ Toggle Fullscreen</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JAVASCRIPT MODULES IN ORDER -->
+  <script src="js/data/cars.js"></script>
+  <script src="js/data/tracks.js"></script>
+  <script src="js/data/achievements.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/traffic.js"></script>
+  <script src="js/collision.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/camera.js"></script>
+  <script src="js/track.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/hud.js"></script>
+  <script src="js/garage.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
+

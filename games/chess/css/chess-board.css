@@ -1,0 +1,236 @@
+/**
+ * InfinityPlay - Chess Board Styling & Theme System
+ */
+
+.chess-board-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  padding: 10px;
+  border-radius: var(--radius-md, 14px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(139, 92, 246, 0.2);
+  transition: all var(--transition-base, 0.25s);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ==========================================================================
+   BOARD THEMES
+   ========================================================================== */
+
+/* 1. Cyber Neon Theme (Platform Default) */
+.theme-cyber {
+  background: linear-gradient(135deg, rgba(14, 19, 36, 0.9), rgba(20, 27, 50, 0.95));
+  border: 2px solid rgba(0, 240, 255, 0.35);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 35px rgba(0, 240, 255, 0.25);
+}
+.theme-cyber .chess-square.light {
+  background-color: #1a2540;
+}
+.theme-cyber .chess-square.dark {
+  background-color: #0c1222;
+}
+
+/* 2. Classic Wood Theme */
+.theme-wood {
+  background: #3e2723;
+  border: 2px solid #5d4037;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(181, 136, 99, 0.2);
+}
+.theme-wood .chess-square.light {
+  background-color: #f0d9b5;
+}
+.theme-wood .chess-square.dark {
+  background-color: #b58863;
+}
+
+/* 3. Midnight Slate Theme */
+.theme-slate {
+  background: #1e293b;
+  border: 2px solid #334155;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(51, 65, 85, 0.3);
+}
+.theme-slate .chess-square.light {
+  background-color: #475569;
+}
+.theme-slate .chess-square.dark {
+  background-color: #1e293b;
+}
+
+/* 4. Emerald Tournament Theme */
+.theme-emerald {
+  background: #1b382b;
+  border: 2px solid #2e5b44;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(118, 150, 86, 0.25);
+}
+.theme-emerald .chess-square.light {
+  background-color: #eeeed2;
+}
+.theme-emerald .chess-square.dark {
+  background-color: #769656;
+}
+
+/* 5. Glass Frost Theme */
+.theme-glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(139, 92, 246, 0.15);
+}
+.theme-glass .chess-square.light {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+.theme-glass .chess-square.dark {
+  background-color: rgba(0, 0, 0, 0.35);
+}
+
+/* ==========================================================================
+   BOARD GRID & SQUARES
+   ========================================================================== */
+
+.chess-board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.chess-square {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+/* Coordinates */
+.coord-label {
+  position: absolute;
+  font-size: 0.68rem;
+  font-weight: 800;
+  pointer-events: none;
+  opacity: 0.65;
+  transition: opacity 0.2s;
+}
+.chess-square.light .coord-label {
+  color: rgba(0, 0, 0, 0.6);
+}
+.theme-cyber .chess-square.light .coord-label,
+.theme-slate .chess-square.light .coord-label {
+  color: rgba(255, 255, 255, 0.6);
+}
+.chess-square.dark .coord-label {
+  color: rgba(255, 255, 255, 0.65);
+}
+.coord-file {
+  bottom: 2px;
+  right: 4px;
+}
+.coord-rank {
+  top: 2px;
+  left: 4px;
+}
+
+/* Selected Square Glow */
+.chess-square.selected {
+  box-shadow: inset 0 0 0 3px #00f0ff, 0 0 15px rgba(0, 240, 255, 0.6);
+  z-index: 2;
+}
+
+/* Previous Move Trail */
+.chess-square.last-move {
+  background-color: rgba(139, 92, 246, 0.32) !important;
+}
+
+/* In-Check King Pulsing Aura */
+.chess-square.in-check {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.85) 0%, rgba(239, 68, 68, 0.2) 75%) !important;
+  animation: checkPulse 1.2s infinite alternate ease-in-out;
+  z-index: 3;
+}
+
+@keyframes checkPulse {
+  0% { box-shadow: inset 0 0 12px #ef4444, 0 0 15px rgba(239, 68, 68, 0.8); }
+  100% { box-shadow: inset 0 0 24px #b91c1c, 0 0 25px rgba(239, 68, 68, 0.4); }
+}
+
+/* ==========================================================================
+   LEGAL MOVE INDICATORS
+   ========================================================================== */
+
+/* Dot on empty squares */
+.move-indicator.move-dot {
+  width: 28%;
+  height: 28%;
+  border-radius: 50%;
+  background: rgba(0, 240, 255, 0.45);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+  pointer-events: none;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.chess-square:hover .move-indicator.move-dot {
+  transform: scale(1.35);
+  background: rgba(0, 240, 255, 0.8);
+}
+
+/* Hollow ring on capturable squares */
+.move-indicator.capture-ring {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 4px solid rgba(236, 72, 153, 0.65);
+  box-shadow: 0 0 12px rgba(236, 72, 153, 0.55);
+  pointer-events: none;
+  animation: capturePulse 1.4s infinite alternate;
+}
+
+@keyframes capturePulse {
+  0% { transform: scale(0.96); border-color: rgba(236, 72, 153, 0.7); }
+  100% { transform: scale(1.02); border-color: rgba(236, 72, 153, 0.95); }
+}
+
+/* ==========================================================================
+   PIECES
+   ========================================================================== */
+
+.chess-piece {
+  width: 86%;
+  height: 86%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: grab;
+  z-index: 4;
+}
+
+.chess-piece svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.45));
+}
+
+.chess-piece:hover {
+  transform: translateY(-2px) scale(1.06);
+}
+
+.chess-piece:active {
+  cursor: grabbing;
+}
+
+/* Drag Ghost */
+.chess-piece-ghost {
+  transform: scale(1.15);
+  opacity: 0.95;
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 12px rgba(0, 240, 255, 0.5));
+}
+

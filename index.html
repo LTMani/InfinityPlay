@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InfinityPlay — One Platform. Infinite Play.</title>
+  <meta name="description" content="Welcome to InfinityPlay — One Platform. Infinite Play. Explore top games, climb leaderboards, and experience next-level gaming.">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/logos/favicon.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="assets/logos/favicon.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/hero.css">
+  <link rel="stylesheet" href="css/cards.css">
+  <link rel="stylesheet" href="css/leaderboard.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/modals.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- ==========================================================================
+         1. TOP HEADER NAVIGATION
+         ========================================================================== -->
+    <header class="header-wrapper">
+      <div class="top-header">
+        
+        <!-- Left: Hamburger & Brand -->
+        <div class="header-left">
+          <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle Navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          <a href="#" class="brand-logo" id="brandLogo" aria-label="InfinityPlay Home">
+            <img src="assets/logos/infinityplay_logo.png" alt="InfinityPlay — One Platform. Infinite Play." class="brand-logo-img">
+          </a>
+        </div>
+
+        <!-- Center: Capsule Search Bar -->
+        <div class="header-center">
+          <div class="search-bar">
+            <span class="search-icon">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+              </svg>
+            </span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search games, categories..." autocomplete="off">
+            <span class="search-shortcut" title="Press '/' to search">/</span>
+          </div>
+
+          <!-- Dynamic Search Dropdown -->
+          <div class="search-dropdown" id="searchDropdown"></div>
+        </div>
+
+        <!-- Right: Notifications, My Games, Profile -->
+        <div class="header-right">
+          <button class="notification-btn" id="notificationBtn" aria-label="Notifications" title="Notifications">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+            </svg>
+            <span class="notification-badge">4</span>
+          </button>
+
+          <!-- Notifications Dropdown Panel -->
+          <div class="dropdown-menu" id="notificationDropdown" style="right: 180px; width: 280px;">
+            <div style="padding: 8px 12px; font-weight: 700; color: #ffffff; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between;">
+              <span>Notifications</span>
+              <span style="font-size: 0.72rem; color: var(--color-cyan); font-weight: 600;">Mark all read</span>
+            </div>
+            <div class="dropdown-item" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+              <strong style="color: #ffffff; font-size: 0.82rem;">🏆 Daily Reward Ready</strong>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">Claim your +250 XP bonus!</span>
+            </div>
+            <div class="dropdown-item" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+              <strong style="color: #ffffff; font-size: 0.82rem;">⚡ Tourney Live: Speed Arena</strong>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">1st place wins 10,000 XP.</span>
+            </div>
+            <div class="dropdown-item" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+              <strong style="color: #ffffff; font-size: 0.82rem;">🎮 Friend Played Shadow Adventure</strong>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">NeoKing reached Level 42.</span>
+            </div>
+          </div>
+
+          <button class="my-games-btn" id="myGamesBtn" title="View Saved Games">
+            <span class="my-games-icon">🎮</span>
+            <span>My Games</span>
+            <span id="myGamesCountBadge" style="background: var(--color-purple); font-size: 0.7rem; padding: 1px 6px; border-radius: 999px; margin-left: 2px;">2</span>
+          </button>
+
+          <!-- User Profile -->
+          <div class="profile-menu-container">
+            <div class="profile-pill" id="profileTrigger">
+              <div class="avatar-circle">T</div>
+              <span class="profile-name">Tharun</span>
+              <span class="profile-chevron">▼</span>
+            </div>
+
+            <!-- Profile Dropdown -->
+            <div class="dropdown-menu" id="profileDropdown">
+              <div style="padding: 8px 12px; border-bottom: 1px solid var(--border-subtle);">
+                <strong style="color: #ffffff; display: block;">Tharun</strong>
+                <span style="font-size: 0.72rem; color: var(--color-cyan);">Level 28 • Pro Gamer</span>
+              </div>
+              <a href="#" class="dropdown-item" onclick="window.InfinityPlay.App.openProfileModal(event)">👤 Profile & Stats</a>
+              <a href="#" class="dropdown-item" onclick="window.InfinityPlay.App.openAchievementsModal(event)">🏅 My Achievements</a>
+              <a href="#" class="dropdown-item" onclick="window.InfinityPlay.App.openSettingsModal(event)">⚙ Platform Settings</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item" style="color: #f87171;" onclick="window.InfinityPlay.App.logout(event)">🚪 Sign Out</a>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Overlay for mobile drawer -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ==========================================================================
+         MAIN 3-COLUMN DASHBOARD LAYOUT
+         ========================================================================== -->
+    <div class="dashboard-layout">
+      
+      <!-- ========================================================================
+           2. LEFT SIDEBAR
+           ======================================================================== -->
+      <aside class="left-sidebar" id="leftSidebar">
+        <div class="sidebar-nav-container">
+          
+          <!-- Main Navigation -->
+          <div class="sidebar-group">
+            <a href="#" class="nav-link active" data-nav="home">
+              <span class="nav-icon">🏠</span>
+              <span>Home</span>
+            </a>
+            <a href="#" class="nav-link" data-nav="games">
+              <span class="nav-icon">🎮</span>
+              <span>Games</span>
+            </a>
+            <a href="#" class="nav-link" data-nav="popular">
+              <span class="nav-icon">🔥</span>
+              <span>Popular</span>
+            </a>
+            <a href="#" class="nav-link" data-nav="new-games">
+              <span class="nav-icon">✨</span>
+              <span>New Games</span>
+            </a>
+          </div>
+
+          <!-- Categories Navigation -->
+          <div class="sidebar-group">
+            <div class="sidebar-heading">CATEGORIES</div>
+            <a href="#" class="nav-link" data-category="Racing">
+              <span class="nav-icon">🚗</span>
+              <span>Racing</span>
+            </a>
+            <a href="#" class="nav-link" data-category="Adventure">
+              <span class="nav-icon">⚔</span>
+              <span>Adventure</span>
+            </a>
+            <a href="#" class="nav-link" data-category="Simulation">
+              <span class="nav-icon">🚌</span>
+              <span>Simulation</span>
+            </a>
+            <a href="#" class="nav-link" data-category="Puzzle">
+              <span class="nav-icon">🧩</span>
+              <span>Puzzle</span>
+            </a>
+            <a href="#" class="nav-link" data-category="Sports">
+              <span class="nav-icon">⚽</span>
+              <span>Sports</span>
+            </a>
+            <a href="#" class="nav-link" data-category="Strategy">
+              <span class="nav-icon">♞</span>
+              <span>Strategy</span>
+            </a>
+          </div>
+
+          <!-- Additional Navigation -->
+          <div class="sidebar-group">
+            <a href="#" class="nav-link" data-nav="rankings">
+              <span class="nav-icon">🏆</span>
+              <span>Rankings</span>
+            </a>
+            <a href="#" class="nav-link" data-nav="achievements">
+              <span class="nav-icon">🎖</span>
+              <span>Achievements</span>
+            </a>
+            <a href="#" class="nav-link" data-nav="profile">
+              <span class="nav-icon">👤</span>
+              <span>Profile</span>
+            </a>
+            <a href="#" class="nav-link" data-nav="settings">
+              <span class="nav-icon">⚙</span>
+              <span>Settings</span>
+            </a>
+          </div>
+
+        </div>
+
+        <!-- Bottom Promotional Card -->
+        <div class="sidebar-promo-card">
+          <div class="promo-title">Play. Earn. Compete.</div>
+          <div class="promo-subtitle">Join InfinityPlay today!</div>
+          <button class="btn btn-sidebar-signin" id="sidebarSignInBtn">
+            Sign In
+          </button>
+        </div>
+      </aside>
+
+
+      <!-- ========================================================================
+           3. MAIN CENTER CONTENT
+           ======================================================================== -->
+      <main class="main-content">
+        
+        <!-- ======================================================================
+             HERO BANNER
+             ====================================================================== -->
+        <section class="hero-banner" id="heroBanner">
+          <div class="hero-overlay"></div>
+          
+          <button class="hero-close-btn" id="heroCloseBtn" title="Dismiss Banner">✕</button>
+
+          <div class="hero-content">
+            <div class="hero-badge">
+              <span style="font-size: 0.9rem;">⚡</span> NEXT LEVEL GAMING
+            </div>
+
+            <h1 class="hero-title">
+              PLAY WITHOUT<br>
+              <span class="title-limits">LIMITS</span>
+            </h1>
+
+            <p class="hero-desc">
+              Explore. Play. Compete. Achieve.<br>
+              Welcome to InfinityPlay — One Platform. Infinite Play.
+            </p>
+
+            <div class="hero-cta">
+              <button class="btn btn-hero-play" id="heroPlayBtn">
+                ▶ PLAY NOW
+              </button>
+            </div>
+          </div>
+
+          <!-- Carousel Dots -->
+          <div class="hero-carousel-dots">
+            <span class="carousel-dot active" data-slide="0"></span>
+            <span class="carousel-dot" data-slide="1"></span>
+            <span class="carousel-dot" data-slide="2"></span>
+            <span class="carousel-dot" data-slide="3"></span>
+          </div>
+        </section>
+
+
+        <!-- ======================================================================
+             4. EXPLORE CATEGORIES
+             ====================================================================== -->
+        <section class="categories-section">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="section-icon" style="color: var(--color-pink);">🎯</span>
+              <span>Explore Categories</span>
+            </div>
+            <a href="#" class="view-all-link" id="viewAllCategoriesBtn">
+              View All <span>→</span>
+            </a>
+          </div>
+
+          <div class="categories-grid" id="categoriesGrid">
+            <!-- 1. Racing -->
+            <div class="category-card" data-category="Racing">
+              <div class="category-thumbnail-wrapper">
+                <img src="assets/categories/cat_racing_art.png" alt="Racing" class="category-thumb-img">
+              </div>
+              <span class="category-label">Racing</span>
+            </div>
+
+            <!-- 2. Adventure -->
+            <div class="category-card" data-category="Adventure">
+              <div class="category-thumbnail-wrapper">
+                <img src="assets/categories/cat_adventure_art.png" alt="Adventure" class="category-thumb-img">
+              </div>
+              <span class="category-label">Adventure</span>
+            </div>
+
+            <!-- 3. Simulation -->
+            <div class="category-card" data-category="Simulation">
+              <div class="category-thumbnail-wrapper">
+                <img src="assets/categories/cat_simulation_art.png" alt="Simulation" class="category-thumb-img">
+              </div>
+              <span class="category-label">Simulation</span>
+            </div>
+
+            <!-- 4. Puzzle -->
+            <div class="category-card" data-category="Puzzle">
+              <div class="category-thumbnail-wrapper">
+                <img src="assets/categories/cat_puzzle_art.png" alt="Puzzle" class="category-thumb-img">
+              </div>
+              <span class="category-label">Puzzle</span>
+            </div>
+
+            <!-- 5. Sports -->
+            <div class="category-card" data-category="Sports">
+              <div class="category-thumbnail-wrapper">
+                <img src="assets/categories/cat_sports_art.png" alt="Sports" class="category-thumb-img">
+              </div>
+              <span class="category-label">Sports</span>
+            </div>
+
+            <!-- 6. Strategy -->
+            <div class="category-card" data-category="Strategy">
+              <div class="category-thumbnail-wrapper">
+                <img src="assets/categories/cat_strategy_art.png" alt="Strategy" class="category-thumb-img">
+              </div>
+              <span class="category-label">Strategy</span>
+            </div>
+
+            <!-- 7. Arcade -->
+            <div class="category-card" data-category="Arcade">
+              <div class="category-thumbnail-wrapper">
+                <img src="assets/categories/cat_arcade_art.png" alt="Arcade" class="category-thumb-img">
+              </div>
+              <span class="category-label">Arcade</span>
+            </div>
+
+            <!-- 8. Survival -->
+            <div class="category-card" data-category="Survival">
+              <div class="category-thumbnail-wrapper">
+                <img src="assets/categories/cat_survival_art.png" alt="Survival" class="category-thumb-img">
+              </div>
+              <span class="category-label">Survival</span>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ======================================================================
+             5. TOP GAMES SECTION
+             ====================================================================== -->
+        <section class="top-games-section" id="topGamesSection">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="section-icon" style="color: var(--color-pink-neon);">🔥</span>
+              <span>Top Games</span>
+            </div>
+            <a href="#" class="view-all-link" id="viewAllTopGamesBtn">
+              View All <span>→</span>
+            </a>
+          </div>
+
+          <!-- Rendered dynamically by game-card.js -->
+          <div class="top-games-grid" id="topGamesGrid"></div>
+        </section>
+
+
+        <!-- ======================================================================
+             6. ALL GAMES SECTION (10 Dynamic Games)
+             ====================================================================== -->
+        <section class="all-games-section" id="allGamesSection">
+          <div class="section-header">
+            <div class="section-title">
+              <span class="section-icon" style="color: var(--color-purple);">🎮</span>
+              <span>All Games</span>
+              <span class="section-count" id="allGamesCount">(10)</span>
+            </div>
+            <a href="#" class="view-all-link" id="viewAllGamesBtn">
+              View All <span>→</span>
+            </a>
+          </div>
+
+          <!-- Rendered dynamically by game-card.js -->
+          <div class="all-games-grid" id="allGamesGrid"></div>
+        </section>
+
+      </main>
+
+
+      <!-- ========================================================================
+           7. RIGHT SIDEBAR
+           ======================================================================== -->
+      <aside class="right-sidebar">
+        
+        <!-- A. Top Players -->
+        <div class="right-panel-card">
+          <div class="section-header" style="margin-bottom: 12px;">
+            <div class="section-title" style="font-size: 1rem;">
+              <span class="section-icon" style="color: var(--color-gold);">👑</span>
+              <span>Top Players</span>
+            </div>
+            <a href="#" class="view-all-link" onclick="window.InfinityPlay.Helpers.showToast('Global rankings loaded', 'info'); return false;">
+              View All <span>→</span>
+            </a>
+          </div>
+
+          <!-- Rendered dynamically by leaderboard.js -->
+          <div class="players-list" id="topPlayersList"></div>
+        </div>
+
+        <!-- B. Recently Played -->
+        <div class="right-panel-card">
+          <div class="section-header" style="margin-bottom: 12px;">
+            <div class="section-title" style="font-size: 1rem;">
+              <span class="section-icon" style="color: var(--color-cyan);">🕒</span>
+              <span>Recently Played</span>
+            </div>
+            <a href="#" class="view-all-link" onclick="window.InfinityPlay.Favorites.toggleMyGamesView(); return false;">
+              View All <span>→</span>
+            </a>
+          </div>
+
+          <!-- Rendered dynamically by recently-played.js -->
+          <div class="recently-played-list" id="recentlyPlayedList"></div>
+        </div>
+
+        <!-- C. Community Promotional Card -->
+        <div class="promo-climb-card">
+          <div class="promo-climb-content">
+            <div class="promo-climb-header">
+              <span class="promo-trophy-icon">🏆</span>
+              <h3 class="promo-climb-title">Compete & Climb!</h3>
+            </div>
+            <p class="promo-climb-desc">
+              Join the community, play games, earn achievements and be the best on InfinityPlay!
+            </p>
+            <button class="btn btn-climb-create" id="promoCreateAccountBtn">
+              Create Account
+            </button>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </div>
+
+
+  <!-- ==========================================================================
+       MODALS
+       ========================================================================== -->
+
+  <!-- Game Details & Play Modal -->
+  <div class="modal-overlay" id="gameDetailsModal">
+    <div class="modal-content">
+      <button class="modal-close-btn" title="Close">✕</button>
+      <div id="gameModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Sign In / Sign Up Modal -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-content" style="max-width: 420px; padding: 28px 24px;">
+      <button class="modal-close-btn" title="Close">✕</button>
+      
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img src="assets/logos/infinity_loop.png" alt="InfinityPlay" style="height: 36px; margin: 0 auto 10px auto;">
+        <h2 id="authModalTitle" style="font-size: 1.4rem; font-weight: 800; color: #ffffff;">Sign In to InfinityPlay</h2>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">One Platform. Infinite Play.</p>
+      </div>
+
+      <!-- Demo Account Quick Selector -->
+      <div style="margin-bottom: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 10px 12px;">
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--color-cyan); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+          ⚡ Quick Demo Accounts
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <button type="button" class="demo-acc-btn" onclick="window.InfinityPlay.App.fillDemoLogin('tharun@infinityplay.io', 'password123')" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(139, 92, 246, 0.12); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 6px; color: #ffffff; font-size: 0.78rem; text-align: left; cursor: pointer; transition: all 0.2s;">
+            <span><strong>👑 Tharun</strong> (Pro Gamer • Lvl 28)</span>
+            <span style="color: var(--color-cyan); font-size: 0.7rem;">Click to Fill</span>
+          </button>
+          <button type="button" class="demo-acc-btn" onclick="window.InfinityPlay.App.fillDemoLogin('alex@infinityplay.io', 'password123')" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 6px; color: #ffffff; font-size: 0.78rem; text-align: left; cursor: pointer; transition: all 0.2s;">
+            <span><strong>🥇 Alex Gamer</strong> (Rank #1 • 98K XP)</span>
+            <span style="color: var(--color-gold); font-size: 0.7rem;">Click to Fill</span>
+          </button>
+          <button type="button" class="demo-acc-btn" onclick="window.InfinityPlay.App.fillDemoLogin('gamer@infinityplay.io', 'password123')" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 6px; color: #ffffff; font-size: 0.78rem; text-align: left; cursor: pointer; transition: all 0.2s;">
+            <span><strong>🎮 Rookie Gamer</strong> (New Player)</span>
+            <span style="color: var(--color-blue-light); font-size: 0.7rem;">Click to Fill</span>
+          </button>
+        </div>
+      </div>
+
+      <form id="authForm" onsubmit="window.InfinityPlay.App.handleAuthSubmit(event);" style="display: flex; flex-direction: column; gap: 14px;">
+        <div id="authUsernameGroup" style="display: none; flex-direction: column; gap: 6px;">
+          <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Gamer Tag / Username</label>
+          <input type="text" id="authUsernameInput" placeholder="Enter username" style="background: var(--bg-input); border: 1px solid var(--border-subtle); padding: 10px 14px; border-radius: 8px; color: #ffffff;">
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Email Address</label>
+          <input type="email" id="authEmailInput" placeholder="tharun@infinityplay.io" required style="background: var(--bg-input); border: 1px solid var(--border-subtle); padding: 10px 14px; border-radius: 8px; color: #ffffff;">
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Password</label>
+          <input type="password" id="authPasswordInput" placeholder="••••••••" required style="background: var(--bg-input); border: 1px solid var(--border-subtle); padding: 10px 14px; border-radius: 8px; color: #ffffff;">
+        </div>
+
+        <button type="submit" id="authSubmitBtn" class="btn btn-primary" style="margin-top: 10px; width: 100%; padding: 12px; font-weight: 700;">
+          Sign In
+        </button>
+
+        <div id="authSwitchText" style="text-align: center; font-size: 0.82rem; color: var(--text-muted); margin-top: 8px;">
+          New to InfinityPlay? <a href="#" id="authSwitchLink" style="color: var(--color-cyan); font-weight: 600;">Create Account</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       PROFILE & STATS MODAL
+       ========================================================================== -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="modal-content" style="max-width: 580px; padding: 0; overflow: hidden;">
+      <button class="modal-close-btn" aria-label="Close modal">&times;</button>
+      
+      <!-- Top Banner Header -->
+      <div class="profile-banner-header">
+        <div class="profile-avatar-container">
+          <div class="profile-modal-avatar" id="profileModalAvatar">
+            <span>T</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Title & Badges -->
+      <div class="profile-header-info">
+        <div class="profile-title-row">
+          <div>
+            <h2 class="profile-gamer-name" id="profileModalName">
+              Tharun <span style="font-size: 0.95rem; color: var(--color-cyan);">⚡</span>
+            </h2>
+            <div style="font-size: 0.78rem; color: var(--text-secondary);" id="profileModalEmail">
+              tharun@infinityplay.io
+            </div>
+          </div>
+          <div class="profile-badges">
+            <span class="badge-level" id="profileModalLevelBadge">Level 28 • Pro Gamer</span>
+            <span class="badge-rank" id="profileModalRankBadge">#3 Global</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- XP Progression -->
+      <div class="xp-progress-section">
+        <div class="xp-label-row">
+          <span>Level Progress</span>
+          <span id="profileModalXpText">42,800 / 50,000 XP (85%)</span>
+        </div>
+        <div class="xp-progress-track">
+          <div class="xp-progress-fill" id="profileModalXpFill" style="width: 85%;"></div>
+        </div>
+      </div>
+
+      <!-- Player Stats Grid -->
+      <div class="profile-stats-grid">
+        <div class="stat-box">
+          <div class="stat-box-icon">🎮</div>
+          <div class="stat-box-value" id="profileStatGames">142</div>
+          <div class="stat-box-label">Games Played</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-icon">🏆</div>
+          <div class="stat-box-value" id="profileStatWins">18</div>
+          <div class="stat-box-label">Tourneys Won</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-icon">🎯</div>
+          <div class="stat-box-value" id="profileStatWinRate">68%</div>
+          <div class="stat-box-label">Win Rate</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-icon">⏱</div>
+          <div class="stat-box-value" id="profileStatHours">128h</div>
+          <div class="stat-box-label">Playtime</div>
+        </div>
+      </div>
+
+      <!-- Edit Profile Section -->
+      <div style="padding: 0 24px 24px;">
+        <div style="font-size: 0.76rem; font-weight: 800; text-transform: uppercase; color: var(--color-cyan); letter-spacing: 0.05em; margin-bottom: 12px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+          ⚙ Edit Gamer Profile
+        </div>
+
+        <form id="profileEditForm" onsubmit="window.InfinityPlay.App.handleProfileSave(event)" style="display: flex; flex-direction: column; gap: 14px;">
+          <!-- Select Avatar -->
+          <div>
+            <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">
+              Choose Avatar Profile
+            </label>
+            <div class="avatar-selection-row" id="avatarSelector">
+              <div class="avatar-choice active" data-avatar="T" style="display:flex;align-items:center;justify-content:center;background:var(--gradient-brand);color:#fff;font-weight:800;font-size:1.1rem;">
+                T
+              </div>
+              <div class="avatar-choice" data-avatar="assets/avatars/avatar_alex.png">
+                <img src="assets/avatars/avatar_alex.png" alt="Avatar Alex">
+              </div>
+              <div class="avatar-choice" data-avatar="assets/avatars/avatar_shadowx.png">
+                <img src="assets/avatars/avatar_shadowx.png" alt="Avatar ShadowX">
+              </div>
+              <div class="avatar-choice" data-avatar="assets/avatars/avatar_neoking.png">
+                <img src="assets/avatars/avatar_neoking.png" alt="Avatar NeoKing">
+              </div>
+              <div class="avatar-choice" data-avatar="assets/avatars/avatar_gamebeast.png">
+                <img src="assets/avatars/avatar_gamebeast.png" alt="Avatar GameBeast">
+              </div>
+              <div class="avatar-choice" data-avatar="assets/avatars/avatar_maxplay.png">
+                <img src="assets/avatars/avatar_maxplay.png" alt="Avatar MaxPlay">
+              </div>
+            </div>
+          </div>
+
+          <!-- Gamer Tag / Username -->
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Gamer Tag / Username</label>
+            <input type="text" id="profileInputName" value="Tharun" required style="background: var(--bg-input); border: 1px solid var(--border-subtle); padding: 10px 14px; border-radius: 8px; color: #ffffff; font-size: 0.9rem;">
+          </div>
+
+          <!-- Bio / Tagline -->
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Gamer Bio / Motto</label>
+            <input type="text" id="profileInputBio" value="Always in the fast lane ⚡🏎" style="background: var(--bg-input); border: 1px solid var(--border-subtle); padding: 10px 14px; border-radius: 8px; color: #ffffff; font-size: 0.9rem;">
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
+            <button type="button" class="btn btn-ghost" onclick="window.InfinityPlay.App.closeAllModals()">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="profileSaveBtn" style="padding: 10px 24px;">Save Changes</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       ACHIEVEMENTS MODAL
+       ========================================================================== -->
+  <div class="modal-overlay" id="achievementsModal">
+    <div class="modal-content" style="max-width: 620px; padding: 0;">
+      <button class="modal-close-btn" aria-label="Close modal">&times;</button>
+      
+      <div class="achievements-modal-header">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h2 style="font-size: 1.35rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 8px;">
+              <span>🏅 Platform Achievements</span>
+            </h2>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">
+              Complete challenges to earn XP and level up your InfinityPlay prestige.
+            </p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.35); padding: 6px 14px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; color: #c4b5fd;">
+              Unlocked: <span id="achieveUnlockedCount" style="color: var(--color-cyan);">8</span> / <span id="achieveTotalCount">12</span>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); padding: 6px 14px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; color: var(--color-gold);">
+              XP: <span id="achieveTotalXp">2,200 XP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="achievements-tabs">
+        <button class="achieve-tab-btn active" data-filter="all" onclick="window.InfinityPlay.App.filterAchievements('all', event)">All (12)</button>
+        <button class="achieve-tab-btn" data-filter="unlocked" onclick="window.InfinityPlay.App.filterAchievements('unlocked', event)">Unlocked (8)</button>
+        <button class="achieve-tab-btn" data-filter="locked" onclick="window.InfinityPlay.App.filterAchievements('locked', event)">In Progress (4)</button>
+      </div>
+
+      <!-- Achievements List -->
+      <div class="achievements-list" id="achievementsListContainer">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       SETTINGS MODAL
+       ========================================================================== -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-content" style="max-width: 540px; padding: 24px;">
+      <button class="modal-close-btn" aria-label="Close modal">&times;</button>
+      
+      <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 16px; margin-bottom: 16px;">
+        <h2 style="font-size: 1.35rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 8px;">
+          <span>⚙ Platform Settings</span>
+        </h2>
+        <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">
+          Personalize your visual experience, audio feedback, and platform preferences.
+        </p>
+      </div>
+
+      <!-- Audio Section -->
+      <div class="settings-section-heading">🔊 Audio & Atmosphere</div>
+      <div class="settings-item">
+        <div class="settings-item-info">
+          <span class="settings-item-title">UI Sound Effects (SFX)</span>
+          <span class="settings-item-desc">Interactive futuristic audio on clicks, toggles, and modals</span>
+        </div>
+        <div class="switch-toggle active" id="settingToggleSfx" onclick="window.InfinityPlay.App.toggleSetting('soundEffects')"></div>
+      </div>
+
+      <div class="settings-item">
+        <div class="settings-item-info">
+          <span class="settings-item-title">Ambient Game Soundtrack</span>
+          <span class="settings-item-desc">Subtle sci-fi synthpad ambiance in background</span>
+        </div>
+        <div class="switch-toggle" id="settingToggleMusic" onclick="window.InfinityPlay.App.toggleSetting('ambientMusic')"></div>
+      </div>
+
+      <!-- Graphics & Theme Section -->
+      <div class="settings-section-heading">✨ Visuals & Lighting</div>
+      <div class="settings-item">
+        <div class="settings-item-info">
+          <span class="settings-item-title">Neon Bloom & Glow Effects</span>
+          <span class="settings-item-desc">Intense neon glow borders and radiant card highlights</span>
+        </div>
+        <div class="switch-toggle active" id="settingToggleGlow" onclick="window.InfinityPlay.App.toggleSetting('neonGlow')"></div>
+      </div>
+
+      <div class="settings-item">
+        <div class="settings-item-info">
+          <span class="settings-item-title">Platform Accent Theme</span>
+          <span class="settings-item-desc">Choose your signature cybernetic glow palette</span>
+        </div>
+        <div class="accent-picker-row">
+          <div class="accent-dot active" data-color="purple" style="background: #8b5cf6;" title="Cyber Purple" onclick="window.InfinityPlay.App.setAccentTheme('purple')"></div>
+          <div class="accent-dot" data-color="cyan" style="background: #00f0ff;" title="Neon Cyan" onclick="window.InfinityPlay.App.setAccentTheme('cyan')"></div>
+          <div class="accent-dot" data-color="pink" style="background: #ec4899;" title="Hot Pink" onclick="window.InfinityPlay.App.setAccentTheme('pink')"></div>
+          <div class="accent-dot" data-color="blue" style="background: #3b82f6;" title="Electric Blue" onclick="window.InfinityPlay.App.setAccentTheme('blue')"></div>
+          <div class="accent-dot" data-color="gold" style="background: #fbbf24;" title="Apex Gold" onclick="window.InfinityPlay.App.setAccentTheme('gold')"></div>
+        </div>
+      </div>
+
+      <!-- Notifications & Performance -->
+      <div class="settings-section-heading">⚡ Performance & Notifications</div>
+      <div class="settings-item">
+        <div class="settings-item-info">
+          <span class="settings-item-title">High Performance Mode (60 FPS)</span>
+          <span class="settings-item-desc">Hardware accelerated animations and smooth scrolling</span>
+        </div>
+        <div class="switch-toggle active" id="settingTogglePerf" onclick="window.InfinityPlay.App.toggleSetting('performanceMode')"></div>
+      </div>
+
+      <div class="settings-item">
+        <div class="settings-item-info">
+          <span class="settings-item-title">System & Tourney Notifications</span>
+          <span class="settings-item-desc">Toast alerts for unlocks, leaderboard shifts, and events</span>
+        </div>
+        <div class="switch-toggle active" id="settingToggleNotif" onclick="window.InfinityPlay.App.toggleSetting('notifications')"></div>
+      </div>
+
+      <!-- Storage & Reset -->
+      <div class="settings-section-heading">🗑 Storage & Reset</div>
+      <div style="display: flex; gap: 10px; margin-top: 8px;">
+        <button type="button" class="btn btn-ghost" onclick="window.InfinityPlay.App.clearRecentCache()" style="flex: 1; font-size: 0.78rem;">
+          🧹 Clear History
+        </button>
+        <button type="button" class="btn btn-ghost" onclick="window.InfinityPlay.App.resetAllSettings()" style="flex: 1; font-size: 0.78rem; color: #f87171;">
+          ↺ Reset Defaults
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       JAVASCRIPT MODULES
+       ========================================================================== -->
+  <!-- 1. Utilities -->
+  <script src="js/utils/helpers.js"></script>
+  <script src="js/utils/storage.js"></script>
+  <script src="js/utils/api.js"></script>
+
+  <!-- 2. Data -->
+  <script src="js/data/games-data.js"></script>
+  <script src="js/data/categories-data.js"></script>
+  <script src="js/data/achievements-data.js"></script>
+
+  <!-- 3. Features -->
+  <script src="js/features/search.js"></script>
+  <script src="js/features/filtering.js"></script>
+  <script src="js/features/favorites.js"></script>
+  <script src="js/features/recently-played.js"></script>
+
+  <!-- 4. Components -->
+  <script src="js/components/header.js"></script>
+  <script src="js/components/sidebar.js"></script>
+  <script src="js/components/game-card.js"></script>
+  <script src="js/components/leaderboard.js"></script>
+
+  <!-- 5. App Initialization -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>

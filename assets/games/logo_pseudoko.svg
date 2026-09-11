@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGlow" cx="50%" cy="45%" r="70%">
+      <stop offset="0%" stop-color="#141a33"/>
+      <stop offset="50%" stop-color="#090d1c"/>
+      <stop offset="100%" stop-color="#04060c"/>
+    </radialGradient>
+
+    <!-- Neon Glows -->
+    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="glowPurple" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <linearGradient id="pGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="40%" stop-color="#3b82f6"/>
+      <stop offset="80%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+
+    <linearGradient id="accentCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.2"/>
+    </linearGradient>
+
+    <linearGradient id="gridGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#00f0ff" stop-opacity="0.1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base Dark Canvas -->
+  <rect width="800" height="500" fill="url(#bgGlow)"/>
+
+  <!-- Perspective Floor Grid (Tactical Matrix) -->
+  <g opacity="0.35">
+    <path d="M0 450 L800 450 M0 400 L800 400 M0 360 L800 360 M0 330 L800 330 M0 310 L800 310 M0 295 L800 295" stroke="#3b82f6" stroke-width="1.2"/>
+    <path d="M400 280 L50 500 M400 280 L150 500 M400 280 L280 500 M400 280 L400 500 M400 280 L520 500 M400 280 L650 500 M400 280 L750 500" stroke="#8b5cf6" stroke-width="1.2"/>
+  </g>
+
+  <!-- Cyber Circuit Traces & Conduits -->
+  <g opacity="0.5" stroke="#00f0ff" stroke-width="1.5" fill="none">
+    <path d="M80 80 L180 80 L240 140 L320 140" stroke-dasharray="4,4"/>
+    <circle cx="80" cy="80" r="4" fill="#00f0ff"/>
+    <circle cx="320" cy="140" r="3" fill="#00f0ff"/>
+
+    <path d="M720 80 L620 80 L560 140 L480 140" stroke-dasharray="4,4"/>
+    <circle cx="720" cy="80" r="4" fill="#00f0ff"/>
+    <circle cx="480" cy="140" r="3" fill="#00f0ff"/>
+
+    <path d="M120 400 L200 400 L250 350" stroke="#a855f7" stroke-width="1.5"/>
+    <circle cx="120" cy="400" r="3.5" fill="#a855f7"/>
+
+    <path d="M680 400 L600 400 L550 350" stroke="#a855f7" stroke-width="1.5"/>
+    <circle cx="680" cy="400" r="3.5" fill="#a855f7"/>
+  </g>
+
+  <!-- 8x8 Tactical Puzzle Grid (Right / Center Backdrop) -->
+  <g transform="translate(480, 100) rotate(15)" opacity="0.45">
+    <rect x="0" y="0" width="220" height="220" fill="rgba(15, 23, 42, 0.7)" stroke="#8b5cf6" stroke-width="2" rx="12"/>
+    <!-- 8x8 cells -->
+    <rect x="10" y="10" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="35" y="10" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="60" y="10" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="85" y="10" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="110" y="10" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="135" y="10" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="160" y="10" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="185" y="10" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="10" y="35" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="35" y="35" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="60" y="35" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="85" y="35" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="110" y="35" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="135" y="35" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="160" y="35" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="185" y="35" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="10" y="60" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="35" y="60" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="60" y="60" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="85" y="60" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="110" y="60" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="135" y="60" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="160" y="60" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="185" y="60" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="10" y="85" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="35" y="85" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="60" y="85" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="85" y="85" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="110" y="85" width="21" height="21" rx="3" fill="#00f0ff" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><circle cx="120.5" cy="95.5" r="4" fill="#ffffff" filter="url(#glowCyan)"/><rect x="135" y="85" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="160" y="85" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="185" y="85" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="10" y="110" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="35" y="110" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="60" y="110" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="85" y="110" width="21" height="21" rx="3" fill="#00f0ff" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><circle cx="95.5" cy="120.5" r="4" fill="#ffffff" filter="url(#glowCyan)"/><rect x="110" y="110" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="135" y="110" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="160" y="110" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="185" y="110" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="10" y="135" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="35" y="135" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="60" y="135" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="85" y="135" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="110" y="135" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="135" y="135" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="160" y="135" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="185" y="135" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="10" y="160" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="35" y="160" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="60" y="160" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="85" y="160" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="110" y="160" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="135" y="160" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="160" y="160" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="185" y="160" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="10" y="185" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="35" y="185" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="60" y="185" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="85" y="185" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="110" y="185" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="135" y="185" width="21" height="21" rx="3" fill="#a855f7" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="160" y="185" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="185" y="185" width="21" height="21" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
+  </g>
+
+  <!-- Central Ambient Aura -->
+  <circle cx="280" cy="220" r="140" fill="#a855f7" opacity="0.18" filter="url(#glowPurple)"/>
+  <circle cx="280" cy="220" r="80" fill="#00f0ff" opacity="0.15" filter="url(#glowCyan)"/>
+
+  <!-- Stylized Cybernetic Emblem: Letter 'P' with Grid Topology -->
+  <g transform="translate(160, 90)">
+    <!-- Shadow / Base -->
+    <path d="M40 20 L160 20 C220 20 250 55 250 110 C250 165 220 200 160 200 L110 200 L110 290 L40 290 Z" fill="rgba(6, 9, 19, 0.9)" stroke="#1e293b" stroke-width="12" rx="10"/>
+
+    <!-- Outer Glow Border -->
+    <path d="M40 20 L160 20 C220 20 250 55 250 110 C250 165 220 200 160 200 L110 200 L110 290 L40 290 Z" fill="none" stroke="url(#pGrad)" stroke-width="8" filter="url(#glowPurple)"/>
+
+    <!-- Core Fill -->
+    <path d="M40 20 L160 20 C220 20 250 55 250 110 C250 165 220 200 160 200 L110 200 L110 290 L40 290 Z" fill="#0c1224"/>
+
+    <!-- Inner 'P' Cutout (Counter) -->
+    <rect x="100" y="70" width="75" height="75" rx="14" fill="#060913" stroke="#00f0ff" stroke-width="3.5" filter="url(#glowCyan)"/>
+    
+    <!-- Inner Tactical Core Node in Cutout -->
+    <circle cx="137.5" cy="107.5" r="14" fill="url(#pGrad)"/>
+    <circle cx="137.5" cy="107.5" r="6" fill="#ffffff"/>
+
+    <!-- Futuristic Grid Matrix inside the Letter P stem -->
+    <g opacity="0.8">
+      <rect x="52" y="32" width="45" height="45" rx="6" fill="rgba(0, 240, 255, 0.15)" stroke="#00f0ff" stroke-width="1"/>
+      <text x="74" y="60" fill="#00f0ff" font-family="'Inter', sans-serif" font-weight="900" font-size="18" text-anchor="middle">α</text>
+
+      <rect x="52" y="85" width="45" height="45" rx="6" fill="rgba(168, 85, 247, 0.15)" stroke="#a855f7" stroke-width="1"/>
+      <text x="74" y="113" fill="#a855f7" font-family="'Inter', sans-serif" font-weight="900" font-size="18" text-anchor="middle">β</text>
+
+      <rect x="52" y="138" width="45" height="45" rx="6" fill="rgba(59, 130, 246, 0.15)" stroke="#3b82f6" stroke-width="1"/>
+      <text x="74" y="166" fill="#3b82f6" font-family="'Inter', sans-serif" font-weight="900" font-size="18" text-anchor="middle">γ</text>
+
+      <rect x="52" y="191" width="45" height="45" rx="6" fill="rgba(236, 72, 153, 0.15)" stroke="#ec4899" stroke-width="1"/>
+      <text x="74" y="219" fill="#ec4899" font-family="'Inter', sans-serif" font-weight="900" font-size="18" text-anchor="middle">δ</text>
+
+      <rect x="52" y="244" width="45" height="38" rx="6" fill="rgba(245, 158, 11, 0.15)" stroke="#f59e0b" stroke-width="1"/>
+      <text x="74" y="270" fill="#f59e0b" font-family="'Inter', sans-serif" font-weight="900" font-size="16" text-anchor="middle">⚡</text>
+    </g>
+
+    <!-- Circuit Lines Crossing P -->
+    <path d="M110 160 L185 160 L210 185" stroke="#00f0ff" stroke-width="2" stroke-dasharray="3,3" fill="none"/>
+    <circle cx="210" cy="185" r="3.5" fill="#00f0ff"/>
+
+    <path d="M175 60 L220 60 L240 80" stroke="#a855f7" stroke-width="2" fill="none"/>
+    <circle cx="240" cy="80" r="3.5" fill="#a855f7"/>
+  </g>
+
+  <!-- Typography & Badges -->
+  <g transform="translate(420, 340)">
+    <!-- Category Pill -->
+    <rect x="0" y="0" width="130" height="28" rx="14" fill="rgba(245, 158, 11, 0.18)" stroke="#f59e0b" stroke-width="1.2"/>
+    <text x="65" y="18" fill="#fbbf24" font-family="'Inter', sans-serif" font-weight="800" font-size="11" letter-spacing="2" text-anchor="middle">STRATEGY</text>
+
+    <!-- Sub Badge -->
+    <rect x="140" y="0" width="150" height="28" rx="14" fill="rgba(0, 240, 255, 0.15)" stroke="#00f0ff" stroke-width="1.2"/>
+    <text x="215" y="18" fill="#00f0ff" font-family="'Inter', sans-serif" font-weight="800" font-size="11" letter-spacing="1.5" text-anchor="middle">LOGIC PUZZLE</text>
+
+    <!-- Main Title -->
+    <text x="0" y="72" fill="#ffffff" font-family="'Inter', sans-serif" font-weight="900" font-size="44" letter-spacing="4" filter="url(#glowCyan)">PSEUDOKO</text>
+
+    <!-- Tagline -->
+    <text x="0" y="102" fill="#94a3b8" font-family="'Inter', sans-serif" font-weight="600" font-size="14" letter-spacing="0.5">8×8 TACTICAL DEDUCTION • NEURAL CONSTRAINTS</text>
+
+    <!-- Tech Accents -->
+    <path d="M0 118 L340 118" stroke="url(#accentCyan)" stroke-width="2"/>
+  </g>
+
+  <!-- Corner Tech Accents -->
+  <g stroke="#00f0ff" stroke-width="1.5" fill="none" opacity="0.6">
+    <path d="M20 50 L20 20 L50 20"/>
+    <path d="M780 50 L780 20 L750 20"/>
+    <path d="M20 450 L20 480 L50 480"/>
+    <path d="M780 450 L780 480 L750 480"/>
+  </g>
+</svg>

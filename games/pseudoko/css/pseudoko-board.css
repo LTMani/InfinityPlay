@@ -1,0 +1,288 @@
+/**
+ * PSEUDOKO — 8x8 Tactical Grid & Cell Components
+ */
+
+.pk-board-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Coordinate Header (A - H) */
+.pk-col-coords {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  width: 100%;
+  max-width: 520px;
+  margin-left: 28px; /* Offset for row coords */
+  margin-bottom: 6px;
+  box-sizing: border-box;
+}
+
+.pk-coord-col {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--pk-cyan);
+  opacity: 0.75;
+  letter-spacing: 0.05em;
+}
+
+.pk-board-middle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 548px;
+}
+
+/* Coordinate Row (1 - 8) */
+.pk-row-coords {
+  display: grid;
+  grid-template-rows: repeat(8, 1fr);
+  height: 520px;
+  width: 24px;
+  margin-right: 4px;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.pk-coord-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--pk-cyan);
+  opacity: 0.75;
+}
+
+/* 8x8 Main Board Grid */
+.pk-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  gap: 5px;
+  width: 520px;
+  height: 520px;
+  background: rgba(8, 13, 27, 0.85);
+  border: 2px solid rgba(0, 240, 255, 0.4);
+  border-radius: var(--pk-radius-lg);
+  padding: 10px;
+  box-sizing: border-box;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.7),
+    0 0 25px rgba(0, 240, 255, 0.15),
+    inset 0 0 30px rgba(0, 0, 0, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Sub-Sector Grid Separation (2x2 lines) */
+.pk-grid::after {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  pointer-events: none;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  background-image:
+    linear-gradient(to right, transparent calc(25% - 1px), rgba(168, 85, 247, 0.3) calc(25%), transparent calc(25% + 1px), transparent calc(50% - 1.5px), rgba(0, 240, 255, 0.6) 50%, transparent calc(50% + 1.5px), transparent calc(75% - 1px), rgba(168, 85, 247, 0.3) 75%, transparent calc(75% + 1px)),
+    linear-gradient(to bottom, transparent calc(25% - 1px), rgba(168, 85, 247, 0.3) calc(25%), transparent calc(25% + 1px), transparent calc(50% - 1.5px), rgba(0, 240, 255, 0.6) 50%, transparent calc(50% + 1.5px), transparent calc(75% - 1px), rgba(168, 85, 247, 0.3) 75%, transparent calc(75% + 1px));
+}
+
+/* Individual Cell */
+.pk-cell {
+  background: rgba(18, 26, 49, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--pk-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: all var(--pk-trans-base);
+  box-sizing: border-box;
+}
+
+.pk-cell:hover:not(.locked):not(.void) {
+  background: rgba(30, 41, 75, 0.9);
+  border-color: var(--pk-cyan);
+  box-shadow: inset 0 0 12px var(--pk-cyan-glow);
+  transform: scale(1.04);
+  z-index: 2;
+}
+
+/* Tactical Influence Overlays */
+.pk-cell.influence-player {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: rgba(0, 240, 255, 0.28);
+}
+.pk-cell.influence-player:hover {
+  background: rgba(0, 240, 255, 0.22);
+}
+
+.pk-cell.influence-ai {
+  background: rgba(168, 85, 247, 0.14);
+  border-color: rgba(168, 85, 247, 0.3);
+}
+.pk-cell.influence-ai:hover {
+  background: rgba(168, 85, 247, 0.24);
+}
+
+/* Special Cell Types */
+.pk-cell.type-core {
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, rgba(18, 26, 49, 0.7) 100%);
+  border-color: rgba(251, 191, 36, 0.55);
+}
+.pk-cell.type-core::before {
+  content: '⚡';
+  font-size: 1.15rem;
+  color: var(--pk-gold);
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.8));
+  animation: corePulse 2s infinite ease-in-out;
+}
+@keyframes corePulse {
+  0%, 100% { transform: scale(0.9); opacity: 0.85; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+.pk-cell.type-firewall {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.45);
+}
+.pk-cell.type-firewall::before {
+  content: '🛡';
+  font-size: 1.1rem;
+  color: var(--pk-red);
+}
+
+.pk-cell.type-vortex {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, rgba(18, 26, 49, 0.7) 100%);
+  border-color: var(--pk-purple);
+}
+.pk-cell.type-vortex::before {
+  content: '🌀';
+  font-size: 1.15rem;
+  animation: vortexSpin 4s infinite linear;
+}
+@keyframes vortexSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.pk-cell.type-void {
+  background: rgba(0, 0, 0, 0.6);
+  border-color: transparent;
+  cursor: not-allowed;
+  opacity: 0.25;
+}
+
+/* Placed Nodes */
+.pk-node-glyph {
+  width: 82%;
+  height: 82%;
+  border-radius: var(--pk-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1;
+  position: relative;
+  animation: nodeDrop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  z-index: 1;
+}
+
+@keyframes nodeDrop {
+  0% { transform: scale(0.3); opacity: 0; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.pk-node-1 { /* Alpha (Cyan) */
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(59, 130, 246, 0.35));
+  border: 1.5px solid var(--pk-cyan);
+  color: var(--pk-cyan);
+  box-shadow: 0 0 12px var(--pk-cyan-glow);
+}
+.pk-node-2 { /* Beta (Purple) */
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(121, 40, 202, 0.35));
+  border: 1.5px solid var(--pk-purple);
+  color: var(--pk-purple);
+  box-shadow: 0 0 12px var(--pk-purple-glow);
+}
+.pk-node-3 { /* Gamma (Blue) */
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(14, 165, 233, 0.35));
+  border: 1.5px solid var(--pk-blue);
+  color: var(--pk-blue);
+  box-shadow: 0 0 12px var(--pk-blue-glow);
+}
+.pk-node-4 { /* Delta (Pink) */
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(244, 63, 94, 0.35));
+  border: 1.5px solid var(--pk-pink);
+  color: var(--pk-pink);
+  box-shadow: 0 0 12px rgba(236, 72, 153, 0.5);
+}
+
+/* Locked Preplaced Node */
+.pk-cell.locked .pk-node-glyph {
+  opacity: 0.85;
+}
+.pk-cell.locked::after {
+  content: '🔒';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 0.55rem;
+  opacity: 0.65;
+}
+
+/* AI Placed Node Ring Indicator */
+.pk-node-ai {
+  border-style: dashed;
+}
+.pk-node-ai::after {
+  content: '🤖';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 0.55rem;
+}
+
+/* Conflict / Error Shake Animation */
+.pk-cell.error-shake {
+  animation: cellError 0.35s ease;
+  border-color: var(--pk-red) !important;
+  background: rgba(244, 63, 94, 0.3) !important;
+}
+
+@keyframes cellError {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+/* Circuit Resonance Wave */
+.pk-cell.circuit-glow {
+  animation: circuitResonance 0.8s ease-out;
+}
+
+@keyframes circuitResonance {
+  0% { transform: scale(1); box-shadow: 0 0 25px var(--pk-cyan), inset 0 0 15px var(--pk-cyan); }
+  50% { transform: scale(1.1); box-shadow: 0 0 35px var(--pk-purple), inset 0 0 20px var(--pk-purple); }
+  100% { transform: scale(1); }
+}
+
+/* Tactical Target / Scan Highlight */
+.pk-cell.scan-highlight {
+  border-color: var(--pk-gold);
+  background: rgba(251, 191, 36, 0.2);
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.5);
+  animation: scanPulse 1.2s infinite ease-in-out;
+}
+@keyframes scanPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+

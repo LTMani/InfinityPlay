@@ -1,0 +1,262 @@
+/**
+ * PSEUDOKO — Futuristic Cyber Theme
+ * Visual Design Tokens, Glass Panels, Neon Glows, and Animations
+ */
+
+:root {
+  /* Color Palette */
+  --pk-bg-space: #05070f;
+  --pk-bg-deep: #080c18;
+  --pk-bg-surface: #0e1426;
+  --pk-bg-panel: rgba(14, 20, 38, 0.75);
+  --pk-bg-panel-solid: #11182d;
+  
+  /* Cyber Neon Accents */
+  --pk-cyan: #00f0ff;
+  --pk-cyan-glow: rgba(0, 240, 255, 0.45);
+  --pk-purple: #a855f7;
+  --pk-purple-glow: rgba(168, 85, 247, 0.45);
+  --pk-blue: #3b82f6;
+  --pk-blue-glow: rgba(59, 130, 246, 0.45);
+  --pk-pink: #ec4899;
+  --pk-gold: #fbbf24;
+  --pk-green: #10b981;
+  --pk-red: #f43f5e;
+
+  /* Typography */
+  --pk-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --pk-text-primary: #ffffff;
+  --pk-text-secondary: #cbd5e1;
+  --pk-text-muted: #64748b;
+
+  /* Borders & Shadows */
+  --pk-border-subtle: rgba(255, 255, 255, 0.08);
+  --pk-border-cyan: rgba(0, 240, 255, 0.35);
+  --pk-border-purple: rgba(168, 85, 247, 0.35);
+  --pk-radius-sm: 6px;
+  --pk-radius-md: 10px;
+  --pk-radius-lg: 16px;
+  --pk-radius-full: 9999px;
+
+  /* Transitions */
+  --pk-trans-fast: 0.15s ease;
+  --pk-trans-base: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --pk-trans-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Alternate Color Themes */
+body.theme-matrix {
+  --pk-cyan: #00ff66;
+  --pk-cyan-glow: rgba(0, 255, 102, 0.45);
+  --pk-purple: #10b981;
+  --pk-purple-glow: rgba(16, 185, 129, 0.45);
+  --pk-blue: #059669;
+}
+
+body.theme-synthwave {
+  --pk-cyan: #ff007f;
+  --pk-cyan-glow: rgba(255, 0, 127, 0.45);
+  --pk-purple: #7928ca;
+  --pk-purple-glow: rgba(121, 40, 202, 0.45);
+  --pk-blue: #00f0ff;
+}
+
+body.theme-gold {
+  --pk-cyan: #fbbf24;
+  --pk-cyan-glow: rgba(251, 191, 36, 0.45);
+  --pk-purple: #f59e0b;
+  --pk-purple-glow: rgba(245, 158, 11, 0.45);
+  --pk-blue: #d97706;
+}
+
+/* Base Body Styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  background-color: var(--pk-bg-space);
+  color: var(--pk-text-primary);
+  font-family: var(--pk-font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+}
+
+/* Cybernetic Ambient Grid Backdrop */
+.pk-ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: 
+    radial-gradient(circle at 50% 15%, rgba(0, 240, 255, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 80% 85%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 20% 75%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #05070f 0%, #090e1c 100%);
+}
+
+.pk-grid-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 240, 255, 0.2) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(168, 85, 247, 0.2) 1px, transparent 1px);
+}
+
+/* Glass Panels */
+.pk-panel {
+  background: var(--pk-bg-panel);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--pk-border-subtle);
+  border-radius: var(--pk-radius-lg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.pk-panel-glow {
+  border-color: var(--pk-border-cyan);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 18px var(--pk-cyan-glow);
+}
+
+/* Buttons */
+.pk-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  font-family: var(--pk-font-family);
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: var(--pk-radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--pk-trans-base);
+  text-decoration: none;
+  outline: none;
+  letter-spacing: 0.03em;
+}
+
+.pk-btn-primary {
+  background: linear-gradient(135deg, var(--pk-cyan), var(--pk-blue));
+  color: #040714;
+  box-shadow: 0 4px 16px var(--pk-cyan-glow);
+}
+.pk-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px var(--pk-cyan-glow), 0 0 15px rgba(255, 255, 255, 0.4);
+}
+.pk-btn-primary:active {
+  transform: translateY(1px);
+}
+
+.pk-btn-purple {
+  background: linear-gradient(135deg, var(--pk-purple), var(--pk-pink));
+  color: #ffffff;
+  box-shadow: 0 4px 16px var(--pk-purple-glow);
+}
+.pk-btn-purple:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px var(--pk-purple-glow);
+}
+
+.pk-btn-ghost {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--pk-border-subtle);
+  color: var(--pk-text-primary);
+}
+.pk-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--pk-cyan);
+  color: var(--pk-cyan);
+  box-shadow: 0 0 14px var(--pk-cyan-glow);
+}
+
+/* Exit to InfinityPlay Header Bar Link */
+.pk-btn-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--pk-border-subtle);
+  border-radius: var(--pk-radius-full);
+  color: var(--pk-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all var(--pk-trans-base);
+}
+.pk-btn-exit:hover {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: var(--pk-cyan);
+  color: var(--pk-cyan);
+  box-shadow: 0 0 12px var(--pk-cyan-glow);
+}
+
+/* Badges & Tags */
+.pk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--pk-radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.pk-badge-cyan {
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid var(--pk-border-cyan);
+  color: var(--pk-cyan);
+}
+.pk-badge-purple {
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid var(--pk-border-purple);
+  color: var(--pk-purple);
+}
+.pk-badge-gold {
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  color: var(--pk-gold);
+}
+
+/* Toast Notifications */
+.pk-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.pk-toast {
+  pointer-events: auto;
+  background: rgba(13, 18, 36, 0.95);
+  border: 1px solid var(--pk-cyan);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px var(--pk-cyan-glow);
+  border-radius: var(--pk-radius-md);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 280px;
+  max-width: 420px;
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
