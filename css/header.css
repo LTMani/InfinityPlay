@@ -365,3 +365,90 @@
   background: var(--border-subtle);
   margin: 4px 0;
 }
+
+/* ==========================================================================
+   Interactive Block Merge Logo in Header Navigation
+   ========================================================================== */
+.header-block-merge-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(17, 24, 45, 0.9) 0%, rgba(26, 35, 64, 0.7) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px 4px 6px;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.header-block-merge-logo:hover {
+  border-color: #00f0ff;
+  background: linear-gradient(135deg, rgba(20, 30, 60, 0.95) 0%, rgba(55, 25, 85, 0.85) 100%);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.4), 0 0 25px rgba(168, 85, 247, 0.3);
+  transform: translateY(-1px);
+}
+
+.bm-header-logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.6));
+  transition: transform var(--transition-fast);
+}
+
+.header-block-merge-logo:hover .bm-header-logo-icon {
+  transform: scale(1.1) rotate(-4deg);
+}
+
+.bm-header-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.bm-header-logo-badge {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #fbbf24;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bm-header-logo-title {
+  font-size: 0.84rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  background: linear-gradient(90deg, #00f0ff, #c084fc, #f43f5e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bm-header-play-pill {
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+  transition: all var(--transition-fast);
+}
+
+.header-block-merge-logo:hover .bm-header-play-pill {
+  background: linear-gradient(135deg, #a855f7 0%, #00f0ff 100%);
+  box-shadow: 0 2px 12px rgba(0, 240, 255, 0.6);
+}
+
+@media (max-width: 960px) {
+  .bm-header-logo-text, .bm-header-play-pill {
+    display: none;
+  }
+  .header-block-merge-logo {
+    padding: 4px;
+  }
+}
+
