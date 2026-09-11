@@ -1,24 +1,23 @@
 /**
  * VehiclePhysics.js
- * High-performance arcade vehicle physics model with bicycle kinematics.
- * Delivers immediate throttle response, punchy acceleration, high-authority braking,
- * agile speed-sensitive steering, and tuning upgrades.
+ * Balanced arcade vehicle physics model with bicycle kinematics.
+ * Features speed-sensitive steering attenuation, caster self-aligning highway stability,
+ * strict yaw rate limits, and controllable acceleration curve.
  */
 
 export class VehiclePhysics {
   constructor(config = {}) {
-    // Configurable high-performance parameters
-    this.maxSpeed = config.maxSpeed || 48.0;          // ~173 km/h base top speed
-    this.reverseSpeed = config.reverseSpeed || 16.0;  // ~58 km/h
-    this.acceleration = config.acceleration || 22.0;  // m/s^2 instant punchy acceleration
-    this.reverseAcceleration = config.reverseAcceleration || 14.0;
-    this.brakingForce = config.brakingForce || 34.0;  // m/s^2 high-authority braking
-    this.handbrakeForce = config.handbrakeForce || 45.0;
-    this.friction = config.friction || 2.0;           // Rolling resistance
-    this.airDrag = config.airDrag || 0.0012;         // Aerodynamic drag
+    // Balanced, comfortable driving parameters
+    this.maxSpeed = config.maxSpeed || 40.0;          // ~144 km/h base top speed
+    this.reverseSpeed = config.reverseSpeed || 12.0;  // ~43 km/h
+    this.acceleration = config.acceleration || 15.0;  // m/s^2 smooth controllable acceleration
+    this.reverseAcceleration = config.reverseAcceleration || 10.0;
+    this.brakingForce = config.brakingForce || 30.0;  // m/s^2 crisp reliable stopping
+    this.handbrakeForce = config.handbrakeForce || 40.0;
+    this.friction = config.friction || 2.2;           // Rolling resistance
+    this.airDrag = config.airDrag || 0.0015;         // Aerodynamic drag
     this.wheelbase = config.wheelbase || 2.8;         // Distance between axles (meters)
-    this.maxSteerAngle = config.maxSteerAngle || 0.65;// ~37 degrees for tight cornering
-    this.highSpeedSteerFactor = config.highSpeedSteerFactor || 0.55; // Retains maneuverability at top speed
+    this.maxSteerAngle = config.maxSteerAngle || 0.45;// ~26 degrees at low parking speed
 
     // State
     this.speed = 0;              // Current longitudinal velocity (m/s, signed: + forward, - reverse)
@@ -37,16 +36,15 @@ export class VehiclePhysics {
 
   applyTuning(tuning = {}) {
     const engineStage = Math.max(1, Math.min(3, tuning.engineLevel || 2));
-    // Stage 1: 165 km/h, Stage 2: 185 km/h, Stage 3: 205 km/h
-    this.maxSpeed = 44.0 + (engineStage - 1) * 6.0;
-    this.acceleration = 18.0 + (engineStage - 1) * 5.0;
+    // Stage 1: 144 km/h, Stage 2: 162 km/h, Stage 3: 180 km/h
+    this.maxSpeed = 38.0 + (engineStage - 1) * 5.0;
+    this.acceleration = 13.0 + (engineStage - 1) * 3.5;
 
     const handlingStage = Math.max(1, Math.min(3, tuning.handlingLevel || 2));
-    this.maxSteerAngle = 0.58 + (handlingStage - 1) * 0.06;
-    this.highSpeedSteerFactor = 0.48 + (handlingStage - 1) * 0.06;
+    this.maxSteerAngle = 0.40 + (handlingStage - 1) * 0.04;
 
     const brakeStage = Math.max(1, Math.min(3, tuning.brakesLevel || 2));
-    this.brakingForce = 28.0 + (brakeStage - 1) * 6.0;
+    this.brakingForce = 26.0 + (brakeStage - 1) * 5.0;
   }
 
   reset(x = 0, y = 0, z = 0, heading = 0) {
@@ -85,15 +83,15 @@ export class VehiclePhysics {
         // Reverse braking to stop
         this.speed += this.brakingForce * dt;
         if (this.speed > 0) this.speed = 0;
-        targetPitch = 0.035;
+        targetPitch = 0.03;
         this.gear = 'D';
       } else {
-        // Accelerate forward with sustained power curve
+        // Smooth forward acceleration
         const speedRatio = Math.max(0, this.speed / this.maxSpeed);
-        const powerCurve = 1.0 - Math.pow(speedRatio, 3.5) * 0.65;
+        const powerCurve = 1.0 - Math.pow(speedRatio, 2.8) * 0.6;
         this.speed += this.acceleration * throttle * powerCurve * dt;
         if (this.speed > this.maxSpeed) this.speed = this.maxSpeed;
-        targetPitch = -0.035 * throttle; // Chassis squat
+        targetPitch = -0.025 * throttle; // Chassis squat
         this.gear = 'D';
       }
     } else if (throttle < -0.04) {
@@ -102,15 +100,15 @@ export class VehiclePhysics {
         // Forward braking
         this.speed -= this.brakingForce * brakeMagnitude * dt;
         if (this.speed < 0) this.speed = 0;
-        targetPitch = 0.045 * brakeMagnitude; // Chassis nose dive
+        targetPitch = 0.035 * brakeMagnitude; // Chassis nose dive
         this.gear = 'D';
       } else {
         // Reverse acceleration
         const revRatio = Math.abs(this.speed) / this.reverseSpeed;
-        const revPower = 1.0 - Math.min(1.0, revRatio * 0.5);
+        const revPower = 1.0 - Math.min(1.0, revRatio * 0.6);
         this.speed -= this.reverseAcceleration * brakeMagnitude * revPower * dt;
         if (this.speed < -this.reverseSpeed) this.speed = -this.reverseSpeed;
-        targetPitch = 0.02;
+        targetPitch = 0.018;
         this.gear = 'R';
       }
     } else {
@@ -132,38 +130,61 @@ export class VehiclePhysics {
       } else if (this.speed < 0) {
         this.speed = Math.min(0, this.speed + hbDrag);
       }
-      targetPitch = 0.06 * handbrakeInput;
+      targetPitch = 0.05 * handbrakeInput;
     }
 
-    // 3. Speed-sensitive steering
-    const speedRatio = Math.min(1.0, Math.abs(this.speed) / this.maxSpeed);
-    const speedSteerMultiplier = 1.0 - (1.0 - this.highSpeedSteerFactor) * (speedRatio * speedRatio);
-    const targetSteerAngle = steerInput * this.maxSteerAngle * speedSteerMultiplier;
+    // 3. High-Speed Steering Attenuation
+    // As speed increases, max steer angle smoothly drops so the car never darts sideways violently
+    const speedKmh = Math.abs(this.speed) * 3.6;
+    let speedFactor = 1.0;
+    if (speedKmh > 12) {
+      // At 20 km/h: ~0.80
+      // At 60 km/h: ~0.32
+      // At 100+ km/h: ~0.16 (around 3.8 degrees max wheel angle!)
+      speedFactor = Math.max(0.14, 1.0 - Math.min(0.86, Math.pow(speedKmh / 95, 1.3) * 0.86));
+    }
+    const targetSteerAngle = steerInput * this.maxSteerAngle * speedFactor;
 
-    // Fast steering rack response (18.0 vs old 8.0)
-    const steerSpeed = 18.0;
+    // Smooth progressive steering rack response (9.0 rad/s)
+    const steerSpeed = 9.0;
     this.steeringAngle += (targetSteerAngle - this.steeringAngle) * Math.min(1.0, steerSpeed * dt);
 
-    // 4. Bicycle Kinematic Yaw Calculation with low-speed agility
-    if (Math.abs(this.speed) > 0.02 || Math.abs(throttle) > 0.05) {
-      // Keep low-speed turn authority so the car is never locked when rolling or launching
-      const turnSpeed = Math.max(4.2, Math.abs(this.speed));
+    // 4. Bicycle Kinematic Yaw Calculation with strict safety bounds
+    if (Math.abs(this.speed) > 0.05) {
+      // Clamped turnSpeed ensures high-speed driving never generates runaway rotation
+      const turnSpeed = Math.min(18.0, Math.abs(this.speed));
       const direction = this.speed < -0.1 ? -1 : 1;
-      const yawRate = (turnSpeed / this.wheelbase) * Math.tan(this.steeringAngle) * direction;
+      let yawRate = (turnSpeed / this.wheelbase) * Math.tan(this.steeringAngle) * direction;
+
+      // Cap maximum yaw rate to prevent snap spinning (max ~42 deg/sec)
+      const maxYawRate = 0.72;
+      yawRate = Math.max(-maxYawRate, Math.min(maxYawRate, yawRate));
+
       this.heading += yawRate * dt;
 
-      // Chassis roll opposite to centrifugal force
+      // Highway heading guard: car can never rotate sideways across the boulevard
+      // Road forward direction is along -Z (heading = 0)
+      this.heading = Math.max(-0.52, Math.min(0.52, this.heading)); // Max ±30 degrees
+
+      // Dynamic chassis roll
       const lateralAccel = yawRate * this.speed;
-      const targetRoll = -Math.max(-0.14, Math.min(0.14, lateralAccel * 0.018));
-      this.chassisRoll += (targetRoll - this.chassisRoll) * Math.min(1.0, 12.0 * dt);
+      const targetRoll = -Math.max(-0.09, Math.min(0.09, lateralAccel * 0.012));
+      this.chassisRoll += (targetRoll - this.chassisRoll) * Math.min(1.0, 8.0 * dt);
     } else {
-      this.chassisRoll += (0 - this.chassisRoll) * Math.min(1.0, 12.0 * dt);
+      this.chassisRoll += (0 - this.chassisRoll) * Math.min(1.0, 8.0 * dt);
+    }
+
+    // 5. Caster self-aligning highway stability
+    // When player releases steering (A/D neutral), smoothly guide car back to facing forward down lane
+    if (Math.abs(steerInput) < 0.05 && Math.abs(this.speed) > 1.0) {
+      const alignRate = 3.5;
+      this.heading += (0 - this.heading) * Math.min(1.0, alignRate * dt);
     }
 
     // Smooth chassis pitch recovery
-    this.chassisPitch += (targetPitch - this.chassisPitch) * Math.min(1.0, 10.0 * dt);
+    this.chassisPitch += (targetPitch - this.chassisPitch) * Math.min(1.0, 8.0 * dt);
 
-    // 5. Position integration
+    // 6. Position integration
     const forwardX = -Math.sin(this.heading);
     const forwardZ = -Math.cos(this.heading);
 
@@ -181,10 +202,12 @@ export class VehiclePhysics {
   /**
    * Applies an obstacle collision impulse.
    */
-  onCollision(normalX, normalZ, restitution = 0.25) {
+  onCollision(normalX, normalZ, restitution = 0.22) {
     this.speed = -this.speed * restitution;
-    this.position.x += normalX * 0.35;
-    this.position.z += normalZ * 0.35;
-    this.chassisPitch = -0.09;
+    this.position.x += normalX * 0.3;
+    this.position.z += normalZ * 0.3;
+    // Straighten heading slightly on guardrail/obstacle bounce
+    this.heading *= 0.5;
+    this.chassisPitch = -0.07;
   }
 }

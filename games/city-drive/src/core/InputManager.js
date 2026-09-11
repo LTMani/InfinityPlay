@@ -180,13 +180,13 @@ export class InputManager {
       targetSteer = -1.0; // Right
     }
 
-    // Ultra-fast throttle response (almost instant)
-    const throttleRate = targetThrottle !== 0 ? 32.0 : 22.0;
+    // Smooth, controllable throttle response
+    const throttleRate = targetThrottle !== 0 ? 12.0 : 10.0;
     this.throttle += (targetThrottle - this.throttle) * Math.min(1.0, throttleRate * dt);
     if (Math.abs(this.throttle) < 0.001) this.throttle = 0;
 
-    // Snappy steering response
-    const steerRate = targetSteer !== 0 ? 30.0 : 25.0;
+    // Progressive steering: light tap = smooth lane nudge, hold = lane change
+    const steerRate = targetSteer !== 0 ? 8.0 : 14.0;
     this.steer += (targetSteer - this.steer) * Math.min(1.0, steerRate * dt);
     if (Math.abs(this.steer) < 0.001) this.steer = 0;
 
