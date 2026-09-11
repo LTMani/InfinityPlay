@@ -155,7 +155,7 @@ export class HUD {
 
       this.tuning = { engineLevel: eng, handlingLevel: hnd, brakesLevel: brk };
 
-      const engLabels = ['STAGE 1 (150 KM/H)', 'STAGE 2 (170 KM/H)', 'STAGE 3 PRO (190 KM/H)'];
+      const engLabels = ['STAGE 1 (165 KM/H)', 'STAGE 2 (187 KM/H)', 'STAGE 3 PRO (209 KM/H)'];
       const hndLabels = ['STAGE 1 (STANDARD)', 'STAGE 2 (HIGH GRIP)', 'STAGE 3 PRO (RACE SPEC)'];
       const brkLabels = ['STAGE 1 (OEM PADS)', 'STAGE 2 (SPORT PADS)', 'STAGE 3 PRO (CERAMIC)'];
 
