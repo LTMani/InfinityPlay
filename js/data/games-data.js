@@ -208,6 +208,24 @@ const gamesData = [
     developer: "InfinityPlay Studios",
     thumbnail: "assets/games/thumb_memory_match.jpg",
     gameUrl: "games/memory-match/index.html"
+  },
+  {
+    id: "city-drive",
+    name: "City Drive",
+    category: "Racing",
+    rating: 4.9,
+    plays: 13500,
+    playsFormatted: "13.5K",
+    rank: null,
+    badge: "NEW",
+    isTop: false,
+    thumbnail: "assets/games/thumb_city_drive.svg",
+    topThumbnail: "assets/games/top_city_drive.svg",
+    description: "Master the asphalt in this high-performance 3D urban driving simulator. Navigate streaming cityscapes with arcade vehicle physics, responsive follow camera, obstacle hazards, and multi-touch controls.",
+    tags: ["Racing", "3D", "City", "Driving", "Simulation"],
+    releaseDate: "2026-09-11",
+    developer: "InfinityPlay Studios",
+    gameUrl: "games/city-drive/index.html"
   }
 ];
 

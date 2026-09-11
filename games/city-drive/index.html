@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>City Drive — 3D Urban Driving Prototype | InfinityPlay</title>
+  <meta name="description" content="City Drive: A high-performance 3D browser-based city driving game built with Three.js and vanilla JavaScript. Features realistic arcade physics, follow camera, obstacle collisions, and mobile touch support.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2306b6d4'><path d='M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.04 3H5.81l1.04-3zM19 17H5v-4.66l.12-.34h13.77l.11.34V17z'/><circle cx='7.5' cy='14.5' r='1.5'/><circle cx='16.5' cy='14.5' r='1.5'/></svg>">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Game Stylesheet -->
+  <link rel="stylesheet" href="styles/game.css">
+
+  <!-- Import Map for ES Module Three.js -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./src/libs/three.module.js"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- Main Three.js 3D WebGL Canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- ======================================================================
+       1. START SCREEN (Game Title, Subtitle, Play, Controls)
+       ====================================================================== -->
+  <section class="overlay-screen" id="startScreen">
+    <div class="start-card">
+      <div class="brand-badge">⚡ InfinityPlay Racing</div>
+      <h1 class="game-title">CITY DRIVE</h1>
+      <p class="game-subtitle">Master the road. Reach your destination.</p>
+
+      <div class="menu-button-stack">
+        <button class="btn-primary" id="btnPlay">
+          <span>▶</span>
+          <span>PLAY</span>
+        </button>
+        <button class="btn-secondary" id="btnControls">
+          <span>🎮</span>
+          <span>CONTROLS</span>
+        </button>
+      </div>
+
+      <a href="../../index.html" class="platform-link">⮌ Return to InfinityPlay</a>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       2. HEADS-UP DISPLAY (In-Game HUD)
+       ====================================================================== -->
+  <div class="hud-layer hidden" id="gameHUD">
+    <!-- Top Action & Info Bar -->
+    <div class="hud-top-bar">
+      <div class="hud-hint-pill">
+        <kbd>W</kbd> / <kbd>S</kbd> Throttle &amp; Brake &bull; <kbd>A</kbd> / <kbd>D</kbd> Steer &bull; <kbd>R</kbd> Reset &bull; <kbd>ESC</kbd> Pause
+      </div>
+      <div class="hud-actions">
+        <button class="hud-icon-btn" id="btnAudioToggle" title="Toggle Sound">🔊</button>
+        <button class="hud-icon-btn" id="btnHudRestart" title="Restart Game (R)">↺</button>
+        <button class="hud-icon-btn" id="btnHudPause" title="Pause Game (ESC)">⏸</button>
+      </div>
+    </div>
+
+    <!-- Center Collision / Status Alert Banner -->
+    <div class="hud-banner" id="hudBanner">ENGINE STARTED</div>
+
+    <!-- Bottom Automotive Dashboard -->
+    <div class="hud-dashboard-cluster">
+      <!-- Speedometer & Gear -->
+      <div class="hud-card speedometer-card">
+        <div class="speedometer-header">
+          <span class="speedometer-label">SPEED</span>
+          <span class="gear-badge gear-p" id="hudGear">P</span>
+        </div>
+        <div class="speedometer-main">
+          <span class="speed-number" id="hudSpeedNumber">000</span>
+          <span class="speed-unit">KM/H</span>
+        </div>
+        <div class="speed-bar-track">
+          <div class="speed-bar-fill" id="hudSpeedBar"></div>
+        </div>
+      </div>
+
+      <!-- Odometer / Distance -->
+      <div class="hud-card distance-card">
+        <div class="speedometer-label">DISTANCE</div>
+        <div class="distance-number" id="hudDistance">0 M</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       3. MOBILE TOUCH CONTROLS (Multi-touch support)
+       ====================================================================== -->
+  <div class="touch-controls hidden" id="touchControls">
+    <!-- Left Hand: Steering Cluster -->
+    <div class="touch-cluster">
+      <button class="touch-btn touch-steer-btn" id="btnSteerLeft" aria-label="Steer Left">◀</button>
+      <button class="touch-btn touch-steer-btn" id="btnSteerRight" aria-label="Steer Right">▶</button>
+    </div>
+
+    <!-- Right Hand: Pedals Cluster -->
+    <div class="touch-cluster">
+      <button class="touch-btn touch-pedal-btn touch-pedal-brake" id="btnBrake" aria-label="Brake or Reverse">
+        <span class="pedal-icon">▼</span>
+        <span class="pedal-label">BRAKE</span>
+      </button>
+      <button class="touch-btn touch-pedal-btn touch-pedal-gas" id="btnGas" aria-label="Accelerate">
+        <span class="pedal-icon">▲</span>
+        <span class="pedal-label">GAS</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       4. CONTROLS MODAL
+       ====================================================================== -->
+  <div class="modal-overlay hidden" id="controlsModal">
+    <div class="modal-content">
+      <h2 class="modal-title">GAME CONTROLS</h2>
+      <div class="controls-grid">
+        <div class="control-item">
+          <div class="keys">W / ↑ ARROW</div>
+          <div class="desc">Accelerate forward</div>
+        </div>
+        <div class="control-item">
+          <div class="keys">S / ↓ ARROW</div>
+          <div class="desc">Brake &amp; Reverse</div>
+        </div>
+        <div class="control-item">
+          <div class="keys">A / D or ← / →</div>
+          <div class="desc">Steer Left / Right</div>
+        </div>
+        <div class="control-item">
+          <div class="keys">SPACEBAR</div>
+          <div class="desc">Emergency Handbrake</div>
+        </div>
+        <div class="control-item">
+          <div class="keys">R KEY</div>
+          <div class="desc">Restart / Reset Vehicle</div>
+        </div>
+        <div class="control-item">
+          <div class="keys">ESC KEY</div>
+          <div class="desc">Pause Game Menu</div>
+        </div>
+      </div>
+      <button class="btn-primary" id="btnCloseControls" style="width: 100%;">GOT IT</button>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       5. PAUSE MODAL
+       ====================================================================== -->
+  <div class="modal-overlay hidden" id="pauseModal">
+    <div class="modal-content">
+      <h2 class="modal-title">GAME PAUSED</h2>
+      <div class="menu-button-stack" style="margin-bottom: 8px;">
+        <button class="btn-primary" id="btnResume">RESUME</button>
+        <button class="btn-secondary" id="btnPauseRestart">RESTART</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Bootstrap Script -->
+  <script type="module" src="./src/main.js"></script>
+
+</body>
+</html>
+

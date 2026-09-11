@@ -87,6 +87,9 @@ InfinityPlay/
 8. **Farm Life** (Simulation • ★ 4.5 • 4.3K Plays)
 9. **Tower Defense** (Strategy • ★ 4.8 • 8.6K Plays)
 10. **Speed Arena** (Racing • ★ 4.9 • 10.5K Plays)
+11. **Chess Grandmaster** (Strategy • ★ 5.0 • Playable)
+12. **Memory Match** (Puzzle • ★ 4.8 • Playable)
+13. **City Drive** (Racing • ★ 4.9 • 13.5K Plays • Playable 3D Three.js)
 
 ---
 

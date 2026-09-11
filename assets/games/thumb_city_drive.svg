@@ -1,0 +1,200 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <radialGradient id="skyGrad" cx="50%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="40%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+    
+    <linearGradient id="roadGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="60%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#050811"/>
+    </linearGradient>
+
+    <linearGradient id="neonCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+
+    <linearGradient id="carBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="50%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+
+    <linearGradient id="carGlass" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0.6"/>
+    </linearGradient>
+
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="lightGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Sky Background -->
+  <rect width="800" height="500" fill="url(#skyGrad)"/>
+
+  <!-- Distant Stars & Dust -->
+  <g fill="#93c5fd" opacity="0.4">
+    <circle cx="90" cy="60" r="1.5"/>
+    <circle cx="210" cy="40" r="1"/>
+    <circle cx="340" cy="75" r="1.8"/>
+    <circle cx="480" cy="30" r="1.2"/>
+    <circle cx="620" cy="65" r="1.5"/>
+    <circle cx="710" cy="45" r="1"/>
+    <circle cx="150" cy="110" r="1.2"/>
+    <circle cx="670" cy="120" r="1.5"/>
+  </g>
+
+  <!-- City Skyline Silhouette -->
+  <g fill="#0c1222">
+    <rect x="40" y="140" width="60" height="200" rx="3"/>
+    <rect x="90" y="90" width="80" height="250" rx="4"/>
+    <rect x="160" y="160" width="55" height="180" rx="2"/>
+    <rect x="210" y="110" width="90" height="230" rx="4"/>
+    <rect x="290" y="130" width="70" height="210" rx="3"/>
+    
+    <!-- Spire -->
+    <line x1="130" y1="90" x2="130" y2="40" stroke="#06b6d4" stroke-width="2" opacity="0.8"/>
+    <circle cx="130" cy="40" r="3" fill="#ef4444" filter="url(#neonGlow)"/>
+
+    <rect x="440" y="125" width="75" height="215" rx="3"/>
+    <rect x="505" y="80" width="85" height="260" rx="4"/>
+    <line x1="547" y1="80" x2="547" y2="35" stroke="#3b82f6" stroke-width="2" opacity="0.8"/>
+    <circle cx="547" cy="35" r="3" fill="#06b6d4" filter="url(#neonGlow)"/>
+
+    <rect x="580" y="150" width="65" height="190" rx="3"/>
+    <rect x="635" y="105" width="80" height="235" rx="4"/>
+    <rect x="705" y="170" width="60" height="170" rx="2"/>
+  </g>
+
+  <!-- City Skyline Windows (Glowing) -->
+  <g fill="#38bdf8" opacity="0.5">
+    <circle cx="110" cy="120" r="2"/><circle cx="125" cy="120" r="2"/><circle cx="145" cy="120" r="2"/>
+    <circle cx="110" cy="140" r="2"/><circle cx="125" cy="140" r="2"/><circle cx="145" cy="140" r="2"/>
+    <circle cx="110" cy="160" r="2"/><circle cx="145" cy="160" r="2"/>
+    <circle cx="230" cy="140" r="2"/><circle cx="250" cy="140" r="2"/><circle cx="270" cy="140" r="2"/>
+    <circle cx="230" cy="160" r="2"/><circle cx="270" cy="160" r="2"/>
+    <circle cx="525" cy="110" r="2"/><circle cx="545" cy="110" r="2"/><circle cx="565" cy="110" r="2"/>
+    <circle cx="525" cy="130" r="2"/><circle cx="565" cy="130" r="2"/>
+    <circle cx="525" cy="150" r="2"/><circle cx="545" cy="150" r="2"/><circle cx="565" cy="150" r="2"/>
+    <circle cx="655" cy="135" r="2"/><circle cx="675" cy="135" r="2"/><circle cx="695" cy="135" r="2"/>
+  </g>
+
+  <g fill="#f59e0b" opacity="0.4">
+    <circle cx="125" cy="160" r="2"/><circle cx="110" cy="180" r="2"/>
+    <circle cx="250" cy="160" r="2"/><circle cx="230" cy="180" r="2"/>
+    <circle cx="545" cy="130" r="2"/><circle cx="525" cy="170" r="2"/>
+    <circle cx="675" cy="155" r="2"/>
+  </g>
+
+  <!-- Horizon Glow -->
+  <ellipse cx="400" cy="270" rx="350" ry="25" fill="#06b6d4" opacity="0.18" filter="url(#lightGlow)"/>
+
+  <!-- Road Surface (Perspective Quad) -->
+  <polygon points="340,260 460,260 760,500 40,500" fill="url(#roadGrad)"/>
+  
+  <!-- Road Curbs / Sidewalk Edge -->
+  <polygon points="335,260 340,260 40,500 25,500" fill="#0284c7" opacity="0.5"/>
+  <polygon points="460,260 465,260 775,500 760,500" fill="#0284c7" opacity="0.5"/>
+
+  <!-- Center Double Yellow Line (Dashed in Distance, Solid Close) -->
+  <polygon points="398,260 402,260 403,500 397,500" fill="#facc15" opacity="0.85"/>
+  
+  <!-- Lane Dividing Dashes -->
+  <polygon points="370,270 373,270 345,310 341,310" fill="#94a3b8" opacity="0.7"/>
+  <polygon points="336,330 341,330 300,390 293,390" fill="#f8fafc" opacity="0.8"/>
+  <polygon points="287,415 294,415 228,500 219,500" fill="#f8fafc" opacity="0.9"/>
+
+  <polygon points="427,270 430,270 459,310 455,310" fill="#94a3b8" opacity="0.7"/>
+  <polygon points="459,330 464,330 500,390 493,390" fill="#f8fafc" opacity="0.8"/>
+  <polygon points="506,415 513,415 572,500 563,500" fill="#f8fafc" opacity="0.9"/>
+
+  <!-- Motion Light Trails (Speed Lines) -->
+  <line x1="320" y1="280" x2="160" y2="460" stroke="#06b6d4" stroke-width="1.5" opacity="0.35" stroke-dasharray="30 40"/>
+  <line x1="480" y1="280" x2="640" y2="460" stroke="#3b82f6" stroke-width="1.5" opacity="0.35" stroke-dasharray="30 40"/>
+
+  <!-- 3D Sports Car Model (Chase Angle) -->
+  <g transform="translate(400, 390)">
+    <!-- Car Shadow / Ambient Occlusion -->
+    <ellipse cx="0" cy="52" rx="130" ry="18" fill="#000000" opacity="0.7" filter="url(#neonGlow)"/>
+
+    <!-- Underglow Neon Cyan -->
+    <ellipse cx="0" cy="50" rx="105" ry="10" fill="#06b6d4" opacity="0.6" filter="url(#lightGlow)"/>
+
+    <!-- Wide Rear Tires -->
+    <rect x="-108" y="15" width="26" height="42" rx="6" fill="#111827"/>
+    <rect x="82" y="15" width="26" height="42" rx="6" fill="#111827"/>
+    <!-- Tire Rims -->
+    <rect x="-105" y="24" width="20" height="24" rx="4" fill="#374151"/>
+    <rect x="85" y="24" width="20" height="24" rx="4" fill="#374151"/>
+    <circle cx="-95" cy="36" r="4" fill="#06b6d4"/>
+    <circle cx="95" cy="36" r="4" fill="#06b6d4"/>
+
+    <!-- Rear Lower Diffuser & Dual Exhausts -->
+    <polygon points="-85,42 85,42 75,54 -75,54" fill="#0f172a"/>
+    <rect x="-55" y="44" width="16" height="8" rx="3" fill="#cbd5e1" stroke="#38bdf8" stroke-width="1"/>
+    <ellipse cx="-47" cy="48" rx="5" ry="2.5" fill="#06b6d4" filter="url(#neonGlow)"/>
+    <rect x="39" y="44" width="16" height="8" rx="3" fill="#cbd5e1" stroke="#38bdf8" stroke-width="1"/>
+    <ellipse cx="47" cy="48" rx="5" ry="2.5" fill="#06b6d4" filter="url(#neonGlow)"/>
+
+    <!-- Main Chassis / Rear Bumper -->
+    <path d="M-92,20 C-95,-5 -85,-15 -60,-18 L60,-18 C85,-15 95,-5 92,20 L86,44 C70,48 -70,48 -86,44 Z" fill="url(#carBody)" stroke="#38bdf8" stroke-width="1.5"/>
+
+    <!-- Rear Tail Light Bar (Active Emissive Red/Orange) -->
+    <path d="M-82,-6 L-40,-4 L-40,2 L-80,2 Z" fill="#ef4444" filter="url(#neonGlow)"/>
+    <path d="M40,-4 L82,-6 L80,2 L40,2 Z" fill="#ef4444" filter="url(#neonGlow)"/>
+    <line x1="-30" y1="0" x2="30" y2="0" stroke="#ef4444" stroke-width="2" filter="url(#neonGlow)"/>
+
+    <!-- Cabin / Greenhouse & Rear Window -->
+    <path d="M-55,-18 L-38,-65 L38,-65 L55,-18 Z" fill="url(#carGlass)" stroke="#38bdf8" stroke-width="1.2"/>
+    <path d="M-32,-60 L-46,-22 L46,-22 L32,-60 Z" fill="#090d16" opacity="0.8"/>
+
+    <!-- Aerodynamic Roof & Rear Spoiler -->
+    <rect x="-35" y="-68" width="70" height="7" rx="3" fill="#0f172a" stroke="#06b6d4" stroke-width="1"/>
+    <!-- Spoiler Wing -->
+    <polygon points="-75,-30 -60,-32 60,-32 75,-30 70,-26 -70,-26" fill="#0f172a" stroke="#06b6d4" stroke-width="1.5"/>
+    <rect x="-50" y="-26" width="6" height="10" fill="#1e293b"/>
+    <rect x="44" y="-26" width="6" height="10" fill="#1e293b"/>
+
+    <!-- License Plate -->
+    <rect x="-22" y="16" width="44" height="16" rx="2" fill="#090d16" stroke="#06b6d4" stroke-width="1"/>
+    <text x="0" y="28" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="900" fill="#38bdf8" text-anchor="middle" letter-spacing="2">INFINITY</text>
+  </g>
+
+  <!-- Floating UI Elements / Badges -->
+  <!-- Top Category Pill -->
+  <g transform="translate(40, 40)">
+    <rect width="170" height="34" rx="17" fill="#090d16" fill-opacity="0.85" stroke="#06b6d4" stroke-width="1.5"/>
+    <circle cx="20" cy="17" r="6" fill="#06b6d4" filter="url(#neonGlow)"/>
+    <text x="34" y="22" font-family="'Inter', sans-serif" font-size="11" font-weight="800" fill="#f8fafc" letter-spacing="1.5">3D SIMULATION</text>
+  </g>
+
+  <!-- Top Right Rating Pill -->
+  <g transform="translate(640, 40)">
+    <rect width="120" height="34" rx="17" fill="#090d16" fill-opacity="0.85" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="24" y="22" font-family="'Inter', sans-serif" font-size="14" fill="#fbbf24">★</text>
+    <text x="44" y="22" font-family="'Inter', sans-serif" font-size="12" font-weight="800" fill="#f8fafc">4.9 / 5.0</text>
+  </g>
+
+  <!-- Title & Subtitle Banner -->
+  <g transform="translate(40, 200)">
+    <!-- Game Logo Text with Deep Glow -->
+    <text x="0" y="0" font-family="'JetBrains Mono', 'Inter', sans-serif" font-size="52" font-weight="900" fill="#f8fafc" letter-spacing="4" filter="url(#neonGlow)">CITY DRIVE</text>
+    <text x="2" y="28" font-family="'Inter', sans-serif" font-size="14" font-weight="700" fill="#38bdf8" letter-spacing="2">URBAN ARCADE PHYSICS &bull; THREE.JS</text>
+  </g>
+</svg>

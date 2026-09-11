@@ -174,6 +174,57 @@ const games = [
     tags: ['Racing', 'Cyberpunk', 'Futuristic', 'High Speed'],
     releaseDate: '2026-08-11',
     developer: 'NitroPulse'
+  },
+  {
+    id: 'chess',
+    name: 'Chess Grandmaster',
+    category: 'Strategy',
+    rating: 5.0,
+    plays: 0,
+    playsFormatted: '0',
+    rank: null,
+    badge: 'NEW',
+    isTop: false,
+    thumbnail: 'assets/games/thumb_chess.png',
+    topThumbnail: null,
+    description: 'Challenge powerful opponents in strategic chess battles. Play against friends, multiplayer opponents, or the AI Grandmaster.',
+    tags: ['Chess', 'Strategy', 'Multiplayer', 'AI', 'Board Game'],
+    releaseDate: '2026-09-10',
+    developer: 'InfinityPlay',
+    gameUrl: 'games/chess/index.html'
+  },
+  {
+    id: 'memory-match',
+    name: 'Memory Match',
+    category: 'Puzzle',
+    rating: 4.8,
+    plays: 0,
+    playsFormatted: '0',
+    rank: null,
+    badge: 'NEW',
+    isTop: false,
+    tags: ['Puzzle', 'Memory', 'Casual'],
+    developer: 'InfinityPlay Studios',
+    thumbnail: 'assets/games/thumb_memory_match.jpg',
+    gameUrl: 'games/memory-match/index.html'
+  },
+  {
+    id: 'city-drive',
+    name: 'City Drive',
+    category: 'Racing',
+    rating: 4.9,
+    plays: 13500,
+    playsFormatted: '13.5K',
+    rank: null,
+    badge: 'NEW',
+    isTop: false,
+    thumbnail: 'assets/games/thumb_city_drive.svg',
+    topThumbnail: 'assets/games/top_city_drive.svg',
+    description: 'Master the asphalt in this high-performance 3D urban driving simulator. Navigate streaming cityscapes with arcade vehicle physics, responsive follow camera, obstacle hazards, and multi-touch controls.',
+    tags: ['Racing', '3D', 'City', 'Driving', 'Simulation'],
+    releaseDate: '2026-09-11',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/city-drive/index.html'
   }
 ];
 
