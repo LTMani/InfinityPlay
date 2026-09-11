@@ -35,6 +35,19 @@ export class VehiclePhysics {
     this.position = { x: 0, y: 0, z: 0 };
   }
 
+  applyTuning(tuning = {}) {
+    const engineBonus = Math.max(0, (tuning.engineLevel || 1) - 1);
+    this.maxSpeed = 38.0 + engineBonus * 3.5; // ~137 to 162 km/h
+    this.acceleration = 12.0 + engineBonus * 2.2;
+
+    const handlingBonus = Math.max(0, (tuning.handlingLevel || 1) - 1);
+    this.maxSteerAngle = 0.52 + handlingBonus * 0.04;
+    this.highSpeedSteerFactor = 0.35 + handlingBonus * 0.05;
+
+    const brakeBonus = Math.max(0, (tuning.brakesLevel || 1) - 1);
+    this.brakingForce = 22.0 + brakeBonus * 4.5;
+  }
+
   reset(x = 0, y = 0, z = 0, heading = 0) {
     this.position.x = x;
     this.position.y = y;

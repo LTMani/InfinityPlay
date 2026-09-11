@@ -1,7 +1,7 @@
 /**
  * Vehicle.js
- * Creates a stylized 3D procedural car model with chassis, cabin, wheels,
- * brake lights, headlights, and realistic suspension dynamics.
+ * Creates a stylized 3D procedural sports coupe model with chassis, cabin, wheels,
+ * brake lights, headlights with road-projecting SpotLights, and realistic suspension dynamics.
  */
 
 import * as THREE from 'three';
@@ -23,14 +23,22 @@ export class Vehicle {
     this.steerableWheelGroups = []; // Front wheels pivot for steering
     this.rotatingWheelMeshes = [];  // All 4 wheels spin when rolling
 
-    // Dynamic light materials
+    // Dynamic materials for live garage customization & lighting
+    this.bodyMaterial = null;
     this.brakeLightMaterial = null;
     this.reverseLightMaterial = null;
+    this.headlightMaterial = null;
+
+    // Spotlights projecting road illumination in night/dusk
+    this.leftHeadlightBeam = null;
+    this.rightHeadlightBeam = null;
+    this.headlightTarget = null;
 
     this.wheelRadius = 0.35;
     this.wheelRotationAccumulator = 0;
 
     this._buildVehicleModel();
+    this._initProjectorHeadlights();
     this.scene.add(this.root);
   }
 
@@ -38,10 +46,10 @@ export class Vehicle {
     // ----------------------------------------------------
     // Shared Materials
     // ----------------------------------------------------
-    const bodyMaterial = new THREE.MeshStandardMaterial({
+    this.bodyMaterial = new THREE.MeshStandardMaterial({
       color: this.carColor,
-      roughness: 0.25,
-      metalness: 0.65
+      roughness: 0.22,
+      metalness: 0.7
     });
 
     const darkTrimMaterial = new THREE.MeshStandardMaterial({
@@ -64,7 +72,7 @@ export class Vehicle {
       metalness: 0.95
     });
 
-    const headlightMaterial = new THREE.MeshStandardMaterial({
+    this.headlightMaterial = new THREE.MeshStandardMaterial({
       color: 0xffffff,
       emissive: 0xecfeff,
       emissiveIntensity: 1.8,
@@ -94,9 +102,8 @@ export class Vehicle {
     // ----------------------------------------------------
     // 1. Lower Main Body / Chassis
     // ----------------------------------------------------
-    // Length: 4.3m, Width: 1.84m, Height: 0.58m
     const lowerBodyGeo = new THREE.BoxGeometry(1.84, 0.58, 4.3);
-    const lowerBodyMesh = new THREE.Mesh(lowerBodyGeo, bodyMaterial);
+    const lowerBodyMesh = new THREE.Mesh(lowerBodyGeo, this.bodyMaterial);
     lowerBodyMesh.position.set(0, 0.52, 0);
     lowerBodyMesh.castShadow = true;
     lowerBodyMesh.receiveShadow = true;
@@ -104,7 +111,7 @@ export class Vehicle {
 
     // Front hood slope
     const hoodGeo = new THREE.BoxGeometry(1.76, 0.22, 1.4);
-    const hoodMesh = new THREE.Mesh(hoodGeo, bodyMaterial);
+    const hoodMesh = new THREE.Mesh(hoodGeo, this.bodyMaterial);
     hoodMesh.position.set(0, 0.72, -1.3);
     hoodMesh.rotation.x = 0.06;
     hoodMesh.castShadow = true;
@@ -149,7 +156,7 @@ export class Vehicle {
 
     // Roof panel
     const roofGeo = new THREE.BoxGeometry(1.42, 0.08, 1.7);
-    const roofMesh = new THREE.Mesh(roofGeo, bodyMaterial);
+    const roofMesh = new THREE.Mesh(roofGeo, this.bodyMaterial);
     roofMesh.position.set(0, 1.36, 0.1);
     roofMesh.castShadow = true;
     this.chassis.add(roofMesh);
@@ -173,7 +180,7 @@ export class Vehicle {
     // ----------------------------------------------------
     [-0.96, 0.96].forEach(xOffset => {
       const mirrorGeo = new THREE.BoxGeometry(0.18, 0.12, 0.22);
-      const mirrorMesh = new THREE.Mesh(mirrorGeo, bodyMaterial);
+      const mirrorMesh = new THREE.Mesh(mirrorGeo, this.bodyMaterial);
       mirrorMesh.position.set(xOffset, 0.88, -0.7);
       this.chassis.add(mirrorMesh);
     });
@@ -197,7 +204,7 @@ export class Vehicle {
     [-0.68, 0.68].forEach(xOffset => {
       // Front headlights
       const hlGeo = new THREE.BoxGeometry(0.36, 0.14, 0.15);
-      const hlMesh = new THREE.Mesh(hlGeo, headlightMaterial);
+      const hlMesh = new THREE.Mesh(hlGeo, this.headlightMaterial);
       hlMesh.position.set(xOffset, 0.58, -2.16);
       this.chassis.add(hlMesh);
 
@@ -223,27 +230,22 @@ export class Vehicle {
     const wheelY = this.wheelRadius;
 
     const createWheelAssembly = (isFront, isLeft) => {
-      // Outer steer group for Y-axis pivoting
       const steerGroup = new THREE.Group();
       steerGroup.position.set(isLeft ? -wheelTrackX : wheelTrackX, wheelY, isFront ? axleZFront : axleZRear);
 
-      // Inner spin mesh for X-axis rolling
       const wheelAssembly = new THREE.Group();
 
-      // Tire cylinder (rotated so cylinder aligns along X-axis)
       const tireGeo = new THREE.CylinderGeometry(this.wheelRadius, this.wheelRadius, 0.28, 24);
       const tireMesh = new THREE.Mesh(tireGeo, tireMaterial);
       tireMesh.rotation.z = Math.PI / 2;
       tireMesh.castShadow = true;
       wheelAssembly.add(tireMesh);
 
-      // Inner alloy rim
       const rimGeo = new THREE.CylinderGeometry(this.wheelRadius * 0.65, this.wheelRadius * 0.65, 0.29, 16);
       const rimMesh = new THREE.Mesh(rimGeo, chromeMaterial);
       rimMesh.rotation.z = Math.PI / 2;
       wheelAssembly.add(rimMesh);
 
-      // Wheel spoke detail
       const spokeGeo = new THREE.BoxGeometry(0.06, this.wheelRadius * 1.15, 0.3);
       const spokeMesh1 = new THREE.Mesh(spokeGeo, darkTrimMaterial);
       wheelAssembly.add(spokeMesh1);
@@ -261,15 +263,12 @@ export class Vehicle {
       this.rotatingWheelMeshes.push(wheelAssembly);
     };
 
-    // Construct 4 wheels
     createWheelAssembly(true, true);   // Front Left
     createWheelAssembly(true, false);  // Front Right
     createWheelAssembly(false, true);  // Rear Left
     createWheelAssembly(false, false); // Rear Right
 
-    // ----------------------------------------------------
-    // 6. Ground Ambient Contact Shadow
-    // ----------------------------------------------------
+    // Ground Contact Shadow
     const shadowGeo = new THREE.PlaneGeometry(2.4, 4.8);
     const shadowMat = new THREE.MeshBasicMaterial({
       color: 0x000000,
@@ -283,10 +282,48 @@ export class Vehicle {
     this.root.add(shadowMesh);
   }
 
+  _initProjectorHeadlights() {
+    // Target anchor positioned ahead of car
+    this.headlightTarget = new THREE.Object3D();
+    this.headlightTarget.position.set(0, 0.2, -26);
+    this.root.add(this.headlightTarget);
+
+    // Left high-beam spotlight
+    this.leftHeadlightBeam = new THREE.SpotLight(0xfffbeb, 0, 50, Math.PI / 7, 0.45, 1.2);
+    this.leftHeadlightBeam.position.set(-0.68, 0.6, -2.1);
+    this.leftHeadlightBeam.target = this.headlightTarget;
+    this.chassis.add(this.leftHeadlightBeam);
+
+    // Right high-beam spotlight
+    this.rightHeadlightBeam = new THREE.SpotLight(0xfffbeb, 0, 50, Math.PI / 7, 0.45, 1.2);
+    this.rightHeadlightBeam.position.set(0.68, 0.6, -2.1);
+    this.rightHeadlightBeam.target = this.headlightTarget;
+    this.chassis.add(this.rightHeadlightBeam);
+  }
+
+  /**
+   * Sets vehicle paint color (for Garage customization).
+   */
+  setColor(hexColor) {
+    this.carColor = hexColor;
+    if (this.bodyMaterial) {
+      this.bodyMaterial.color.setHex(hexColor);
+    }
+  }
+
+  /**
+   * Toggles or dims projected headlights based on time of day.
+   */
+  setHeadlightIntensity(intensity) {
+    if (this.leftHeadlightBeam) this.leftHeadlightBeam.intensity = intensity;
+    if (this.rightHeadlightBeam) this.rightHeadlightBeam.intensity = intensity;
+    if (this.headlightMaterial) {
+      this.headlightMaterial.emissiveIntensity = intensity > 0.5 ? 2.5 : 1.0;
+    }
+  }
+
   /**
    * Synchronize visual representation with physics state.
-   * @param {VehiclePhysics} physics
-   * @param {number} dt Delta time
    */
   update(physics, dt) {
     // 1. Root vehicle positioning and yaw heading
@@ -325,12 +362,8 @@ export class Vehicle {
     }
   }
 
-  /**
-   * Returns current bounding box in world space.
-   */
   getWorldBounds(targetBox = new THREE.Box3()) {
     targetBox.setFromObject(this.root);
     return targetBox;
   }
 }
-

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>City Drive — 3D Urban Driving Prototype | InfinityPlay</title>
-  <meta name="description" content="City Drive: A high-performance 3D browser-based city driving game built with Three.js and vanilla JavaScript. Features realistic arcade physics, follow camera, obstacle collisions, and mobile touch support.">
+  <title>City Drive — 3D Urban Driving Simulator | InfinityPlay</title>
+  <meta name="description" content="City Drive: A high-performance 3D browser-based city driving game built with Three.js and vanilla JavaScript. Features AI traffic simulation, missions, dynamic day/night cycles, and garage customization.">
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2306b6d4'><path d='M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.04 3H5.81l1.04-3zM19 17H5v-4.66l.12-.34h13.77l.11.34V17z'/><circle cx='7.5' cy='14.5' r='1.5'/><circle cx='16.5' cy='14.5' r='1.5'/></svg>">
@@ -32,18 +32,42 @@
   <canvas id="gameCanvas"></canvas>
 
   <!-- ======================================================================
-       1. START SCREEN (Game Title, Subtitle, Play, Controls)
+       1. START SCREEN (Game Title, Modes, Play, Garage, Controls)
        ====================================================================== -->
   <section class="overlay-screen" id="startScreen">
     <div class="start-card">
-      <div class="brand-badge">⚡ InfinityPlay Racing</div>
+      <div class="brand-badge">⚡ InfinityPlay Racing • Phase 2</div>
       <h1 class="game-title">CITY DRIVE</h1>
-      <p class="game-subtitle">Master the road. Reach your destination.</p>
+      <p class="game-subtitle">Autonomous AI Traffic • Checkpoint Sprints • Day &amp; Night</p>
+
+      <!-- Game Mode Selection -->
+      <div class="mode-selection-group">
+        <span class="mode-group-label">SELECT MISSION MODE</span>
+        <div class="mode-tabs" id="modeTabs">
+          <button class="mode-tab active" data-mode="TIME_ATTACK" id="tabTimeAttack">
+            <span class="mode-tab-icon">⏱️</span>
+            <span class="mode-tab-name">SPRINT</span>
+          </button>
+          <button class="mode-tab" data-mode="COURIER" id="tabCourier">
+            <span class="mode-tab-icon">🚕</span>
+            <span class="mode-tab-name">COURIER</span>
+          </button>
+          <button class="mode-tab" data-mode="FREE_CRUISE" id="tabFreeCruise">
+            <span class="mode-tab-icon">🛣️</span>
+            <span class="mode-tab-name">CRUISE</span>
+          </button>
+        </div>
+        <p class="mode-description" id="modeDescription">Race through glowing checkpoint arches before time runs out! (+15s per gate)</p>
+      </div>
 
       <div class="menu-button-stack">
         <button class="btn-primary" id="btnPlay">
           <span>▶</span>
-          <span>PLAY</span>
+          <span>PLAY NOW</span>
+        </button>
+        <button class="btn-secondary" id="btnGarageOpen">
+          <span>🚗</span>
+          <span>GARAGE &amp; TUNING</span>
         </button>
         <button class="btn-secondary" id="btnControls">
           <span>🎮</span>
@@ -62,13 +86,21 @@
     <!-- Top Action & Info Bar -->
     <div class="hud-top-bar">
       <div class="hud-hint-pill">
-        <kbd>W</kbd> / <kbd>S</kbd> Throttle &amp; Brake &bull; <kbd>A</kbd> / <kbd>D</kbd> Steer &bull; <kbd>R</kbd> Reset &bull; <kbd>ESC</kbd> Pause
+        <kbd>W</kbd>/<kbd>S</kbd> Drive &bull; <kbd>A</kbd>/<kbd>D</kbd> Steer &bull; <kbd>SPACE</kbd> Brake &bull; <kbd>H</kbd> Horn &bull; <kbd>T</kbd> Day/Night &bull; <kbd>R</kbd> Reset &bull; <kbd>ESC</kbd> Pause
       </div>
       <div class="hud-actions">
+        <button class="hud-icon-btn" id="btnTimeToggle" title="Toggle Day / Sunset / Night (T)">☀️</button>
         <button class="hud-icon-btn" id="btnAudioToggle" title="Toggle Sound">🔊</button>
         <button class="hud-icon-btn" id="btnHudRestart" title="Restart Game (R)">↺</button>
         <button class="hud-icon-btn" id="btnHudPause" title="Pause Game (ESC)">⏸</button>
       </div>
+    </div>
+
+    <!-- Top Mission Telemetry Bar -->
+    <div class="hud-mission-bar" id="hudMissionBar">
+      <div class="mission-pill timer-pill" id="hudMissionTimer">⏱ 00:45</div>
+      <div class="mission-pill objective-pill" id="hudMissionObjective">🏁 NEXT CHECKPOINT: 260M</div>
+      <div class="mission-pill score-pill" id="hudScore">⭐ 0 PTS</div>
     </div>
 
     <!-- Center Collision / Status Alert Banner -->
@@ -109,6 +141,12 @@
       <button class="touch-btn touch-steer-btn" id="btnSteerRight" aria-label="Steer Right">▶</button>
     </div>
 
+    <!-- Center Hand: Horn & Handbrake -->
+    <div class="touch-cluster touch-center-cluster">
+      <button class="touch-btn touch-action-btn" id="btnHorn" aria-label="Sound Horn">📢</button>
+      <button class="touch-btn touch-action-btn" id="btnHandbrake" aria-label="Handbrake">P</button>
+    </div>
+
     <!-- Right Hand: Pedals Cluster -->
     <div class="touch-cluster">
       <button class="touch-btn touch-pedal-btn touch-pedal-brake" id="btnBrake" aria-label="Brake or Reverse">
@@ -123,7 +161,97 @@
   </div>
 
   <!-- ======================================================================
-       4. CONTROLS MODAL
+       4. GARAGE & CUSTOMIZATION MODAL
+       ====================================================================== -->
+  <div class="modal-overlay hidden" id="garageModal">
+    <div class="modal-content garage-card">
+      <h2 class="modal-title">🚗 VEHICLE GARAGE</h2>
+      <p class="modal-subtitle">Customize paint finish and tune performance characteristics.</p>
+
+      <!-- Color Swatches -->
+      <div class="garage-section">
+        <span class="garage-section-label">EXTERIOR PAINT FINISH</span>
+        <div class="color-swatches" id="colorSwatches">
+          <button class="swatch-btn active" data-color="0x2563eb" style="--swatch-color: #2563eb;" title="Electric Blue"></button>
+          <button class="swatch-btn" data-color="0xef4444" style="--swatch-color: #ef4444;" title="Crimson Red"></button>
+          <button class="swatch-btn" data-color="0x06b6d4" style="--swatch-color: #06b6d4;" title="Cyber Cyan"></button>
+          <button class="swatch-btn" data-color="0x18181b" style="--swatch-color: #18181b;" title="Midnight Onyx"></button>
+          <button class="swatch-btn" data-color="0xfacc15" style="--swatch-color: #facc15;" title="Solar Yellow"></button>
+          <button class="swatch-btn" data-color="0x10b981" style="--swatch-color: #10b981;" title="Emerald Green"></button>
+          <button class="swatch-btn" data-color="0x8b5cf6" style="--swatch-color: #8b5cf6;" title="Violet Neon"></button>
+          <button class="swatch-btn" data-color="0xe2e8f0" style="--swatch-color: #e2e8f0;" title="Alpine White"></button>
+        </div>
+      </div>
+
+      <!-- Performance Tuning Sliders -->
+      <div class="garage-section">
+        <span class="garage-section-label">PERFORMANCE TUNING</span>
+        <div class="tuning-grid">
+          <div class="tuning-item">
+            <div class="tuning-header">
+              <span>ENGINE OUTPUT</span>
+              <span id="labelEngine">STAGE 2 (145 KM/H)</span>
+            </div>
+            <input type="range" min="1" max="3" value="2" id="tuneEngine" class="tuning-slider">
+          </div>
+          <div class="tuning-item">
+            <div class="tuning-header">
+              <span>HANDLING &amp; STEERING</span>
+              <span id="labelHandling">STAGE 2 (HIGH GRIP)</span>
+            </div>
+            <input type="range" min="1" max="3" value="2" id="tuneHandling" class="tuning-slider">
+          </div>
+          <div class="tuning-item">
+            <div class="tuning-header">
+              <span>BRAKING POWER</span>
+              <span id="labelBrakes">STAGE 2 (SPORT PADS)</span>
+            </div>
+            <input type="range" min="1" max="3" value="2" id="tuneBrakes" class="tuning-slider">
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btnCloseGarage" style="width: 100%; margin-top: 12px;">SAVE &amp; RETURN</button>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       5. MISSION SUMMARY / GAME OVER MODAL
+       ====================================================================== -->
+  <div class="modal-overlay hidden" id="summaryModal">
+    <div class="modal-content summary-card">
+      <div class="summary-badge" id="summaryBadge">🏁 MISSION REPORT</div>
+      <h2 class="modal-title" id="summaryTitle">TIME EXPIRED!</h2>
+      <p class="modal-subtitle" id="summarySubtitle">You cleared 3 checkpoints before the clock ran out.</p>
+
+      <div class="summary-stats-grid">
+        <div class="stat-box">
+          <div class="stat-val" id="statFinalScore">1,250</div>
+          <div class="stat-lbl">FINAL SCORE</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statCheckpoints">4</div>
+          <div class="stat-lbl" id="statCheckpointsLabel">CHECKPOINTS</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statNearMisses">6</div>
+          <div class="stat-lbl">NEAR MISSES</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statDistance">890 M</div>
+          <div class="stat-lbl">DISTANCE</div>
+        </div>
+      </div>
+
+      <div class="menu-button-stack" style="margin-top: 18px;">
+        <button class="btn-primary" id="btnSummaryRestart">TRY AGAIN</button>
+        <button class="btn-secondary" id="btnSummaryMenu">RETURN TO MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       6. CONTROLS MODAL
        ====================================================================== -->
   <div class="modal-overlay hidden" id="controlsModal">
     <div class="modal-content">
@@ -146,6 +274,14 @@
           <div class="desc">Emergency Handbrake</div>
         </div>
         <div class="control-item">
+          <div class="keys">H KEY</div>
+          <div class="desc">Sound Car Horn</div>
+        </div>
+        <div class="control-item">
+          <div class="keys">T KEY</div>
+          <div class="desc">Cycle Day / Sunset / Night</div>
+        </div>
+        <div class="control-item">
           <div class="keys">R KEY</div>
           <div class="desc">Restart / Reset Vehicle</div>
         </div>
@@ -159,7 +295,7 @@
   </div>
 
   <!-- ======================================================================
-       5. PAUSE MODAL
+       7. PAUSE MODAL
        ====================================================================== -->
   <div class="modal-overlay hidden" id="pauseModal">
     <div class="modal-content">
@@ -167,6 +303,7 @@
       <div class="menu-button-stack" style="margin-bottom: 8px;">
         <button class="btn-primary" id="btnResume">RESUME</button>
         <button class="btn-secondary" id="btnPauseRestart">RESTART</button>
+        <button class="btn-secondary" id="btnPauseMenu">RETURN TO MENU</button>
       </div>
     </div>
   </div>
@@ -176,4 +313,3 @@
 
 </body>
 </html>
-

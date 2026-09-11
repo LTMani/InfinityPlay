@@ -1,7 +1,8 @@
 /**
  * Environment.js
  * Generates stylized urban scenery including skyscrapers, modern office towers,
- * streetlights, trees, highway signs, atmospheric lighting, and horizon fog.
+ * streetlights, trees, rooftop HVAC, atmospheric lighting, and dynamic
+ * Day / Sunset / Night lighting cycles with illuminated building facades.
  */
 
 import * as THREE from 'three';
@@ -12,22 +13,31 @@ export class Environment {
     this.buildingMaterials = [];
     this.windowTexture = null;
 
+    // Time of day state ('DAY' | 'SUNSET' | 'NIGHT')
+    this.timeOfDay = 'DAY';
+    this.timeOfDayModes = ['DAY', 'SUNSET', 'NIGHT'];
+
+    // Dynamic light references
+    this.hemiLight = null;
+    this.sunLight = null;
+    this.streetlampLightMat = null;
+
     this._setupLighting();
     this._initTexturesAndMaterials();
   }
 
   _setupLighting() {
-    // 1. Ambient Hemisphere Light (Sky vs Ground color bounce)
-    const hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x1e293b, 0.75);
-    hemiLight.position.set(0, 100, 0);
-    this.scene.add(hemiLight);
+    // 1. Ambient Hemisphere Light
+    this.hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x1e293b, 0.75);
+    this.hemiLight.position.set(0, 100, 0);
+    this.scene.add(this.hemiLight);
 
-    // 2. Main Sun Directional Light with real-time soft shadows
+    // 2. Main Sun / Moon Directional Light
     this.sunLight = new THREE.DirectionalLight(0xfffbeb, 1.25);
     this.sunLight.position.set(45, 80, -35);
     this.sunLight.castShadow = true;
 
-    // Optimize shadow map resolution and frustum
+    // Shadow map parameters
     this.sunLight.shadow.mapSize.width = 2048;
     this.sunLight.shadow.mapSize.height = 2048;
     this.sunLight.shadow.camera.near = 10;
@@ -43,13 +53,13 @@ export class Environment {
     this.scene.add(this.sunLight);
     this.scene.add(this.sunLight.target);
 
-    // 3. Stylized Horizon Fog for smooth distance culling
+    // 3. Horizon Fog
     this.scene.background = new THREE.Color(0x93c5fd);
     this.scene.fog = new THREE.FogExp2(0x93c5fd, 0.0035);
   }
 
   _initTexturesAndMaterials() {
-    // Generate lightweight procedural illuminated window grid texture using HTML5 Canvas
+    // Procedural illuminated window grid canvas texture
     const canvas = document.createElement('canvas');
     canvas.width = 128;
     canvas.height = 256;
@@ -65,7 +75,6 @@ export class Environment {
 
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
-        // Randomly lit or unlit modern windows
         const isLit = Math.random() > 0.35;
         if (isLit) {
           const warmOrCool = Math.random() > 0.5 ? '#fef08a' : '#bae6fd';
@@ -81,7 +90,7 @@ export class Environment {
     this.windowTexture.wrapS = THREE.RepeatWrapping;
     this.windowTexture.wrapT = THREE.RepeatWrapping;
 
-    // Distinct stylized building facade materials
+    // Distinct building facade materials
     const buildingColors = [0x1e293b, 0x334155, 0x0f172a, 0x1e1b4b, 0x27272a, 0x374151];
     this.buildingMaterials = buildingColors.map(col => new THREE.MeshStandardMaterial({
       color: col,
@@ -105,7 +114,7 @@ export class Environment {
     this.streetlampLightMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
       emissive: 0xfef08a,
-      emissiveIntensity: 2.2
+      emissiveIntensity: 1.2
     });
 
     this.treeTrunkMat = new THREE.MeshStandardMaterial({
@@ -120,11 +129,102 @@ export class Environment {
   }
 
   /**
+   * Sets Time of Day mode and adjusts sky, sun, fog, and streetlights.
+   * @param {string} mode 'DAY' | 'SUNSET' | 'NIGHT'
+   * @param {VehicleController} vehicleController Optional vehicle controller to adjust headlights
+   */
+  setTimeOfDay(mode, vehicleController) {
+    if (!['DAY', 'SUNSET', 'NIGHT'].includes(mode)) return;
+    this.timeOfDay = mode;
+
+    let skyColor, fogColor, fogDensity;
+    let hemiSky, hemiGround, hemiIntensity;
+    let sunColor, sunIntensity, sunOffset;
+    let streetlampGlow;
+    let headlightBeamPower;
+
+    if (mode === 'DAY') {
+      skyColor = 0x93c5fd; // Bright daylight sky
+      fogColor = 0x93c5fd;
+      fogDensity = 0.0035;
+
+      hemiSky = 0xe0f2fe;
+      hemiGround = 0x1e293b;
+      hemiIntensity = 0.8;
+
+      sunColor = 0xfffbeb;
+      sunIntensity = 1.25;
+      sunOffset = new THREE.Vector3(45, 80, -35);
+
+      streetlampGlow = 0.5;
+      headlightBeamPower = 0.0;
+    } else if (mode === 'SUNSET') {
+      skyColor = 0xd97706; // Amber sunset glow
+      fogColor = 0xb45309;
+      fogDensity = 0.0042;
+
+      hemiSky = 0xfb923c;
+      hemiGround = 0x451a03;
+      hemiIntensity = 0.6;
+
+      sunColor = 0xf97316;
+      sunIntensity = 1.05;
+      sunOffset = new THREE.Vector3(75, 28, -35); // Low golden sun angle
+
+      streetlampGlow = 2.0;
+      headlightBeamPower = 1.4;
+    } else { // 'NIGHT'
+      skyColor = 0x090d16; // Midnight dark navy
+      fogColor = 0x090d16;
+      fogDensity = 0.0052;
+
+      hemiSky = 0x1e1b4b;
+      hemiGround = 0x020617;
+      hemiIntensity = 0.28;
+
+      sunColor = 0xa5b4fc; // Moon blue glow
+      sunIntensity = 0.28;
+      sunOffset = new THREE.Vector3(20, 60, -20);
+
+      streetlampGlow = 3.5;
+      headlightBeamPower = 3.0; // High beam headlights
+    }
+
+    // Apply scene background & fog
+    this.scene.background.setHex(skyColor);
+    this.scene.fog.color.setHex(fogColor);
+    this.scene.fog.density = fogDensity;
+
+    // Apply hemisphere
+    this.hemiLight.color.setHex(hemiSky);
+    this.hemiLight.groundColor.setHex(hemiGround);
+    this.hemiLight.intensity = hemiIntensity;
+
+    // Apply sun / moon
+    this.sunLight.color.setHex(sunColor);
+    this.sunLight.intensity = sunIntensity;
+    this.currentSunOffset = sunOffset;
+
+    // Apply streetlamp emissives
+    if (this.streetlampLightMat) {
+      this.streetlampLightMat.emissiveIntensity = streetlampGlow;
+    }
+
+    // Adjust player vehicle projector headlights
+    if (vehicleController) {
+      vehicleController.setHeadlightIntensity(headlightBeamPower);
+    }
+  }
+
+  cycleTimeOfDay(vehicleController) {
+    const nextIdx = (this.timeOfDayModes.indexOf(this.timeOfDay) + 1) % this.timeOfDayModes.length;
+    const nextMode = this.timeOfDayModes[nextIdx];
+    this.setTimeOfDay(nextMode, vehicleController);
+    return nextMode;
+  }
+
+  /**
    * Generates city scenery (buildings, streetlights, trees) for a chunk.
-   * @param {THREE.Group} chunkGroup
-   * @param {number} chunkLength
-   * @param {number} roadHalfWidth
-   * @param {number} sidewalkWidth
    */
   populateChunk(chunkGroup, chunkLength = 120, roadHalfWidth = 7.6, sidewalkWidth = 3.6) {
     const minBuildingX = roadHalfWidth + sidewalkWidth + 4.0;
@@ -166,7 +266,7 @@ export class Environment {
       while (currentZ < chunkLength / 2 - 12) {
         const width = 14 + Math.random() * 14;
         const depth = 16 + Math.random() * 12;
-        const height = 24 + Math.random() * 65; // 24m to ~90m skyscrapers
+        const height = 24 + Math.random() * 65;
 
         const buildingX = side * (minBuildingX + depth / 2 + Math.random() * 6);
         const building = this._createBuilding(width, height, depth);
@@ -181,10 +281,8 @@ export class Environment {
   _createBuilding(width, height, depth) {
     const buildingGroup = new THREE.Group();
 
-    // Select random building material
     const matIndex = Math.floor(Math.random() * this.buildingMaterials.length);
     const baseMat = this.buildingMaterials[matIndex].clone();
-    // Configure texture repeat based on dimensions
     if (baseMat.map) {
       baseMat.map = baseMat.map.clone();
       baseMat.map.repeat.set(Math.max(1, Math.round(width / 5)), Math.max(2, Math.round(height / 6)));
@@ -199,10 +297,9 @@ export class Environment {
     mesh.receiveShadow = true;
     buildingGroup.add(mesh);
 
-    // Architectural rooftop structure (HVAC, Helipad, or Spire)
+    // Architectural rooftop structure
     const roofType = Math.random();
     if (roofType > 0.6) {
-      // Rooftop communication spire / antenna
       const spireH = 8 + Math.random() * 12;
       const spireGeo = new THREE.CylinderGeometry(0.12, 0.45, spireH, 8);
       const spireMesh = new THREE.Mesh(spireGeo, this.antennaMaterial);
@@ -210,14 +307,12 @@ export class Environment {
       spireMesh.castShadow = true;
       buildingGroup.add(spireMesh);
 
-      // Warning beacon light on tip
       const beaconGeo = new THREE.SphereGeometry(0.35, 8, 8);
       const beaconMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
       const beaconMesh = new THREE.Mesh(beaconGeo, beaconMat);
       beaconMesh.position.set(0, height + spireH, 0);
       buildingGroup.add(beaconMesh);
     } else if (roofType > 0.3) {
-      // Rooftop mechanical penthouse
       const pentW = width * 0.55;
       const pentD = depth * 0.55;
       const pentH = 4.0;
@@ -234,21 +329,18 @@ export class Environment {
   _createStreetlight(side) {
     const lampGroup = new THREE.Group();
 
-    // Vertical pole (height 6.5m)
     const poleGeo = new THREE.CylinderGeometry(0.1, 0.14, 6.5, 12);
     const poleMesh = new THREE.Mesh(poleGeo, this.streetlampPoleMat);
     poleMesh.position.set(0, 3.25, 0);
     poleMesh.castShadow = true;
     lampGroup.add(poleMesh);
 
-    // Horizontal arm reaching toward the road
     const armLen = 2.4;
     const armGeo = new THREE.BoxGeometry(armLen, 0.12, 0.12);
     const armMesh = new THREE.Mesh(armGeo, this.streetlampPoleMat);
     armMesh.position.set(-side * (armLen / 2 - 0.1), 6.4, 0);
     lampGroup.add(armMesh);
 
-    // Downward lamp fixture with emissive glow
     const headGeo = new THREE.BoxGeometry(0.8, 0.16, 0.35);
     const headMesh = new THREE.Mesh(headGeo, this.streetlampLightMat);
     headMesh.position.set(-side * (armLen - 0.2), 6.32, 0);
@@ -260,14 +352,12 @@ export class Environment {
   _createStylizedTree() {
     const treeGroup = new THREE.Group();
 
-    // Trunk
     const trunkGeo = new THREE.CylinderGeometry(0.18, 0.26, 2.4, 8);
     const trunkMesh = new THREE.Mesh(trunkGeo, this.treeTrunkMat);
     trunkMesh.position.set(0, 1.2, 0);
     trunkMesh.castShadow = true;
     treeGroup.add(trunkMesh);
 
-    // Foliage canopy (layered low-poly cones or octahedrons)
     const foliageGeo = new THREE.ConeGeometry(1.6, 3.5, 8);
     const foliageMesh = new THREE.Mesh(foliageGeo, this.treeLeavesMat);
     foliageMesh.position.set(0, 3.8, 0);
@@ -284,11 +374,15 @@ export class Environment {
   }
 
   /**
-   * Syncs directional sun light position with vehicle to optimize shadow map usage.
+   * Syncs directional sun / moon light position with vehicle to optimize shadow map usage.
    */
   update(vehiclePos) {
-    this.sunLight.position.set(vehiclePos.x + 45, 80, vehiclePos.z - 35);
+    const offset = this.currentSunOffset || new THREE.Vector3(45, 80, -35);
+    this.sunLight.position.set(
+      vehiclePos.x + offset.x,
+      offset.y,
+      vehiclePos.z + offset.z
+    );
     this.sunLight.target.position.set(vehiclePos.x, 0, vehiclePos.z);
   }
 }
-

@@ -1,7 +1,9 @@
 /**
  * Game.js
- * Central orchestrator. Initializes Three.js renderer, scene, camera,
- * vehicle, world, collisions, audio, input, HUD, and coordinates the game loop.
+ * Central orchestrator for CITY DRIVE — Phase 2.
+ * Initializes Three.js renderer, scene, camera, player vehicle, AI traffic,
+ * mission system, collision system, audio synthesizers, day/night cycles,
+ * and HUD dashboard.
  */
 
 import * as THREE from 'three';
@@ -13,6 +15,8 @@ import { FollowCamera } from '../camera/FollowCamera.js';
 import { CollisionSystem } from '../collision/CollisionSystem.js';
 import { HUD } from '../ui/HUD.js';
 import { SoundEffects } from '../audio/SoundEffects.js';
+import { TrafficManager } from '../traffic/TrafficManager.js';
+import { MissionManager } from '../missions/MissionManager.js';
 
 export class Game {
   constructor(canvasElement) {
@@ -23,6 +27,7 @@ export class Game {
 
     this.isStarted = false;
     this.isPaused = false;
+    this.currentMode = 'TIME_ATTACK';
 
     this._initThree();
     this._initSystems();
@@ -39,7 +44,7 @@ export class Game {
     });
 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap at 2 for performance
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -61,7 +66,7 @@ export class Game {
 
     // 4. Vehicle Controller & 3D Car
     this.vehicleController = new VehicleController(this.scene, {
-      color: 0x2563eb // Modern racing electric blue
+      color: 0x2563eb
     });
 
     // 5. World & Modular Road Streaming
@@ -70,13 +75,47 @@ export class Game {
     // 6. Sound Effects Engine
     this.soundEffects = new SoundEffects();
 
-    // 7. HUD & UI Coordinator
+    // 7. AI Traffic Simulation
+    this.trafficManager = new TrafficManager(this.scene);
+
+    // 8. Mission & Objective Manager
+    this.missionManager = new MissionManager(this.scene, {
+      onCheckpoint: (count, bonusTime, pts) => {
+        this.soundEffects.playCheckpointChime();
+        this.hud.showNotification(`GATE ${count} CLEARED! +${bonusTime}S (+${pts} PTS)`, 'success', 1600);
+      },
+      onCourierPhase: (phase, msg) => {
+        if (phase === 'PICKUP') {
+          this.soundEffects.playMissionSuccess();
+          this.hud.showNotification(msg, 'success', 2000);
+        } else {
+          this.soundEffects.playCheckpointChime();
+          this.hud.showNotification(msg, 'info', 1800);
+        }
+      },
+      onMissionSuccess: (stats) => {
+        this.soundEffects.playMissionSuccess();
+        stats.distance = this.vehicleController.getDistanceMeters();
+        this.hud.showSummaryModal(true, true, stats);
+      },
+      onMissionFail: (reason, stats) => {
+        this.soundEffects.playMissionFail();
+        stats.distance = this.vehicleController.getDistanceMeters();
+        this.hud.showSummaryModal(true, false, stats);
+      }
+    });
+
+    // 9. HUD & UI Coordinator
     this.hud = new HUD({
-      onStart: () => this.start(),
+      onStart: (mode) => this.start(mode),
       onRestart: () => this.restart(),
       onPause: () => this.pause(),
       onResume: () => this.resume(),
-      onToggleAudio: () => this.soundEffects.toggleMute()
+      onToggleAudio: () => this.soundEffects.toggleMute(),
+      onCycleTimeOfDay: () => this.world.environment.cycleTimeOfDay(this.vehicleController),
+      onColorChange: (hex) => this.vehicleController.setColor(hex),
+      onTuningChange: (tuning) => this.vehicleController.applyTuning(tuning),
+      onReturnMenu: () => this.returnToMenu()
     });
 
     // Initial positioning
@@ -105,30 +144,57 @@ export class Game {
     });
   }
 
-  start() {
+  start(mode = 'TIME_ATTACK') {
+    this.currentMode = mode;
     this.isStarted = true;
     this.isPaused = false;
     this.soundEffects.init();
+
     this.vehicleController.reset(0, 0, 0, 0);
+    this.world.reset();
+    this.trafficManager.reset(0);
+    this.missionManager.startMission(mode);
     this.followCamera.snap(this.vehicleController.physics);
-    this.hud.showNotification('ENGINE STARTED - DRIVE SAFELY', 'info', 1800);
+
+    const modeLabels = {
+      TIME_ATTACK: 'TIME ATTACK SPRINT - CLEAR CHECKPOINTS!',
+      COURIER: 'CITY COURIER - PICK UP FARES & DELIVER!',
+      FREE_CRUISE: 'FREE CRUISE - OVERTAKE TRAFFIC & EXPLORE!'
+    };
+    this.hud.showNotification(modeLabels[mode] || 'DRIVE SAFELY', 'info', 2200);
   }
 
   restart() {
     this.vehicleController.reset(0, 0, 0, 0);
     this.world.reset();
+    this.trafficManager.reset(0);
+    this.missionManager.startMission(this.currentMode);
     this.followCamera.snap(this.vehicleController.physics);
     this.inputManager.resetAll();
     this.isPaused = false;
     this.gameLoop.resume();
     this.hud.showPauseModal(false);
-    this.hud.showNotification('VEHICLE RESET', 'info', 1400);
+    this.hud.showSummaryModal(false);
+    this.hud.showNotification('RESTARTING SPRINT...', 'info', 1200);
+  }
+
+  returnToMenu() {
+    this.isStarted = false;
+    this.isPaused = false;
+    this.missionManager.reset();
+    this.vehicleController.reset(0, 0, 0, 0);
+    this.trafficManager.reset(0);
+    this.world.reset();
+    this.followCamera.snap(this.vehicleController.physics);
+    this.inputManager.resetAll();
+    this.gameLoop.resume();
   }
 
   pause() {
     if (!this.isStarted || this.isPaused) return;
     this.isPaused = true;
     this.gameLoop.pause();
+    this.soundEffects.stopHorn();
     this.hud.showPauseModal(true);
   }
 
@@ -139,23 +205,11 @@ export class Game {
     this.hud.showPauseModal(false);
   }
 
-  /**
-   * Main game systems update pipeline.
-   * Suggested sequence:
-   * 1. Input
-   * 2. Single-frame command consumption
-   * 3. Vehicle physics & movement
-   * 4. Collision check & response
-   * 5. Camera follow & shake
-   * 6. World updates
-   * 7. Sound updates
-   * 8. UI updates
-   */
   update(dt) {
     // 1. Input update
     this.inputManager.update(dt);
 
-    // 2. Consume single-frame triggers
+    // 2. Single-frame command consumption
     if (this.inputManager.consumeRestart()) {
       this.restart();
       return;
@@ -170,9 +224,24 @@ export class Game {
       return;
     }
 
+    if (this.inputManager.consumeTimeOfDayToggle()) {
+      const mode = this.world.environment.cycleTimeOfDay(this.vehicleController);
+      const icons = { DAY: '☀️', SUNSET: '🌅', NIGHT: '🌙' };
+      if (this.hud.btnTimeToggle) {
+        this.hud.btnTimeToggle.textContent = icons[mode] || '☀️';
+      }
+      this.hud.showNotification(`ATMOSPHERE: ${mode}`, 'info', 1000);
+    }
+
+    // Horn input check
+    if (this.inputManager.isHornActive()) {
+      this.soundEffects.startHorn();
+    } else {
+      this.soundEffects.stopHorn();
+    }
+
     if (!this.isStarted) {
-      // Idle turntable camera before clicking Play
-      this.vehicleController.physics.position.z += 0;
+      // Idle camera tracking before click Play
       this.followCamera.snap(this.vehicleController.physics);
       return;
     }
@@ -180,38 +249,78 @@ export class Game {
     // 3. Vehicle movement & physics
     this.vehicleController.update(dt, this.inputManager);
 
-    // 4. Collision detection & physical resolution
+    // 4. AI Traffic Simulation
+    this.trafficManager.update(
+      dt,
+      this.vehicleController.physics,
+      this.collisionSystem.obstacles,
+      (tv) => {
+        // High-speed Near Miss with AI car!
+        this.soundEffects.playNearMiss();
+        const res = this.missionManager.recordNearMiss();
+        this.hud.showNotification(`⚡ NEAR MISS! +${res.bonus} PTS (x${res.count})`, 'warning', 1000);
+      }
+    );
+
+    // 5. Collision detection & physical resolution
     this.collisionSystem.update(
       this.vehicleController,
       this.followCamera,
       dt,
+      this.trafficManager,
       (hitType) => {
         this.soundEffects.playCollision();
-        if (hitType === 'OBSTACLE') {
-          this.hud.showNotification('⚠️ IMPACT DETECTED! -70% SPEED', 'danger', 1200);
+        if (hitType === 'TRAFFIC') {
+          this.hud.showNotification('💥 TRAFFIC COLLISION! WATCH YOUR LANE', 'danger', 1200);
+        } else if (hitType === 'OBSTACLE') {
+          this.hud.showNotification('⚠️ ROADBLOCK IMPACT! -70% SPEED', 'danger', 1200);
         } else {
           this.hud.showNotification('⚠️ GUARDRAIL SCRAPE', 'warning', 800);
         }
       }
     );
 
-    // 5. Follow Camera
+    // 6. Missions & Objectives update
+    this.missionManager.update(dt, this.vehicleController.physics);
+
+    // 7. Follow Camera
     this.followCamera.update(this.vehicleController.physics, dt);
 
-    // 6. World chunk streaming & sun tracking
+    // 8. World chunk streaming & sun tracking
     this.world.update(this.vehicleController.getPosition());
 
-    // 7. Sound Synthesis
+    // 9. Sound Synthesis
     this.soundEffects.update(
       this.vehicleController.getSpeedKmh(),
       this.inputManager.throttle
     );
 
-    // 8. UI Telemetry update
+    // 10. UI Telemetry update
     this.hud.updateTelemetry(
       this.vehicleController.getSpeedKmh(),
       this.vehicleController.getGear(),
       this.vehicleController.getDistanceMeters()
+    );
+
+    // 11. Mission HUD Telemetry
+    let objectiveText = '';
+    const distToObj = this.missionManager.getDistanceToNextObjective(this.vehicleController.physics);
+
+    if (this.currentMode === 'TIME_ATTACK') {
+      objectiveText = `🏁 CHECKPOINT ${this.missionManager.nextCheckpointIndex}: ${distToObj}M`;
+    } else if (this.currentMode === 'COURIER') {
+      objectiveText = this.missionManager.courierPhase === 'PICKUP'
+        ? `🧍 PICK UP FARE: ${distToObj}M`
+        : `📍 DROP OFF DESTINATION: ${distToObj}M`;
+    } else {
+      objectiveText = `🛣️ HIGHWAY CRUISE: ${this.vehicleController.getDistanceMeters()}M`;
+    }
+
+    this.hud.updateMissionTelemetry(
+      this.missionManager.timeRemaining,
+      objectiveText,
+      this.missionManager.score,
+      this.currentMode
     );
   }
 
@@ -219,4 +328,3 @@ export class Game {
     this.renderer.render(this.scene, this.followCamera.camera);
   }
 }
-

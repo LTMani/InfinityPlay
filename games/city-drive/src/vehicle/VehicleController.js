@@ -80,5 +80,17 @@ export class VehicleController {
   onCollision(normalX, normalZ) {
     this.physics.onCollision(normalX, normalZ);
   }
+
+  setColor(hexColor) {
+    this.vehicle.setColor(hexColor);
+  }
+
+  applyTuning(tuning) {
+    this.physics.applyTuning(tuning);
+  }
+
+  setHeadlightIntensity(intensity) {
+    this.vehicle.setHeadlightIntensity(intensity);
+  }
 }
 

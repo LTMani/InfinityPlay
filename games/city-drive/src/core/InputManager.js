@@ -12,7 +12,8 @@ export class InputManager {
       backward: false,
       left: false,
       right: false,
-      handbrake: false
+      handbrake: false,
+      horn: false
     };
 
     // Smoothed analog-like outputs [-1, 1]
@@ -23,6 +24,7 @@ export class InputManager {
     // Single-frame action flags
     this.restartRequested = false;
     this.pauseRequested = false;
+    this.timeOfDayRequested = false;
 
     // Device detection
     this.isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
@@ -33,7 +35,8 @@ export class InputManager {
       brake: false,
       left: false,
       right: false,
-      handbrake: false
+      handbrake: false,
+      horn: false
     };
 
     this._setupKeyboardListeners();
@@ -71,6 +74,12 @@ export class InputManager {
         case 'KeyR':
           this.restartRequested = true;
           break;
+        case 'KeyT':
+          this.timeOfDayRequested = true;
+          break;
+        case 'KeyH':
+          this.raw.horn = true;
+          break;
         case 'Escape':
           this.pauseRequested = true;
           break;
@@ -101,6 +110,9 @@ export class InputManager {
           break;
         case 'Space':
           this.raw.handbrake = false;
+          break;
+        case 'KeyH':
+          this.raw.horn = false;
           break;
       }
     }, { passive: false });
@@ -149,6 +161,7 @@ export class InputManager {
     binder('btnGas', 'gas');
     binder('btnBrake', 'brake');
     binder('btnHandbrake', 'handbrake');
+    binder('btnHorn', 'horn');
   }
 
   /**
@@ -199,6 +212,16 @@ export class InputManager {
     const val = this.pauseRequested;
     this.pauseRequested = false;
     return val;
+  }
+
+  consumeTimeOfDayToggle() {
+    const val = this.timeOfDayRequested;
+    this.timeOfDayRequested = false;
+    return val;
+  }
+
+  isHornActive() {
+    return this.raw.horn || this.touchStates.horn;
   }
 
   resetAll() {

@@ -228,9 +228,11 @@ export class CollisionSystem {
    * Main collision test and resolution against vehicle.
    * @param {VehicleController} vehicleController
    * @param {FollowCamera} followCamera
+   * @param {number} dt
+   * @param {TrafficManager} trafficManager
    * @param {function} onHitCallback
    */
-  update(vehicleController, followCamera, dt, onHitCallback) {
+  update(vehicleController, followCamera, dt, trafficManager, onHitCallback) {
     const physics = vehicleController.physics;
     const vX = physics.position.x;
     const vZ = physics.position.z;
@@ -301,6 +303,52 @@ export class CollisionSystem {
         if (now - obs.lastImpactTime > 800) {
           obs.lastImpactTime = now;
           if (onHitCallback) onHitCallback('OBSTACLE');
+        }
+      }
+    }
+
+    // 3. Dynamic Traffic Vehicles check
+    if (trafficManager && trafficManager.vehicles) {
+      for (let i = 0; i < trafficManager.vehicles.length; i++) {
+        const tv = trafficManager.vehicles[i];
+        if (!tv.isActive) continue;
+
+        const dx = vX - tv.position.x;
+        const dz = vZ - tv.position.z;
+
+        const maxR = vHl + tv.hl;
+        if (dx * dx + dz * dz > maxR * maxR) continue;
+
+        const overlapX = (vHw + tv.hw) - Math.abs(dx);
+        const overlapZ = (vHl + tv.hl) - Math.abs(dz);
+
+        if (overlapX > 0 && overlapZ > 0) {
+          let normalX = 0;
+          let normalZ = 0;
+
+          if (overlapX < overlapZ) {
+            normalX = dx > 0 ? 1 : -1;
+            physics.position.x += normalX * overlapX * 0.7;
+            tv.position.x -= normalX * overlapX * 0.3;
+          } else {
+            normalZ = dz > 0 ? 1 : -1;
+            physics.position.z += normalZ * overlapZ * 0.7;
+            tv.position.z -= normalZ * overlapZ * 0.3;
+          }
+
+          physics.onCollision(normalX, normalZ, 0.35);
+          tv.onImpact(physics.speed);
+
+          followCamera.triggerImpactShake(0.48, 0.5);
+
+          const contactX = tv.position.x + (dx > 0 ? tv.hw : -tv.hw);
+          const contactZ = tv.position.z + (dz > 0 ? tv.hl : -tv.hl);
+          this._emitSparks(contactX, 0.6, contactZ, normalX, normalZ);
+
+          if (now - (tv.lastImpactTime || 0) > 800) {
+            tv.lastImpactTime = now;
+            if (onHitCallback) onHitCallback('TRAFFIC');
+          }
         }
       }
     }
