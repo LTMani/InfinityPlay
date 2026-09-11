@@ -241,9 +241,13 @@ export class Game {
     }
 
     if (!this.isStarted) {
-      // Idle camera tracking before click Play
-      this.followCamera.snap(this.vehicleController.physics);
-      return;
+      if (this.inputManager.consumeStart()) {
+        this.hud.hideStartScreen();
+        this.start(this.hud.selectedMode);
+      } else {
+        this.followCamera.snap(this.vehicleController.physics);
+        return;
+      }
     }
 
     // 3. Vehicle movement & physics

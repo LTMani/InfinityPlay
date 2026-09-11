@@ -108,6 +108,8 @@ export class HUD {
     // 2. Play & Controls buttons
     if (this.btnPlay) {
       this.btnPlay.addEventListener('click', () => {
+        this.btnPlay.blur();
+        window.focus();
         this.hideStartScreen();
         if (this.callbacks.onStart) this.callbacks.onStart(this.selectedMode);
       });

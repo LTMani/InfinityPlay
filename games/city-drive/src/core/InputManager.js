@@ -1,7 +1,8 @@
 /**
  * InputManager.js
- * Handles desktop keyboard and mobile touch inputs.
- * Normalizes inputs into smooth, frame-independent control values.
+ * Handles desktop keyboard and mobile touch inputs with zero lag.
+ * Supports dual code/key identification, immediate arcade throttle response,
+ * speed steering build-up, and auto-start triggers.
  */
 
 export class InputManager {
@@ -16,12 +17,13 @@ export class InputManager {
       horn: false
     };
 
-    // Smoothed analog-like outputs [-1, 1]
+    // Fast analog outputs [-1, 1]
     this.throttle = 0; // -1 (brake/rev) to +1 (accelerate)
     this.steer = 0;    // -1 (full left) to +1 (full right)
     this.handbrake = 0;// 0 to 1
 
     // Single-frame action flags
+    this.startRequested = false;
     this.restartRequested = false;
     this.pauseRequested = false;
     this.timeOfDayRequested = false;
@@ -51,38 +53,32 @@ export class InputManager {
         e.preventDefault();
       }
 
-      switch (e.code) {
-        case 'KeyW':
-        case 'ArrowUp':
-          this.raw.forward = true;
-          break;
-        case 'KeyS':
-        case 'ArrowDown':
-          this.raw.backward = true;
-          break;
-        case 'KeyA':
-        case 'ArrowLeft':
-          this.raw.left = true;
-          break;
-        case 'KeyD':
-        case 'ArrowRight':
-          this.raw.right = true;
-          break;
-        case 'Space':
-          this.raw.handbrake = true;
-          break;
-        case 'KeyR':
-          this.restartRequested = true;
-          break;
-        case 'KeyT':
-          this.timeOfDayRequested = true;
-          break;
-        case 'KeyH':
-          this.raw.horn = true;
-          break;
-        case 'Escape':
-          this.pauseRequested = true;
-          break;
+      const code = e.code || '';
+      const k = (e.key || '').toLowerCase();
+
+      if (code === 'KeyW' || code === 'ArrowUp' || k === 'w' || k === 'arrowup') {
+        this.raw.forward = true;
+        this.startRequested = true;
+      } else if (code === 'KeyS' || code === 'ArrowDown' || k === 's' || k === 'arrowdown') {
+        this.raw.backward = true;
+        this.startRequested = true;
+      } else if (code === 'KeyA' || code === 'ArrowLeft' || k === 'a' || k === 'arrowleft') {
+        this.raw.left = true;
+      } else if (code === 'KeyD' || code === 'ArrowRight' || k === 'd' || k === 'arrowright') {
+        this.raw.right = true;
+      } else if (code === 'Space' || k === ' ') {
+        this.raw.handbrake = true;
+        this.startRequested = true;
+      } else if (code === 'Enter' || k === 'enter') {
+        this.startRequested = true;
+      } else if (code === 'KeyR' || k === 'r') {
+        this.restartRequested = true;
+      } else if (code === 'KeyT' || k === 't') {
+        this.timeOfDayRequested = true;
+      } else if (code === 'KeyH' || k === 'h') {
+        this.raw.horn = true;
+      } else if (code === 'Escape' || k === 'escape') {
+        this.pauseRequested = true;
       }
     }, { passive: false });
 
@@ -91,29 +87,21 @@ export class InputManager {
         e.preventDefault();
       }
 
-      switch (e.code) {
-        case 'KeyW':
-        case 'ArrowUp':
-          this.raw.forward = false;
-          break;
-        case 'KeyS':
-        case 'ArrowDown':
-          this.raw.backward = false;
-          break;
-        case 'KeyA':
-        case 'ArrowLeft':
-          this.raw.left = false;
-          break;
-        case 'KeyD':
-        case 'ArrowRight':
-          this.raw.right = false;
-          break;
-        case 'Space':
-          this.raw.handbrake = false;
-          break;
-        case 'KeyH':
-          this.raw.horn = false;
-          break;
+      const code = e.code || '';
+      const k = (e.key || '').toLowerCase();
+
+      if (code === 'KeyW' || code === 'ArrowUp' || k === 'w' || k === 'arrowup') {
+        this.raw.forward = false;
+      } else if (code === 'KeyS' || code === 'ArrowDown' || k === 's' || k === 'arrowdown') {
+        this.raw.backward = false;
+      } else if (code === 'KeyA' || code === 'ArrowLeft' || k === 'a' || k === 'arrowleft') {
+        this.raw.left = false;
+      } else if (code === 'KeyD' || code === 'ArrowRight' || k === 'd' || k === 'arrowright') {
+        this.raw.right = false;
+      } else if (code === 'Space' || k === ' ') {
+        this.raw.handbrake = false;
+      } else if (code === 'KeyH' || k === 'h') {
+        this.raw.horn = false;
       }
     }, { passive: false });
 
@@ -133,6 +121,9 @@ export class InputManager {
         this.touchStates[stateKey] = pressed;
         if (pressed) {
           el.classList.add('active');
+          if (stateKey === 'gas' || stateKey === 'brake') {
+            this.startRequested = true;
+          }
         } else {
           el.classList.remove('active');
         }
@@ -142,7 +133,7 @@ export class InputManager {
       el.addEventListener('touchend', (e) => setPressed(false, e), { passive: false });
       el.addEventListener('touchcancel', (e) => setPressed(false, e), { passive: false });
 
-      // Mouse fallback for UI testing on desktop
+      // Mouse fallback for desktop testing
       el.addEventListener('mousedown', (e) => setPressed(true, e));
       el.addEventListener('mouseup', (e) => setPressed(false, e));
       el.addEventListener('mouseleave', (e) => setPressed(false, e));
@@ -165,7 +156,7 @@ export class InputManager {
   }
 
   /**
-   * Update smoothed inputs each frame.
+   * Update smoothed inputs each frame with ultra-fast arcade response.
    * @param {number} dt Delta time in seconds
    */
   update(dt) {
@@ -189,17 +180,23 @@ export class InputManager {
       targetSteer = -1.0; // Right
     }
 
-    // Smooth throttle transition
-    const throttleRate = targetThrottle !== 0 ? 8.0 : 6.0;
+    // Ultra-fast throttle response (almost instant)
+    const throttleRate = targetThrottle !== 0 ? 32.0 : 22.0;
     this.throttle += (targetThrottle - this.throttle) * Math.min(1.0, throttleRate * dt);
     if (Math.abs(this.throttle) < 0.001) this.throttle = 0;
 
-    // Smooth steering transition (keyboard/buttons benefit from progressive build-up)
-    const steerRate = targetSteer !== 0 ? 9.0 : 12.0;
+    // Snappy steering response
+    const steerRate = targetSteer !== 0 ? 30.0 : 25.0;
     this.steer += (targetSteer - this.steer) * Math.min(1.0, steerRate * dt);
     if (Math.abs(this.steer) < 0.001) this.steer = 0;
 
     this.handbrake = handbrakeActive ? 1.0 : 0.0;
+  }
+
+  consumeStart() {
+    const val = this.startRequested;
+    this.startRequested = false;
+    return val;
   }
 
   consumeRestart() {
@@ -230,20 +227,23 @@ export class InputManager {
     this.raw.left = false;
     this.raw.right = false;
     this.raw.handbrake = false;
+    this.raw.horn = false;
 
     this.touchStates.gas = false;
     this.touchStates.brake = false;
     this.touchStates.left = false;
     this.touchStates.right = false;
     this.touchStates.handbrake = false;
+    this.touchStates.horn = false;
 
     this.throttle = 0;
     this.steer = 0;
     this.handbrake = 0;
+    this.startRequested = false;
     this.restartRequested = false;
     this.pauseRequested = false;
+    this.timeOfDayRequested = false;
 
     document.querySelectorAll('.touch-btn').forEach(btn => btn.classList.remove('active'));
   }
 }
-
