@@ -4,14 +4,32 @@
 
 const games = [
   {
+    id: 'city-drive',
+    name: 'City Drive',
+    category: 'Racing',
+    rating: 5.0,
+    plays: 28500,
+    playsFormatted: '28.5K',
+    rank: 1,
+    badge: '#1 3D',
+    isTop: true,
+    thumbnail: 'assets/games/thumb_city_drive.svg',
+    topThumbnail: 'assets/games/top_city_drive.svg',
+    description: 'Master the asphalt in this flagship 3D urban driving simulator. Navigate streaming cityscapes with autonomous AI traffic, checkpoint sprints, dynamic day/night lighting, and garage customization.',
+    tags: ['Racing', '3D WebGL', 'AI Traffic', 'Missions', 'Customization'],
+    releaseDate: '2026-09-11',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/city-drive/index.html'
+  },
+  {
     id: 'ultimate-racing',
     name: 'Ultimate Racing',
     category: 'Racing',
     rating: 4.9,
     plays: 12400,
     playsFormatted: '12K',
-    rank: 1,
-    badge: '#1',
+    rank: 2,
+    badge: '#2',
     isTop: true,
     thumbnail: 'assets/games/thumb_ultimate_racing.png',
     topThumbnail: 'assets/games/top_1_racing.png',
@@ -207,24 +225,6 @@ const games = [
     developer: 'InfinityPlay Studios',
     thumbnail: 'assets/games/thumb_memory_match.jpg',
     gameUrl: 'games/memory-match/index.html'
-  },
-  {
-    id: 'city-drive',
-    name: 'City Drive',
-    category: 'Racing',
-    rating: 4.9,
-    plays: 13500,
-    playsFormatted: '13.5K',
-    rank: null,
-    badge: 'NEW',
-    isTop: false,
-    thumbnail: 'assets/games/thumb_city_drive.svg',
-    topThumbnail: 'assets/games/top_city_drive.svg',
-    description: 'Master the asphalt in this high-performance 3D urban driving simulator. Navigate streaming cityscapes with arcade vehicle physics, responsive follow camera, obstacle hazards, and multi-touch controls.',
-    tags: ['Racing', '3D', 'City', 'Driving', 'Simulation'],
-    releaseDate: '2026-09-11',
-    developer: 'InfinityPlay Studios',
-    gameUrl: 'games/city-drive/index.html'
   }
 ];
 

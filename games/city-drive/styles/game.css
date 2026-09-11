@@ -919,4 +919,46 @@ html, body {
   margin-top: 4px;
 }
 
+/* ==========================================================================
+   INFINITYPLAY PORTAL BACK BUTTON
+   ========================================================================== */
+.portal-back-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  border-radius: 999px;
+  color: #e2e8f0;
+  font-family: var(--cd-font-sans);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 12px rgba(6, 182, 212, 0.15);
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.portal-back-btn:hover {
+  background: rgba(6, 182, 212, 0.2);
+  border-color: var(--cd-cyan);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 16px var(--cd-cyan-glow);
+}
+
+.portal-back-btn span:first-child {
+  font-size: 1.05rem;
+  color: var(--cd-cyan);
+}
+
+
 

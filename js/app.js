@@ -33,7 +33,7 @@
       const heroPlayBtn = document.getElementById('heroPlayBtn');
       if (heroPlayBtn) {
         heroPlayBtn.addEventListener('click', () => {
-          this.launchGameModal('ultimate-racing');
+          this.launchGameModal('city-drive');
         });
       }
 

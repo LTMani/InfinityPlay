@@ -6,6 +6,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { handleAPIRoute } = require('./routes/api');
 
 const PORT = process.env.PORT || 3000;
@@ -109,14 +110,26 @@ server.on('error', (err) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
+  const nets = os.networkInterfaces();
+  const localIPs = [];
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === 'IPv4' && !net.internal) {
+        localIPs.push(net.address);
+      }
+    }
+  }
+
   console.log('====================================================');
   console.log('⚡ INFINITYPLAY NODE.JS SERVER RUNNING');
   console.log(`🌐 Dashboard:    http://localhost:${PORT}`);
+  localIPs.forEach(ip => {
+    console.log(`📱 LAN Network:  http://${ip}:${PORT} (Open on phones & other PCs)`);
+  });
+  console.log(`🏎️ City Drive:   http://localhost:${PORT}/games/city-drive/`);
   console.log(`📡 API Base:     http://localhost:${PORT}/api`);
   console.log(`🎮 Games API:    http://localhost:${PORT}/api/games`);
   console.log(`🎯 Categories:   http://localhost:${PORT}/api/categories`);
   console.log(`👑 Leaderboard:  http://localhost:${PORT}/api/leaderboard`);
-  console.log(`🕒 Recents API:  http://localhost:${PORT}/api/recently-played`);
-  console.log(`⭐ Favorites:    http://localhost:${PORT}/api/favorites`);
   console.log('====================================================');
 });

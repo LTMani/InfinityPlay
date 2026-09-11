@@ -75,21 +75,36 @@ InfinityPlay/
 
 ---
 
-## 🕹 The 10 Platform Games
+## 🌐 Live Web Portal Access
 
-1. **Ultimate Racing** (Racing • ★ 4.9 • 12K Plays)
-2. **Bus Simulator** (Simulation • ★ 4.8 • 9.2K Plays)
-3. **Shadow Adventure** (Adventure • ★ 4.7 • 8.1K Plays)
-4. **City Builder** (Strategy • ★ 4.9 • 11K Plays)
-5. **Football Legends** (Sports • ★ 4.6 • 6.4K Plays)
-6. **Survival Island** (Survival • ★ 4.8 • 7.8K Plays)
-7. **Puzzle Master** (Puzzle • ★ 4.7 • 5.9K Plays)
-8. **Farm Life** (Simulation • ★ 4.5 • 4.3K Plays)
+- **GitHub Pages Global Deployment**: [https://ltmani.github.io/InfinityPlay/](https://ltmani.github.io/InfinityPlay/)
+- **Play City Drive 3D Directly**: [https://ltmani.github.io/InfinityPlay/games/city-drive/](https://ltmani.github.io/InfinityPlay/games/city-drive/)
+
+Anyone on any smartphone, tablet, laptop, or desktop browser can instantly open the web portal and play simultaneously with no installation required!
+
+---
+
+## 🕹 Platform Games
+
+1. **City Drive 3D** (Racing • ★ 5.0 • 28.5K Plays • **Playable 3D Three.js Flagship**)
+   - Autonomous AI Traffic with radar braking & lane changing
+   - Time Attack Checkpoint Sprint (+15s per holographic gate)
+   - Taxi Courier Fares & Free Cruise modes
+   - Dynamic Day / Sunset / Night atmospheres with real-time streetlamps
+   - Dual road-projecting headlights & Garage paint / engine tuning
+   - Dual-tone car horn (`H`), tire screeches & near-miss whooshes
+2. **Ultimate Racing** (Racing • ★ 4.9 • 12K Plays)
+3. **Bus Simulator** (Simulation • ★ 4.8 • 9.2K Plays)
+4. **Shadow Adventure** (Adventure • ★ 4.7 • 8.1K Plays)
+5. **City Builder** (Strategy • ★ 4.9 • 11K Plays • Playable)
+6. **Chess Grandmaster** (Strategy • ★ 5.0 • Playable vs AI & Multiplayer)
+7. **Memory Match** (Puzzle • ★ 4.8 • Playable)
+8. **Speed Arena** (Racing • ★ 4.9 • 10.5K Plays)
 9. **Tower Defense** (Strategy • ★ 4.8 • 8.6K Plays)
-10. **Speed Arena** (Racing • ★ 4.9 • 10.5K Plays)
-11. **Chess Grandmaster** (Strategy • ★ 5.0 • Playable)
-12. **Memory Match** (Puzzle • ★ 4.8 • Playable)
-13. **City Drive** (Racing • ★ 4.9 • 13.5K Plays • Playable 3D Three.js)
+10. **Survival Island** (Survival • ★ 4.8 • 7.8K Plays)
+11. **Football Legends** (Sports • ★ 4.6 • 6.4K Plays)
+12. **Puzzle Master** (Puzzle • ★ 4.7 • 5.9K Plays)
+13. **Farm Life** (Simulation • ★ 4.5 • 4.3K Plays)
 
 ---
 
