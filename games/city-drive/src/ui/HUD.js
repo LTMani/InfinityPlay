@@ -12,16 +12,15 @@ export class HUD {
     //   onCycleTimeOfDay(), onColorChange(hex), onTuningChange(tuning), onReturnMenu()
     // }
 
-    this.selectedMode = 'TIME_ATTACK';
+    this.selectedLevel = 1;
     this.selectedColor = 0x2563eb;
     this.tuning = { engineLevel: 2, handlingLevel: 2, brakesLevel: 2 };
 
-    // Mode descriptions
-    this.modeDescriptions = {
-      TIME_ATTACK: 'Race through glowing checkpoint arches before time runs out! (+15s per gate)',
-      COURIER: 'Pick up VIP passengers and deliver cargo to designated road bays without crashing!',
-      FREE_CRUISE: 'Endless highway driving with bonus points for high speed and close near-misses.'
-    };
+    // Level descriptions
+    this.levelDescriptions = {};
+    for (let i = 1; i <= 10; i++) {
+      this.levelDescriptions[i] = `Level ${i}: Drive to the destination ${i * 1000}m away before time runs out! Watch out for traffic!`;
+    }
 
     // Cache DOM Elements
     this.startScreen = document.getElementById('startScreen');
@@ -97,9 +96,9 @@ export class HUD {
         tab.addEventListener('click', () => {
           this.modeTabs.forEach(t => t.classList.remove('active'));
           tab.classList.add('active');
-          this.selectedMode = tab.dataset.mode;
+          this.selectedLevel = parseInt(tab.dataset.level, 10);
           if (this.modeDescription) {
-            this.modeDescription.textContent = this.modeDescriptions[this.selectedMode] || '';
+            this.modeDescription.textContent = this.levelDescriptions[this.selectedLevel] || '';
           }
         });
       });

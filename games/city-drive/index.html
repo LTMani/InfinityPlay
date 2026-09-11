@@ -46,24 +46,22 @@
       <h1 class="game-title">CITY DRIVE</h1>
       <p class="game-subtitle">Autonomous AI Traffic • Checkpoint Sprints • Day &amp; Night</p>
 
-      <!-- Game Mode Selection -->
+      <!-- Level Selection -->
       <div class="mode-selection-group">
-        <span class="mode-group-label">SELECT MISSION MODE</span>
-        <div class="mode-tabs" id="modeTabs">
-          <button class="mode-tab active" data-mode="TIME_ATTACK" id="tabTimeAttack">
-            <span class="mode-tab-icon">⏱️</span>
-            <span class="mode-tab-name">SPRINT</span>
-          </button>
-          <button class="mode-tab" data-mode="COURIER" id="tabCourier">
-            <span class="mode-tab-icon">🚕</span>
-            <span class="mode-tab-name">COURIER</span>
-          </button>
-          <button class="mode-tab" data-mode="FREE_CRUISE" id="tabFreeCruise">
-            <span class="mode-tab-icon">🛣️</span>
-            <span class="mode-tab-name">CRUISE</span>
-          </button>
+        <span class="mode-group-label">SELECT LEVEL</span>
+        <div class="mode-tabs level-grid" id="modeTabs" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+          <button class="mode-tab active" data-level="1">1</button>
+          <button class="mode-tab" data-level="2">2</button>
+          <button class="mode-tab" data-level="3">3</button>
+          <button class="mode-tab" data-level="4">4</button>
+          <button class="mode-tab" data-level="5">5</button>
+          <button class="mode-tab" data-level="6">6</button>
+          <button class="mode-tab" data-level="7">7</button>
+          <button class="mode-tab" data-level="8">8</button>
+          <button class="mode-tab" data-level="9">9</button>
+          <button class="mode-tab" data-level="10">10</button>
         </div>
-        <p class="mode-description" id="modeDescription">Race through glowing checkpoint arches before time runs out! (+15s per gate)</p>
+        <p class="mode-description" id="modeDescription">Reach the destination before time runs out!</p>
       </div>
 
       <div class="menu-button-stack">
