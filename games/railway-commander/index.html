@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Railway Commander — 2.5D Train Driving Simulator | InfinityPlay</title>
+  <meta name="description" content="Take control of powerful trains, follow signals, master speed limits, and become the ultimate railway driver in Railway Commander on InfinityPlay.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="../../assets/games/thumb_railway_commander.svg">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Game Stylesheet -->
+  <link rel="stylesheet" href="styles/game.css">
+</head>
+<body>
+
+  <!-- Main 2.5D Simulation Canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Quick Return to InfinityPlay Platform -->
+  <a href="../../index.html" class="portal-back-btn" id="portalBackBtn" title="Back to InfinityPlay Platform">
+    <span>⮌</span>
+    <span>InfinityPlay</span>
+  </a>
+
+  <!-- ======================================================================
+       1. IN-GAME HEADS-UP DISPLAY (HUD)
+       ====================================================================== -->
+  <div class="hud-layer hidden" id="gameHUD">
+    <!-- Top Action & Mission Info Bar -->
+    <div class="hud-top-bar">
+      <div class="hud-mission-info">
+        <div class="hud-mission-badge">🚆 RAILWAY SIMULATOR</div>
+        <div class="hud-mission-title" id="hudMissionName">Training Run</div>
+        <div class="hud-mission-objective" id="hudMissionObjective">Maintain speed limits and arrive at Riverside Junction.</div>
+      </div>
+
+      <div class="hud-top-actions">
+        <div class="hud-pill" id="hudDistanceDriven">0.00 km</div>
+        <div class="hud-pill" id="hudCameraBadge">🎥 CHASE VIEW</div>
+        <div class="hud-pill" id="hudHeadlightsBadge">💡 LIGHTS ON</div>
+        <button class="hud-btn" id="btnPauseGame" title="Pause Game (ESC)">⏸ PAUSE</button>
+      </div>
+    </div>
+
+    <!-- Center Notification Toast Banner -->
+    <div class="hud-alert-banner" id="hudAlertBanner">Signal Clear • Drive Safe</div>
+
+    <!-- Middle Instrument Layout -->
+    <div class="hud-middle-layout">
+      <!-- Left: Speedometer Cluster -->
+      <div class="hud-speed-cluster">
+        <div class="gauge-wrap">
+          <svg class="speed-gauge-svg" viewBox="0 0 140 100">
+            <!-- Background Arc -->
+            <path d="M 20 85 A 50 50 0 1 1 120 85" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="8" stroke-linecap="round" />
+            <!-- Active Colored Speed Arc -->
+            <path d="M 20 85 A 50 50 0 0 1 70 35" fill="none" stroke="url(#speedGrad)" stroke-width="8" stroke-linecap="round" />
+            <defs>
+              <linearGradient id="speedGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#0284c7" />
+                <stop offset="100%" stop-color="#00f0ff" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="gauge-needle" id="hudSpeedGaugeNeedle"></div>
+        </div>
+
+        <div class="speed-digital-display">
+          <span class="speed-val" id="hudSpeedVal">0</span>
+          <span class="speed-unit">KM/H</span>
+        </div>
+
+        <div class="speed-limit-box">
+          <div class="limit-sign" id="hudSpeedLimitVal">60</div>
+          <span class="limit-text">SPEED LIMIT</span>
+        </div>
+
+        <div class="overspeed-badge hidden" id="hudOverspeedBadge">⚠ OVERSPEEDING</div>
+      </div>
+
+      <!-- Right: Signals & Stations Navigation Cards -->
+      <div class="hud-nav-cluster">
+        <!-- Next Signal -->
+        <div class="nav-card">
+          <div class="nav-card-header">
+            <span>UPCOMING SIGNAL</span>
+            <span id="hudSignalDist">550m</span>
+          </div>
+          <div class="nav-card-main">
+            <span class="signal-optic" id="hudSignalIcon">🟢</span>
+            <div class="nav-card-texts">
+              <span class="nav-title" id="hudSignalName">Depot Exit Signal</span>
+              <span class="nav-dist">Track Clear</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next Station -->
+        <div class="nav-card">
+          <div class="nav-card-header">
+            <span>NEXT STATION</span>
+            <span id="hudStationDist">1600m</span>
+          </div>
+          <div class="nav-card-main">
+            <span style="font-size: 1.5rem;">🚉</span>
+            <div class="nav-card-texts">
+              <span class="nav-title" id="hudStationName">Riverside Junction</span>
+              <span class="nav-dist">Scheduled Stop</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Driver Control Console -->
+    <div class="hud-bottom-console">
+      <!-- Throttle Notch Lever -->
+      <div class="console-lever-group">
+        <div class="lever-label-col">
+          <span class="lever-title">THROTTLE</span>
+          <span class="lever-val" id="hudThrottleLevel">T: 0/5</span>
+          <div class="meter-track">
+            <div class="meter-fill throttle" id="hudThrottleFill"></div>
+          </div>
+        </div>
+        <button class="console-btn" id="btnThrottleDown" title="Throttle Down (A / Left)">−</button>
+        <button class="console-btn" id="btnThrottleUp" title="Throttle Up (W / Up)">+</button>
+      </div>
+
+      <!-- Service Brake Lever -->
+      <div class="console-lever-group">
+        <div class="lever-label-col">
+          <span class="lever-title">BRAKE</span>
+          <span class="lever-val" id="hudBrakeLevel">B: 0/5</span>
+          <div class="meter-track">
+            <div class="meter-fill brake" id="hudBrakeFill"></div>
+          </div>
+        </div>
+        <button class="console-btn" id="btnBrakeDown" title="Brake Release (D / Right)">−</button>
+        <button class="console-btn" id="btnBrakeUp" title="Brake Apply (S / Down)">+</button>
+      </div>
+
+      <!-- Emergency Brake -->
+      <button class="btn-emergency-brake" id="btnEmergencyBrake" title="Emergency Brake (SPACE)">
+        <span>🛑</span>
+        <span>EMERGENCY BRAKE</span>
+      </button>
+
+      <!-- Horn -->
+      <button class="btn-horn" id="btnHorn" title="Locomotive Horn (H)">
+        <span>📯</span>
+        <span>HORN</span>
+      </button>
+
+      <!-- Headlights & Camera -->
+      <button class="console-btn" id="btnHeadlights" title="Headlights (L)">💡</button>
+      <button class="console-btn" id="btnCameraToggle" title="Toggle Camera View (C)">🎥</button>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       2. MAIN MENU SCREEN
+       ====================================================================== -->
+  <section class="overlay-screen active" id="screenMainMenu">
+    <div class="modal-card">
+      <div class="card-brand-badge">⚡ InfinityPlay Simulation Series</div>
+      <h1 class="card-title">RAILWAY COMMANDER</h1>
+      <p class="card-subtitle">"Drive. Signal. Stop. Deliver."</p>
+
+      <div class="btn-group-stack">
+        <button class="btn btn-primary" id="btnMenuPlay">
+          <span>▶</span>
+          <span>START PLAYING</span>
+        </button>
+        <button class="btn btn-secondary" id="btnMenuMissions">
+          <span>🚆</span>
+          <span>SELECT MISSION</span>
+        </button>
+        <button class="btn btn-secondary" id="btnMenuProgress">
+          <span>🏆</span>
+          <span>DRIVER PROGRESS</span>
+        </button>
+        <button class="btn btn-secondary" id="btnMenuSettings">
+          <span>⚙</span>
+          <span>SETTINGS</span>
+        </button>
+        <a href="../../index.html" class="btn btn-secondary">
+          <span>⮌</span>
+          <span>RETURN TO INFINITYPLAY</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       3. MISSIONS SCREEN
+       ====================================================================== -->
+  <section class="overlay-screen" id="screenMissions">
+    <div class="modal-card wide">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div class="card-brand-badge">SELECT ROUTE</div>
+          <h2 class="card-title" style="font-size: 1.8rem; margin-top: 4px;">MISSION LOG</h2>
+        </div>
+        <button class="btn btn-secondary btn-back-menu">⮌ Back to Menu</button>
+      </div>
+
+      <div class="missions-grid" id="missionsListGrid">
+        <!-- Dynamically populated by UIManager -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       4. MISSION BRIEFING SCREEN
+       ====================================================================== -->
+  <section class="overlay-screen" id="screenBriefing">
+    <div class="modal-card">
+      <div class="card-brand-badge">MISSION BRIEFING</div>
+      <h2 class="card-title" id="briefingTitle">MISSION 1: Training Run</h2>
+      <p class="card-subtitle" id="briefingTagline">Master train controls & safe station stopping</p>
+
+      <div class="briefing-details">
+        <div><span class="meta-lbl">ROUTE:</span> <strong id="briefingRoute">Central Depot → Riverside Junction</strong></div>
+        <div><span class="meta-lbl">DISTANCE:</span> <strong id="briefingDistance">1.8 km</strong></div>
+        <div><span class="meta-lbl">SPEED LIMIT:</span> <strong id="briefingSpeedLimit">60 km/h</strong></div>
+        <div><span class="meta-lbl">OBJECTIVE:</span> <p id="briefingObjective" style="font-size: 0.8rem; margin-top: 2px;">Learn controls and arrive safely.</p></div>
+      </div>
+
+      <div>
+        <span class="meta-lbl">SCHEDULED STATIONS:</span>
+        <div class="briefing-stations-list" id="briefingStations"></div>
+      </div>
+
+      <div class="btn-group-stack" style="margin-top: 6px;">
+        <button class="btn btn-primary" id="btnStartJourney">
+          <span>▶</span>
+          <span>START JOURNEY</span>
+        </button>
+        <button class="btn btn-secondary btn-back-menu">
+          <span>⮌</span>
+          <span>ABORT / RETURN</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       5. COUNTDOWN SCREEN
+       ====================================================================== -->
+  <section class="overlay-screen" id="screenCountdown">
+    <div class="countdown-wrap">
+      <div class="countdown-num" id="countdownNumber">3</div>
+      <div style="font-size: 1.2rem; font-weight: 700; color: var(--color-cyan); margin-top: 10px;">PREPARE TO DEPART</div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       6. DRIVER PROGRESS SCREEN
+       ====================================================================== -->
+  <section class="overlay-screen" id="screenProgress">
+    <div class="modal-card">
+      <div class="card-brand-badge">DRIVER PROFILE</div>
+      <h2 class="card-title" id="progressLevel">Level 1 Driver</h2>
+
+      <div class="briefing-details" style="grid-template-columns: repeat(2, 1fr); gap: 14px;">
+        <div><span class="meta-lbl">TOTAL XP:</span> <h3 id="progressXp" style="color: var(--color-cyan);">0 XP</h3></div>
+        <div><span class="meta-lbl">RAILWAY COINS:</span> <h3 id="progressCoins" style="color: #fbbf24;">150 🪙</h3></div>
+        <div><span class="meta-lbl">STARS EARNED:</span> <h3 id="progressStarsTotal" style="color: #fbbf24;">0 ★</h3></div>
+        <div><span class="meta-lbl">COMPLETED MISSIONS:</span> <h3 id="progressMissionsTotal">0 / 4</h3></div>
+      </div>
+
+      <button class="btn btn-secondary btn-back-menu" style="margin-top: 10px;">⮌ Back to Menu</button>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       7. SETTINGS SCREEN
+       ====================================================================== -->
+  <section class="overlay-screen" id="screenSettings">
+    <div class="modal-card">
+      <div class="card-brand-badge">SIMULATOR SETTINGS</div>
+      <h2 class="card-title">CONFIGURATION</h2>
+
+      <div class="score-breakdown-table">
+        <div class="score-row">
+          <span>Sound Effects (SFX):</span>
+          <button class="btn btn-secondary" id="btnSettingSound" style="padding: 6px 18px;">ON</button>
+        </div>
+        <div class="score-row">
+          <span>Ambient Audio / Whistle:</span>
+          <button class="btn btn-secondary" id="btnSettingMusic" style="padding: 6px 18px;">ON</button>
+        </div>
+        <div class="score-row">
+          <span>Graphics Quality:</span>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn btn-secondary quality-btn" data-quality="LOW" style="padding: 4px 10px; font-size: 0.8rem;">LOW</button>
+            <button class="btn btn-secondary quality-btn" data-quality="MED" style="padding: 4px 10px; font-size: 0.8rem;">MED</button>
+            <button class="btn btn-secondary quality-btn active" data-quality="HIGH" style="padding: 4px 10px; font-size: 0.8rem;">HIGH</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 10px; font-size: 0.82rem; color: var(--text-muted);">
+        <strong style="color: #ffffff;">Keyboard Guide:</strong><br>
+        • <kbd>W</kbd> / <kbd>↑</kbd>: Throttle Up &bull; <kbd>A</kbd> / <kbd>←</kbd>: Throttle Down<br>
+        • <kbd>S</kbd> / <kbd>↓</kbd>: Brake Apply &bull; <kbd>D</kbd> / <kbd>→</kbd>: Brake Release<br>
+        • <kbd>SPACE</kbd>: Emergency Brake &bull; <kbd>H</kbd>: Horn<br>
+        • <kbd>L</kbd>: Headlights &bull; <kbd>C</kbd>: Camera Mode &bull; <kbd>ESC</kbd>: Pause
+      </div>
+
+      <button class="btn btn-secondary btn-back-menu" style="margin-top: 8px;">⮌ Back to Menu</button>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       8. PAUSE SCREEN
+       ====================================================================== -->
+  <section class="overlay-screen" id="screenPause">
+    <div class="modal-card" style="max-width: 440px; text-align: center;">
+      <div class="card-brand-badge" style="margin: 0 auto;">SIMULATOR PAUSED</div>
+      <h2 class="card-title">PAUSED</h2>
+      <p class="card-subtitle">Train physics & timers frozen.</p>
+
+      <div class="btn-group-stack">
+        <button class="btn btn-primary" id="btnResumeGame">
+          <span>▶</span>
+          <span>RESUME JOURNEY</span>
+        </button>
+        <button class="btn btn-secondary" id="btnRestartGame">
+          <span>↺</span>
+          <span>RESTART MISSION</span>
+        </button>
+        <button class="btn btn-secondary" id="btnQuitToMenu">
+          <span>⮌</span>
+          <span>QUIT TO MENU</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       9. MISSION FAILED SCREEN
+       ====================================================================== -->
+  <section class="overlay-screen" id="screenFailed">
+    <div class="modal-card" style="border-color: rgba(239, 68, 68, 0.45);">
+      <div class="card-brand-badge" style="background: rgba(239, 68, 68, 0.2); border-color: var(--color-red); color: #fca5a5;">
+        SAFETY VIOLATION
+      </div>
+      <h2 class="card-title" style="color: #ef4444;">MISSION FAILED</h2>
+      <p class="card-subtitle" id="failedReason">You passed a RED signal.</p>
+
+      <div class="btn-group-stack">
+        <button class="btn btn-danger" id="btnRetryFailed">
+          <span>↺</span>
+          <span>RETRY MISSION</span>
+        </button>
+        <button class="btn btn-secondary" id="btnFailedMenu">
+          <span>⮌</span>
+          <span>RETURN TO MENU</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       10. MISSION COMPLETE SCREEN
+       ====================================================================== -->
+  <section class="overlay-screen" id="screenComplete">
+    <div class="modal-card">
+      <div class="results-header-banner">
+        <div class="card-brand-badge" style="margin: 0 auto; background: rgba(34, 197, 94, 0.2); border-color: var(--color-green); color: #86efac;">
+          DESTINATION ARRIVED
+        </div>
+        <h2 class="card-title" id="completeTitle" style="margin-top: 8px;">Training Run Complete! 🎉</h2>
+        <div class="results-stars-row" id="completeStars">⭐ ⭐ ⭐</div>
+        <div class="results-rank-badge">RANK <span id="completeRank">S</span></div>
+      </div>
+
+      <div class="results-rewards-row">
+        <div class="reward-pill" id="completeScore" style="color: var(--color-cyan);">2,400 PTS</div>
+        <div class="reward-pill" id="completeXp" style="color: #86efac;">+500 XP</div>
+        <div class="reward-pill" id="completeCoins" style="color: #fde047;">+250 COINS</div>
+      </div>
+
+      <div class="score-breakdown-table" id="completeBreakdown"></div>
+
+      <div class="btn-group-stack">
+        <button class="btn btn-primary" id="btnNextMission">
+          <span>▶</span>
+          <span>NEXT MISSION</span>
+        </button>
+        <button class="btn btn-secondary" id="btnRetryComplete">
+          <span>↺</span>
+          <span>RETRY FOR BETTER SCORE</span>
+        </button>
+        <button class="btn btn-secondary" id="btnCompleteMenu">
+          <span>⮌</span>
+          <span>RETURN TO MENU</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ES Module Game Bootstrap -->
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

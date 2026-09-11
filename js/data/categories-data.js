@@ -29,7 +29,7 @@ const categoriesData = [
     slug: 'Simulation',
     icon: 'assets/categories/cat_simulation_art.png',
     fullCard: 'assets/categories/cat_simulation_full.png',
-    gameCount: 2,
+    gameCount: 3,
     gradient: 'linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(161, 98, 7, 0.05))',
     borderColor: 'rgba(234, 179, 8, 0.3)'
   },
