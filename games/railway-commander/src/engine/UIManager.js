@@ -93,7 +93,7 @@ export class UIManager {
   bindEvents() {
     document.getElementById('btnMenuPlay')?.addEventListener('click', () => {
       this.engine.soundManager.playClick();
-      this.showMissionsScreen();
+      this.engine.prepareMission('mission-1');
     });
     document.getElementById('btnMenuMissions')?.addEventListener('click', () => {
       this.engine.soundManager.playClick();
@@ -394,6 +394,17 @@ export class UIManager {
         </div>
       `;
     }).join('');
+
+    container.querySelectorAll('.mission-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const missionId = card.getAttribute('data-mission-id');
+        const isLocked = card.classList.contains('locked');
+        if (missionId && !isLocked) {
+          this.engine.soundManager.playClick();
+          this.engine.prepareMission(missionId);
+        }
+      });
+    });
 
     container.querySelectorAll('.btn-select-mission').forEach(btn => {
       btn.addEventListener('click', (e) => {
