@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PSEUDOKO — Tactical Logic Strategy Game | InfinityPlay</title>
+  <meta name="description" content="Play PSEUDOKO: A production-quality 8x8 cyberpunk tactical strategy and logic puzzle game on InfinityPlay. 100 progressive campaign levels, adaptive strategic AI, procedural endless mode, and deterministic daily challenges.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/logo_pseudoko.svg">
+  <link rel="shortcut icon" href="assets/logo_pseudoko.svg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/pseudoko-theme.css">
+  <link rel="stylesheet" href="css/pseudoko-board.css">
+  <link rel="stylesheet" href="css/pseudoko-screens.css">
+  <link rel="stylesheet" href="css/pseudoko-responsive.css">
+</head>
+<body>
+
+  <!-- Ambient Backdrop -->
+  <div class="pk-ambient-bg">
+    <div class="pk-grid-overlay"></div>
+  </div>
+
+  <div class="pk-app-container">
+
+    <!-- ======================================================================
+         1. GAME LAUNCH SCREEN
+         ====================================================================== -->
+    <section class="pk-screen active" id="screenLaunch">
+      <div class="pk-launch-box pk-panel pk-panel-glow">
+        <div class="pk-emblem-wrapper">
+          <img src="assets/thumb_pseudoko.svg" alt="PSEUDOKO Logo" class="pk-emblem-img">
+        </div>
+
+        <div>
+          <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 12px;">
+            <span class="pk-badge pk-badge-gold">STRATEGY</span>
+            <span class="pk-badge pk-badge-cyan">TACTICAL LOGIC</span>
+          </div>
+          <h1 class="pk-launch-title">PSEUDOKO</h1>
+          <p class="pk-launch-subtitle">8×8 Tactical Deduction • Neural Constraints • Adaptive AI</p>
+        </div>
+
+        <button class="pk-btn pk-btn-primary" id="btnLaunchStart" style="padding: 14px 38px; font-size: 1.05rem;">
+          ▶ INITIALIZE SYSTEM
+        </button>
+
+        <a href="../../index.html" class="pk-btn-exit" style="margin-top: 6px;">
+          <span>⮌</span>
+          <span>Return to InfinityPlay</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         2. MAIN MENU SCREEN
+         ====================================================================== -->
+    <section class="pk-screen" id="screenMainMenu">
+      <div class="pk-menu-container pk-panel pk-panel-glow">
+        <div class="pk-menu-brand-header">
+          <img src="assets/thumb_pseudoko.svg" alt="PSEUDOKO" style="width: 58px; height: 58px; filter: drop-shadow(0 0 12px var(--pk-cyan-glow));">
+          <h2 class="pk-menu-brand-title">PSEUDOKO</h2>
+          <div style="display: flex; gap: 6px;">
+            <span class="pk-badge pk-badge-gold">Strategy Master</span>
+            <span class="pk-badge pk-badge-cyan">v1.0</span>
+          </div>
+        </div>
+
+        <div class="pk-menu-links-list">
+          <button class="pk-menu-btn primary-play" id="btnMenuPlay">
+            <span>▶ PLAY GAME</span>
+            <span>→</span>
+          </button>
+          <button class="pk-menu-btn" id="btnMenuLevels">
+            <span>🗺 CAMPAIGN (100 LEVELS)</span>
+            <span>⭐</span>
+          </button>
+          <button class="pk-menu-btn" id="btnMenuDaily">
+            <span>📅 DAILY CHALLENGE</span>
+            <span style="color: var(--pk-gold);">⚡ NEW</span>
+          </button>
+          <button class="pk-menu-btn" id="btnMenuStats">
+            <span>📊 STATISTICS</span>
+            <span>📈</span>
+          </button>
+          <button class="pk-menu-btn" id="btnMenuAchievements">
+            <span>🏆 ACHIEVEMENTS</span>
+            <span>🎖</span>
+          </button>
+          <button class="pk-menu-btn" id="btnMenuSettings">
+            <span>⚙ SETTINGS</span>
+            <span>🔧</span>
+          </button>
+          <button class="pk-menu-btn" id="btnMenuHowToPlay">
+            <span>📖 HOW TO PLAY</span>
+            <span>?</span>
+          </button>
+        </div>
+
+        <a href="../../index.html" class="pk-btn-exit">
+          <span>⮌</span>
+          <span>Exit to InfinityPlay Platform</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         3. MODE SELECTION SCREEN
+         ====================================================================== -->
+    <section class="pk-screen" id="screenModeSelect">
+      <div class="pk-screen-container">
+        <div class="pk-screen-header">
+          <h2 class="pk-screen-title">SELECT GAME MODE</h2>
+          <button class="pk-btn pk-btn-ghost pk-btn-back-menu">⮌ Main Menu</button>
+        </div>
+
+        <div class="pk-modes-grid">
+          <!-- 1. Campaign Mode -->
+          <div class="pk-mode-card" id="btnModeCampaign">
+            <div class="pk-mode-header">
+              <span class="pk-mode-icon">🗺</span>
+              <span class="pk-badge pk-badge-cyan">100 LEVELS</span>
+            </div>
+            <h3 class="pk-mode-title">Campaign Mode</h3>
+            <p class="pk-mode-desc">Progress through 100 handcrafted tactical sectors from Beginner to Singularity Grandmaster. Overcome locked conduits, firewalls, and logic gates.</p>
+            <button class="pk-btn pk-btn-primary">Deploy Campaign →</button>
+          </div>
+
+          <!-- 2. Endless Mode -->
+          <div class="pk-mode-card" id="btnModeEndless">
+            <div class="pk-mode-header">
+              <span class="pk-mode-icon">🌌</span>
+              <span class="pk-badge pk-badge-purple">INFINITE WAVES</span>
+            </div>
+            <h3 class="pk-mode-title">Endless Mode</h3>
+            <p class="pk-mode-desc">Survive escalating waves of procedurally generated challenges. Cascade harmonic circuits to clear the grid and push for historic high scores.</p>
+            <button class="pk-btn pk-btn-purple">Enter Endless →</button>
+          </div>
+
+          <!-- 3. Daily Challenge -->
+          <div class="pk-mode-card" id="btnModeDaily">
+            <div class="pk-mode-header">
+              <span class="pk-mode-icon">📅</span>
+              <span class="pk-badge pk-badge-gold">DAILY PROTOCOL</span>
+            </div>
+            <h3 class="pk-mode-title">Daily Challenge</h3>
+            <p class="pk-mode-desc">A unique puzzle deterministically generated from today's date. Compete against global conditions, earn streak bonuses, and beat the timer.</p>
+            <button class="pk-btn pk-btn-ghost">Launch Daily →</button>
+          </div>
+
+          <!-- 4. AI Skirmish -->
+          <div class="pk-mode-card" id="btnModeSkirmish">
+            <div class="pk-mode-header">
+              <span class="pk-mode-icon">🤖</span>
+              <span class="pk-badge pk-badge-cyan">ADAPTIVE AI</span>
+            </div>
+            <h3 class="pk-mode-title">AI Tactical Skirmish</h3>
+            <p class="pk-mode-desc">Duel against our zero-dependency local strategy AI engine across 5 difficulty levels (Easy, Medium, Hard, Expert, Master). Out-control the grid!</p>
+            <button class="pk-btn pk-btn-primary">Start Skirmish →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         4. CAMPAIGN LEVEL SELECTION (100 Levels)
+         ====================================================================== -->
+    <section class="pk-screen" id="screenLevelSelect">
+      <div class="pk-screen-container" style="max-width: 900px;">
+        <div class="pk-screen-header">
+          <div>
+            <h2 class="pk-screen-title">CAMPAIGN SECTORS</h2>
+            <p style="color: var(--pk-text-muted); margin: 4px 0 0 0; font-size: 0.85rem;">100 Progressive Tactical Logic Puzzles</p>
+          </div>
+          <button class="pk-btn pk-btn-ghost pk-btn-back-menu">⮌ Main Menu</button>
+        </div>
+
+        <!-- Tier Filter Tabs -->
+        <div class="pk-tier-tabs">
+          <button class="pk-tier-tab active" data-tier="all">All Sectors (1–100)</button>
+          <button class="pk-tier-tab" data-tier="beginner">Beginner (1–10)</button>
+          <button class="pk-tier-tab" data-tier="easy">Easy (11–25)</button>
+          <button class="pk-tier-tab" data-tier="medium">Medium (26–50)</button>
+          <button class="pk-tier-tab" data-tier="hard">Hard (51–75)</button>
+          <button class="pk-tier-tab" data-tier="master">Master (76–100)</button>
+        </div>
+
+        <!-- 100 Level Grid -->
+        <div class="pk-levels-grid" id="pkLevelsGrid"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         5. GAMEPLAY SCREEN & HUD
+         ====================================================================== -->
+    <section class="pk-screen" id="screenGameplay">
+      
+      <!-- Top HUD Header -->
+      <header class="pk-hud-bar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <a href="../../index.html" class="pk-btn-exit" title="Return to InfinityPlay">
+            <span>⮌</span>
+            <span>InfinityPlay</span>
+          </a>
+          <span id="pkHudModeTitle" style="font-weight: 800; font-size: 0.95rem; color: #ffffff;">Campaign: Level 1</span>
+        </div>
+
+        <!-- Gameplay Metrics -->
+        <div style="display: flex; gap: 20px; align-items: center;">
+          <div class="pk-hud-stat">
+            <span class="pk-hud-label">Score</span>
+            <span class="pk-hud-value" id="pkHudScore" style="color: var(--pk-cyan);">0</span>
+          </div>
+          <div class="pk-hud-stat">
+            <span class="pk-hud-label">Moves</span>
+            <span class="pk-hud-value" id="pkHudMoves">16</span>
+          </div>
+          <div class="pk-hud-stat">
+            <span class="pk-hud-label">Combo</span>
+            <span class="pk-hud-value" id="pkHudCombo" style="color: var(--pk-purple);">1x</span>
+          </div>
+          <div class="pk-hud-stat">
+            <span class="pk-hud-label">Territory</span>
+            <span class="pk-hud-value" id="pkHudTerritory">0%</span>
+          </div>
+        </div>
+
+        <button class="pk-btn pk-btn-ghost" id="btnGameplayPause" style="padding: 6px 14px; font-size: 0.85rem;" title="Pause Menu">
+          ⚙ Pause
+        </button>
+      </header>
+
+      <!-- Main Tactical Arena -->
+      <main class="pk-gameplay-arena">
+        
+        <!-- Left: 8x8 Board Container -->
+        <div class="pk-board-wrapper">
+          
+          <!-- Column Labels A-H -->
+          <div class="pk-col-coords">
+            <span class="pk-coord-col">A</span>
+            <span class="pk-coord-col">B</span>
+            <span class="pk-coord-col">C</span>
+            <span class="pk-coord-col">D</span>
+            <span class="pk-coord-col">E</span>
+            <span class="pk-coord-col">F</span>
+            <span class="pk-coord-col">G</span>
+            <span class="pk-coord-col">H</span>
+          </div>
+
+          <div class="pk-board-middle">
+            <!-- Row Labels 1-8 -->
+            <div class="pk-row-coords">
+              <span class="pk-coord-row">1</span>
+              <span class="pk-coord-row">2</span>
+              <span class="pk-coord-row">3</span>
+              <span class="pk-coord-row">4</span>
+              <span class="pk-coord-row">5</span>
+              <span class="pk-coord-row">6</span>
+              <span class="pk-coord-row">7</span>
+              <span class="pk-coord-row">8</span>
+            </div>
+
+            <!-- The 8x8 Tactical Grid -->
+            <div class="pk-grid" id="pkBoardGrid"></div>
+          </div>
+        </div>
+
+        <!-- Right: Tactical Sidebar & Controls -->
+        <aside class="pk-tactical-sidebar">
+          
+          <!-- Objective Card -->
+          <div class="pk-objective-card pk-panel">
+            <div class="pk-objective-title" id="pkObjTitle">CURRENT OBJECTIVE</div>
+            <p class="pk-objective-desc" id="pkObjDesc">Harmonize the neural grid and claim territory.</p>
+          </div>
+
+          <!-- Node Frequencies Selector Palette -->
+          <div class="pk-palette-box pk-panel">
+            <div class="pk-objective-title">NEURAL FREQUENCY (1–4)</div>
+            <div class="pk-nodes-selector">
+              <button class="pk-palette-btn active" data-type="1" title="Alpha Frequency (1)">
+                <span>α</span>
+                <span style="font-size: 0.6rem; opacity: 0.7;">1</span>
+              </button>
+              <button class="pk-palette-btn" data-type="2" title="Beta Frequency (2)">
+                <span>β</span>
+                <span style="font-size: 0.6rem; opacity: 0.7;">2</span>
+              </button>
+              <button class="pk-palette-btn" data-type="3" title="Gamma Frequency (3)">
+                <span>γ</span>
+                <span style="font-size: 0.6rem; opacity: 0.7;">3</span>
+              </button>
+              <button class="pk-palette-btn" data-type="4" title="Delta Frequency (4)">
+                <span>δ</span>
+                <span style="font-size: 0.6rem; opacity: 0.7;">4</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tactical Abilities -->
+          <div class="pk-palette-box pk-panel">
+            <div class="pk-objective-title">TACTICAL ABILITIES</div>
+            <div class="pk-abilities-row">
+              <button class="pk-ability-btn" id="btnAbilityScan" title="Scan board for optimal placement coordinates">
+                <span style="font-size: 1.1rem;">🔍</span>
+                <span>Scan</span>
+              </button>
+              <button class="pk-ability-btn" id="btnAbilityEmp" title="Purge target firewall or hazard cell">
+                <span style="font-size: 1.1rem;">⚡</span>
+                <span>EMP</span>
+              </button>
+              <button class="pk-ability-btn" id="btnAbilityUndo" title="Undo last tactical move (Ctrl+Z)">
+                <span style="font-size: 1.1rem;">↺</span>
+                <span>Undo</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- AI Opponent HUD (When active) -->
+          <div class="pk-ai-hud-card pk-panel" id="pkAiHudCard" style="display: none;">
+            <div class="pk-ai-avatar">🤖</div>
+            <div>
+              <div style="font-weight: 800; font-size: 0.9rem; color: #ffffff;" id="pkAiName">MEDIUM AI</div>
+              <div class="pk-ai-status" id="pkAiStatus">Analyzing grid patterns...</div>
+            </div>
+          </div>
+
+        </aside>
+
+      </main>
+    </section>
+
+    <!-- ======================================================================
+         6. MODALS: PAUSE, VICTORY, DEFEAT
+         ====================================================================== -->
+    
+    <!-- Pause Menu Modal -->
+    <div class="pk-modal-overlay" id="modalPause">
+      <div class="pk-modal-content">
+        <h3 class="pk-modal-title">SYSTEM PAUSED</h3>
+        <p style="color: var(--pk-text-secondary); font-size: 0.88rem; margin: 0;">Tactical simulation suspended. Resume or reconfigure protocols.</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 10px;">
+          <button class="pk-btn pk-btn-primary" id="btnResumeGame">▶ RESUME GAME</button>
+          <button class="pk-btn pk-btn-ghost" id="btnRestartGame">↺ RESTART LEVEL</button>
+          <button class="pk-btn pk-btn-ghost pk-btn-back-menu">⮌ MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div class="pk-modal-overlay" id="modalVictory">
+      <div class="pk-modal-content">
+        <div class="pk-victory-stars" id="victoryStars">★★★</div>
+        <h3 class="pk-modal-title" style="color: var(--pk-cyan);">VICTORY ACHIEVED</h3>
+        <div style="font-size: 1.2rem; font-weight: 900; color: #ffffff;" id="victoryScore">Score: 2,850</div>
+        <p style="color: var(--pk-text-secondary); font-size: 0.88rem; margin: 0;" id="victoryDesc">Tactical matrix harmonized with flawless precision.</p>
+
+        <div class="pk-modal-actions">
+          <button class="pk-btn pk-btn-ghost" id="btnVictoryReplay">↺ Replay</button>
+          <button class="pk-btn pk-btn-primary" id="btnVictoryNext">Next Level →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Defeat Modal -->
+    <div class="pk-modal-overlay" id="modalDefeat">
+      <div class="pk-modal-content">
+        <div style="font-size: 2.4rem;">⚠</div>
+        <h3 class="pk-modal-title" style="color: var(--pk-red);">SYSTEM OVERLOAD</h3>
+        <p style="color: var(--pk-text-secondary); font-size: 0.88rem; margin: 0;" id="defeatDesc">Moves depleted before target objective fulfilled.</p>
+
+        <div class="pk-modal-actions">
+          <button class="pk-btn pk-btn-ghost pk-btn-back-menu">⮌ Menu</button>
+          <button class="pk-btn pk-btn-primary" id="btnDefeatRetry">↺ Retry Level</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         7. STATISTICS SCREEN
+         ====================================================================== -->
+    <section class="pk-screen" id="screenStats">
+      <div class="pk-screen-container">
+        <div class="pk-screen-header">
+          <h2 class="pk-screen-title">TACTICAL STATISTICS</h2>
+          <button class="pk-btn pk-btn-ghost pk-btn-back-menu">⮌ Main Menu</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px;">
+          <div class="pk-setting-row" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+            <span class="pk-setting-desc">TOTAL SESSIONS</span>
+            <span class="pk-hud-value" id="statTotalGames">0</span>
+          </div>
+          <div class="pk-setting-row" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+            <span class="pk-setting-desc">TOTAL VICTORIES</span>
+            <span class="pk-hud-value" id="statTotalWins" style="color: var(--pk-cyan);">0</span>
+          </div>
+          <div class="pk-setting-row" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+            <span class="pk-setting-desc">WIN RATE</span>
+            <span class="pk-hud-value" id="statWinRate" style="color: var(--pk-gold);">0%</span>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="pk-setting-row">
+            <span class="pk-setting-name">Campaign Stars Earned</span>
+            <span class="pk-hud-value" id="statTotalStars" style="color: var(--pk-gold);">0 / 300</span>
+          </div>
+          <div class="pk-setting-row">
+            <span class="pk-setting-name">Campaign Progression</span>
+            <span class="pk-hud-value" id="statCampaignProgress">0 / 100 Levels</span>
+          </div>
+          <div class="pk-setting-row">
+            <span class="pk-setting-name">Cumulative Tactical Score</span>
+            <span class="pk-hud-value" id="statTotalScore" style="color: var(--pk-cyan);">0</span>
+          </div>
+          <div class="pk-setting-row">
+            <span class="pk-setting-name">Highest Endless Wave</span>
+            <span class="pk-hud-value" id="statEndlessWave">Wave 1</span>
+          </div>
+          <div class="pk-setting-row">
+            <span class="pk-setting-name">Endless High Score</span>
+            <span class="pk-hud-value" id="statEndlessHighScore">0</span>
+          </div>
+          <div class="pk-setting-row">
+            <span class="pk-setting-name">Current Daily Challenge Streak</span>
+            <span class="pk-hud-value" id="statDailyStreak" style="color: var(--pk-pink);">0 Days</span>
+          </div>
+          <div class="pk-setting-row">
+            <span class="pk-setting-name">Best Daily Challenge Streak</span>
+            <span class="pk-hud-value" id="statDailyBestStreak">0 Days</span>
+          </div>
+          <div class="pk-setting-row">
+            <span class="pk-setting-name">Harmonic Circuits Synthesized</span>
+            <span class="pk-hud-value" id="statTotalCircuits">0</span>
+          </div>
+          <div class="pk-setting-row">
+            <span class="pk-setting-name">Power Cores Activated</span>
+            <span class="pk-hud-value" id="statTotalCores" style="color: var(--pk-gold);">0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         8. ACHIEVEMENTS SCREEN
+         ====================================================================== -->
+    <section class="pk-screen" id="screenAchievements">
+      <div class="pk-screen-container">
+        <div class="pk-screen-header">
+          <div>
+            <h2 class="pk-screen-title">TACTICAL ACHIEVEMENTS</h2>
+            <p style="color: var(--pk-text-muted); margin: 4px 0 0 0; font-size: 0.85rem;">16 Trophies with Experience Point Unlocks</p>
+          </div>
+          <button class="pk-btn pk-btn-ghost pk-btn-back-menu">⮌ Main Menu</button>
+        </div>
+
+        <div id="pkAchievementsList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         9. SETTINGS SCREEN
+         ====================================================================== -->
+    <section class="pk-screen" id="screenSettings">
+      <div class="pk-screen-container">
+        <div class="pk-screen-header">
+          <h2 class="pk-screen-title">SYSTEM SETTINGS</h2>
+          <button class="pk-btn pk-btn-ghost pk-btn-back-menu">⮌ Main Menu</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- BGM Toggle -->
+          <div class="pk-setting-row">
+            <div class="pk-setting-info">
+              <span class="pk-setting-name">Cyber Ambient Background Music</span>
+              <span class="pk-setting-desc">Procedurally synthesized synth ambient loop</span>
+            </div>
+            <div class="pk-switch active" id="toggleBgm"></div>
+          </div>
+
+          <!-- BGM Volume -->
+          <div class="pk-setting-row">
+            <div class="pk-setting-info">
+              <span class="pk-setting-name">Music Volume</span>
+              <span class="pk-setting-desc">Adjust ambient synthesizer level</span>
+            </div>
+            <input type="range" class="pk-slider" id="sliderBgm" min="0" max="100" value="45">
+          </div>
+
+          <!-- SFX Toggle -->
+          <div class="pk-setting-row">
+            <div class="pk-setting-info">
+              <span class="pk-setting-name">Sound Effects</span>
+              <span class="pk-setting-desc">Valid moves, error buzzes, chimes, and victory fanfare</span>
+            </div>
+            <div class="pk-switch active" id="toggleSfx"></div>
+          </div>
+
+          <!-- SFX Volume -->
+          <div class="pk-setting-row">
+            <div class="pk-setting-info">
+              <span class="pk-setting-name">SFX Volume</span>
+              <span class="pk-setting-desc">Adjust UI and placement effects level</span>
+            </div>
+            <input type="range" class="pk-slider" id="sliderSfx" min="0" max="100" value="80">
+          </div>
+
+          <!-- Color Themes -->
+          <div class="pk-setting-row">
+            <div class="pk-setting-info">
+              <span class="pk-setting-name">Grid Color Spectrum Theme</span>
+              <span class="pk-setting-desc">Switch cybernetic visual accents</span>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <div class="pk-theme-dot" data-theme="cyan" style="width: 22px; height: 22px; border-radius: 50%; background: #00f0ff; cursor: pointer; box-shadow: 0 0 8px #00f0ff;" title="Cyber Cyan"></div>
+              <div class="pk-theme-dot" data-theme="matrix" style="width: 22px; height: 22px; border-radius: 50%; background: #00ff66; cursor: pointer; box-shadow: 0 0 8px #00ff66;" title="Matrix Green"></div>
+              <div class="pk-theme-dot" data-theme="synthwave" style="width: 22px; height: 22px; border-radius: 50%; background: #ff007f; cursor: pointer; box-shadow: 0 0 8px #ff007f;" title="Synthwave Pink"></div>
+              <div class="pk-theme-dot" data-theme="gold" style="width: 22px; height: 22px; border-radius: 50%; background: #fbbf24; cursor: pointer; box-shadow: 0 0 8px #fbbf24;" title="Apex Gold"></div>
+            </div>
+          </div>
+
+          <!-- Reset Progress -->
+          <div class="pk-setting-row" style="margin-top: 18px; border-color: rgba(244, 63, 94, 0.3);">
+            <div class="pk-setting-info">
+              <span class="pk-setting-name" style="color: var(--pk-red);">Reset Campaign & Stats</span>
+              <span class="pk-setting-desc">Erase all 100 level stars and high scores</span>
+            </div>
+            <button class="pk-btn pk-btn-ghost" id="btnResetProgress" style="color: var(--pk-red); border-color: rgba(244, 63, 94, 0.4);">
+              Reset Defaults
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         10. HOW TO PLAY SCREEN
+         ====================================================================== -->
+    <section class="pk-screen" id="screenHowToPlay">
+      <div class="pk-screen-container">
+        <div class="pk-screen-header">
+          <h2 class="pk-screen-title">TACTICAL MANUAL</h2>
+          <button class="pk-btn pk-btn-ghost pk-btn-back-menu">⮌ Main Menu</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 18px;">
+          <div class="pk-panel" style="padding: 20px;">
+            <h3 style="color: var(--pk-cyan); margin: 0 0 8px 0; font-size: 1.1rem;">1. The 8×8 Cyber Grid & Frequencies</h3>
+            <p style="color: var(--pk-text-secondary); font-size: 0.9rem; line-height: 1.5; margin: 0;">
+              PSEUDOKO takes place on an 8×8 coordinate matrix. You deploy four fundamental neural energy frequencies:
+              <strong style="color: #00f0ff;">Alpha (α)</strong>, 
+              <strong style="color: #a855f7;">Beta (β)</strong>, 
+              <strong style="color: #3b82f6;">Gamma (γ)</strong>, and 
+              <strong style="color: #ec4899;">Delta (δ)</strong>.
+            </p>
+          </div>
+
+          <div class="pk-panel" style="padding: 20px;">
+            <h3 style="color: var(--pk-purple); margin: 0 0 8px 0; font-size: 1.1rem;">2. Sudoku-Inspired Deduction Constraints</h3>
+            <p style="color: var(--pk-text-secondary); font-size: 0.9rem; line-height: 1.5; margin: 0;">
+              The board is partitioned into sixteen <strong>2×2 Sectors</strong>. <em>No sector may contain duplicate frequencies</em>, and nodes of identical frequency cannot be placed directly adjacent to one another. Every placement demands pure logical deduction!
+            </p>
+          </div>
+
+          <div class="pk-panel" style="padding: 20px;">
+            <h3 style="color: var(--pk-gold); margin: 0 0 8px 0; font-size: 1.1rem;">3. Harmonic Circuits & Resonance Combos</h3>
+            <p style="color: var(--pk-text-secondary); font-size: 0.9rem; line-height: 1.5; margin: 0;">
+              When all 4 unique frequencies (<span style="color: #00f0ff;">α</span>, <span style="color: #a855f7;">β</span>, <span style="color: #3b82f6;">γ</span>, <span style="color: #ec4899;">δ</span>) are united within a 2×2 sector or along a 4-node line conduit, you trigger a <strong>Harmonic Circuit Resonance</strong>! This locks the sector, grants permanent territory control, awards massive score multipliers, and returns +1 bonus move.
+            </p>
+          </div>
+
+          <div class="pk-panel" style="padding: 20px;">
+            <h3 style="color: #ffffff; margin: 0 0 8px 0; font-size: 1.1rem;">4. Special Strategic Cells</h3>
+            <ul style="color: var(--pk-text-secondary); font-size: 0.9rem; line-height: 1.6; margin: 8px 0 0 18px; padding: 0;">
+              <li><strong>⚡ Power Core:</strong> Grants +300 points, radiates permanent quadrant influence, and recharges +1 move when occupied.</li>
+              <li><strong>🛡 Encrypted Firewall:</strong> Shields cells from standard placements. Bypass with parity harmonic alignment or use your EMP ability.</li>
+              <li><strong>🌀 Vortex Conduit:</strong> Radiates influence diagonally across the entire grid.</li>
+            </ul>
+          </div>
+
+          <div class="pk-panel" style="padding: 20px;">
+            <h3 style="color: var(--pk-cyan); margin: 0 0 8px 0; font-size: 1.1rem;">5. Tactical Abilities</h3>
+            <p style="color: var(--pk-text-secondary); font-size: 0.9rem; line-height: 1.5; margin: 0;">
+              Use <strong>Scan (🔍)</strong> to compute mathematically optimal placement vectors, <strong>EMP (⚡)</strong> to disintegrate firewalls, and <strong>Undo (↺)</strong> to reverse unintended moves.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="pk-toast-container" id="pkToastContainer"></div>
+
+  <!-- JavaScript Modules -->
+  <script src="js/pseudoko-core.js"></script>
+  <script src="js/pseudoko-levels.js"></script>
+  <script src="js/pseudoko-ai.js"></script>
+  <script src="js/pseudoko-audio.js"></script>
+  <script src="js/pseudoko-storage.js"></script>
+  <script src="js/pseudoko-daily.js"></script>
+  <script src="js/pseudoko-endless.js"></script>
+  <script src="js/pseudoko-achievements.js"></script>
+  <script src="js/pseudoko-ui.js"></script>
+  <script src="js/pseudoko-app.js"></script>
+
+</body>
+</html>
+

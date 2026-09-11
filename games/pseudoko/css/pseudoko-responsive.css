@@ -1,0 +1,167 @@
+/**
+ * PSEUDOKO — Responsive Layout & Mobile Touch Optimization
+ */
+
+/* Laptops & Standard Desktops (under 1080px) */
+@media (max-width: 1080px) {
+  .pk-gameplay-arena {
+    gap: 16px;
+  }
+  .pk-grid {
+    width: 460px;
+    height: 460px;
+  }
+  .pk-row-coords {
+    height: 460px;
+  }
+  .pk-col-coords {
+    max-width: 460px;
+  }
+  .pk-tactical-sidebar {
+    width: 220px;
+  }
+}
+
+/* Tablets (under 840px) */
+@media (max-width: 840px) {
+  .pk-gameplay-arena {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pk-tactical-sidebar {
+    width: 100%;
+    max-width: 480px;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .pk-objective-card {
+    flex: 1 1 100%;
+  }
+
+  .pk-palette-box {
+    flex: 1 1 55%;
+  }
+
+  .pk-abilities-row {
+    flex: 1 1 40%;
+  }
+
+  .pk-modes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pk-levels-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* Mobile Devices (under 540px) */
+@media (max-width: 540px) {
+  #screenGameplay {
+    padding: 10px 8px;
+  }
+
+  .pk-hud-bar {
+    padding: 8px 12px;
+    margin-bottom: 10px;
+  }
+
+  .pk-hud-stat .pk-hud-label {
+    font-size: 0.6rem;
+  }
+
+  .pk-hud-stat .pk-hud-value {
+    font-size: 0.95rem;
+  }
+
+  .pk-btn-exit span:last-child {
+    display: none; /* Icon only on mobile */
+  }
+
+  /* Scaled 8x8 Board for Mobile */
+  .pk-grid {
+    width: calc(100vw - 44px);
+    height: calc(100vw - 44px);
+    max-width: 360px;
+    max-height: 360px;
+    padding: 6px;
+    gap: 3px;
+  }
+
+  .pk-row-coords {
+    height: calc(100vw - 44px);
+    max-height: 360px;
+    width: 16px;
+  }
+
+  .pk-col-coords {
+    max-width: calc(100vw - 44px);
+    margin-left: 20px;
+  }
+
+  .pk-coord-col, .pk-coord-row {
+    font-size: 0.62rem;
+  }
+
+  .pk-node-glyph {
+    font-size: 1rem;
+  }
+
+  .pk-tactical-sidebar {
+    max-width: calc(100vw - 20px);
+    gap: 10px;
+  }
+
+  .pk-palette-box {
+    flex: 1 1 100%;
+    padding: 12px;
+  }
+
+  .pk-palette-btn {
+    min-height: 48px; /* Touch target >= 44px */
+    font-size: 1.4rem;
+  }
+
+  .pk-ability-btn {
+    min-height: 46px;
+  }
+
+  .pk-launch-title {
+    font-size: 2.1rem;
+  }
+
+  .pk-levels-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .pk-level-card {
+    border-radius: var(--pk-radius-sm);
+  }
+
+  .pk-level-num {
+    font-size: 0.85rem;
+  }
+
+  .pk-modal-content {
+    padding: 24px 18px;
+  }
+
+  .pk-modal-title {
+    font-size: 1.4rem;
+  }
+}
+
+/* Touch & Interaction enhancements */
+@media (hover: none) and (pointer: coarse) {
+  .pk-cell {
+    /* Touch devices */
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pk-palette-btn, .pk-ability-btn, .pk-btn {
+    min-height: 44px;
+  }
+}
+

@@ -86,6 +86,7 @@ Anyone on any smartphone, tablet, laptop, or desktop browser can instantly open 
 
 ## 🕹 Platform Games
 
+### 🎮 Playable Titles:
 1. **City Drive 3D** (Racing • ★ 5.0 • 28.5K Plays • **Playable 3D Three.js Flagship**)
    - Autonomous AI Traffic with radar braking & lane changing
    - Time Attack Checkpoint Sprint (+15s per holographic gate)
@@ -93,18 +94,35 @@ Anyone on any smartphone, tablet, laptop, or desktop browser can instantly open 
    - Dynamic Day / Sunset / Night atmospheres with real-time streetlamps
    - Dual road-projecting headlights & Garage paint / engine tuning
    - Dual-tone car horn (`H`), tire screeches & near-miss whooshes
-2. **Ultimate Racing** (Racing • ★ 4.9 • 12K Plays)
-3. **Bus Simulator** (Simulation • ★ 4.8 • 9.2K Plays)
-4. **Shadow Adventure** (Adventure • ★ 4.7 • 8.1K Plays)
-5. **City Builder** (Strategy • ★ 4.9 • 11K Plays • Playable)
-6. **Chess Grandmaster** (Strategy • ★ 5.0 • Playable vs AI & Multiplayer)
-7. **Memory Match** (Puzzle • ★ 4.8 • Playable)
-8. **Speed Arena** (Racing • ★ 4.9 • 10.5K Plays)
-9. **Tower Defense** (Strategy • ★ 4.8 • 8.6K Plays)
-10. **Survival Island** (Survival • ★ 4.8 • 7.8K Plays)
-11. **Football Legends** (Sports • ★ 4.6 • 6.4K Plays)
-12. **Puzzle Master** (Puzzle • ★ 4.7 • 5.9K Plays)
-13. **Farm Life** (Simulation • ★ 4.5 • 4.3K Plays)
+2. **PSEUDOKO** (Strategy / Logic • ★ 4.9 • 14.2K Plays • **Playable Cyberpunk Grid Game**)
+   - 8×8 Cyberpunk tactical territory control & Sudoku spatial deduction
+   - 100 Handcrafted Campaign Sectors across 5 progression tiers
+   - Adaptive heuristic Minimax AI with 5 difficulty profiles
+   - Daily Challenge & streak protocol
+3. **Ultimate Racing** (Racing • ★ 4.9 • 12K Plays • **Playable 3D Racing**)
+   - High-speed racing across neon cityscapes and alpine passes
+   - Supercar customization and realistic vehicle physics
+4. **Bus Simulator** (Simulation • ★ 4.8 • 9.2K Plays • **Playable Transit Sim**)
+   - Metropolitan bus driving, route scheduling, passenger management
+   - Real-time traffic, bus garage customization & save/load system
+5. **Chess Grandmaster** (Strategy • ★ 5.0 • 14.8K Plays • **Playable Chess Engine**)
+   - 4 Adaptive AI difficulty levels
+   - Online multiplayer matchmaking with private challenge rooms
+   - Daily tactical puzzles & interactive match move analysis
+6. **City Builder** (Strategy • ★ 4.9 • 11K Plays • **Playable Kingdom Sim**)
+   - Construct thriving medieval kingdoms and futuristic cities
+   - Economy balancing, infrastructure, defense towers, and citizen happiness
+7. **Memory Match** (Puzzle • ★ 4.8 • 3.5K Plays • **Playable Memory Game**)
+   - Multi-grid visual pattern matching and brain training
+
+### 🌟 Showcase Titles:
+8. **Shadow Adventure** (Adventure • ★ 4.7 • 8.1K Plays)
+9. **Speed Arena** (Racing • ★ 4.9 • 10.5K Plays)
+10. **Tower Defense** (Strategy • ★ 4.8 • 8.6K Plays)
+11. **Survival Island** (Survival • ★ 4.8 • 7.8K Plays)
+12. **Football Legends** (Sports • ★ 4.6 • 6.4K Plays)
+13. **Puzzle Master** (Puzzle • ★ 4.7 • 5.9K Plays)
+14. **Farm Life** (Simulation • ★ 4.5 • 4.3K Plays)
 
 ---
 

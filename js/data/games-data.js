@@ -47,15 +47,17 @@ const gamesData = [
     rating: 4.8,
     plays: 9200,
     playsFormatted: '9.2K',
-    rank: 2,
-    badge: '#2',
+    rank: 3,
+    badge: '#3',
     isTop: true,
     thumbnail: 'assets/games/thumb_bus_simulator.png',
     topThumbnail: 'assets/games/top_2_bus.png',
     description: 'Master public transit routes through bustling metropolitan districts, manage schedules, pick up passengers, and handle realistic traffic conditions.',
     tags: ['Simulation', 'City', 'Realistic', 'Relaxing'],
     releaseDate: '2026-04-18',
-    developer: 'TransitWorks'
+    developer: 'TransitWorks',
+    gameUrl: 'games/bus-simulator/index.html',
+    playMode: 'embed'
   },
   {
     id: 'shadow-adventure',
@@ -90,7 +92,8 @@ const gamesData = [
     tags: ['Strategy', 'Management', 'Sandbox', 'Tactical'],
     releaseDate: '2026-03-22',
     developer: 'Citadel Interactive',
-    gameUrl: 'games/city-builder/index.html'
+    gameUrl: 'games/city-builder/index.html',
+    playMode: 'embed'
   },
   {
     id: 'football-legends',
@@ -199,33 +202,57 @@ const gamesData = [
     name: 'Chess Grandmaster',
     category: 'Strategy',
     rating: 5.0,
-    plays: 0,
-    playsFormatted: '0',
+    plays: 14800,
+    playsFormatted: '14.8K',
     rank: null,
     badge: 'NEW',
     isTop: false,
     thumbnail: 'assets/games/thumb_chess.png',
-    topThumbnail: null,
+    topThumbnail: 'assets/games/thumb_chess.png',
     description: 'Challenge powerful opponents in strategic chess battles. Play against friends, multiplayer opponents, or the AI Grandmaster.',
     tags: ['Chess', 'Strategy', 'Multiplayer', 'AI', 'Board Game'],
     releaseDate: '2026-09-10',
-    developer: 'InfinityPlay',
-    gameUrl: 'games/chess/index.html'
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/chess/index.html',
+    playMode: 'embed'
   },
   {
-    id: "memory-match",
-    name: "Memory Match",
-    category: "Puzzle",
+    id: 'memory-match',
+    name: 'Memory Match',
+    category: 'Puzzle',
     rating: 4.8,
-    plays: 0,
-    tags: [
-        "Puzzle",
-        "Memory",
-        "Casual"
-    ],
-    developer: "InfinityPlay Studios",
-    thumbnail: "assets/games/thumb_memory_match.jpg",
-    gameUrl: "games/memory-match/index.html"
+    plays: 3500,
+    playsFormatted: '3.5K',
+    rank: null,
+    badge: 'CASUAL',
+    isTop: false,
+    thumbnail: 'assets/games/thumb_memory_match.jpg',
+    topThumbnail: null,
+    description: 'Test and train your visual memory with cards matching puzzles across multiple difficulty grids.',
+    tags: ['Puzzle', 'Memory', 'Casual', 'Brain Teaser'],
+    releaseDate: '2026-09-11',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/memory-match/index.html',
+    playMode: 'embed'
+  },
+  {
+    id: 'pseudoko',
+    name: 'PSEUDOKO',
+    category: 'Strategy',
+    rating: 4.9,
+    plays: 14200,
+    playsFormatted: '14.2K',
+    rank: null,
+    badge: 'NEW',
+    isTop: false,
+    thumbnail: 'assets/games/thumb_pseudoko.svg',
+    topThumbnail: 'assets/games/top_pseudoko.svg',
+    description: 'Master futuristic tactical deduction on an 8×8 cyber grid. Command neural energy, capture territories, solve deep logic constraints, and outmaneuver adaptive strategic AI.',
+    tags: ['Strategy', 'Logic Puzzle', 'Tactical', 'Cyberpunk', 'AI Opponent'],
+    releaseDate: '2026-09-11',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/pseudoko/index.html',
+    playMode: 'embed'
   }
 ];
 

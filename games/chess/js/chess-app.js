@@ -35,6 +35,9 @@
         onMove: (move) => this.handlePlayerMove(move)
       });
 
+      // Always render initial board position immediately so board is NEVER blank
+      this.board.render(this.engine);
+
       // 4. Bind UI Controls, Tabs & Modals
       this.bindControls();
       this.bindTabs();
@@ -48,6 +51,7 @@
 
       if (roomParam) {
         this.switchMode('multiplayer');
+        this.ui.showToast(`Connecting to room ${roomParam.toUpperCase()}...`, 'info');
         this.joinRoomByCode(roomParam);
       } else if (modeParam === 'puzzle') {
         this.switchMode('puzzle');
@@ -451,6 +455,16 @@
         this.handleRoomStateUpdate(data.room);
         this.ui.showToast('Reconnected to game successfully!', 'success');
       });
+
+      this.socket.on('error', (err) => {
+        const errorMsg = (err && (err.error || err.message)) || 'Multiplayer connection or room error';
+        this.ui.showToast(`⚠️ ${errorMsg}`, 'error');
+        // Ensure board is rendered and ready so user is never stuck on blank screen
+        if (!this.engine.fen()) {
+          this.engine.reset();
+        }
+        this.board.render(this.engine);
+      });
     },
 
     handleRoomJoined(data) {
@@ -459,6 +473,10 @@
       this.playerColor = data.color === 'spectator' ? 'w' : data.color;
       this.board.setOrientation(this.playerColor);
       this.handleRoomStateUpdate(room);
+
+      if (data.color === 'spectator') {
+        this.ui.showToast(`Watching as Spectator (${(room.spectatorCount || 1)} online)`, 'info');
+      }
 
       // Close room setup modal
       const modal = document.getElementById('multiplayerModal');
@@ -503,7 +521,12 @@
     },
 
     joinRoomByCode(code) {
-      this.socket.joinRoom(code, this.currentUser, false);
+      const clean = (code || '').toUpperCase().trim();
+      if (!clean) {
+        this.ui.showToast('Please enter a valid room code.', 'warning');
+        return;
+      }
+      this.socket.joinRoom(clean, this.currentUser, false);
     },
 
     /**
@@ -923,9 +946,15 @@
     }
   };
 
-  window.addEventListener('DOMContentLoaded', () => {
+  function startChessApp() {
     App.init();
     window.ChessApp = App;
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', startChessApp);
+  } else {
+    startChessApp();
+  }
 })();
 

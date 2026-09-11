@@ -109,6 +109,13 @@
       if (!bus) return false;
 
       this._activeBusId = busId;
+
+      // Sync to canonical source of truth (Player)
+      const player = this.modules && this.modules.GameInitSystem
+        ? this.modules.GameInitSystem.getPlayer()
+        : null;
+      if (player) player.activeBusId = busId;
+
       EventManager.emit('busSelected', { busId: busId });
       return true;
     },
@@ -161,7 +168,11 @@
       }
 
       const player = this.modules.GameInitSystem ? this.modules.GameInitSystem.getPlayer() : null;
-      if (player) player.addMoney(resaleValue);
+      if (player) {
+        player.addMoney(resaleValue);
+        // Sync active bus to canonical source of truth
+        player.activeBusId = this._activeBusId;
+      }
 
       EventManager.emit('busSold', { busId: busId, value: resaleValue });
       return { success: true, value: resaleValue };
@@ -310,6 +321,16 @@ serialize() {
       this._garage = data.garage || [];
       this._activeBusId = data.activeBusId || (this._garage[0] ? this._garage[0].id : null);
       this._garageSlots = data.garageSlots || 5;
+
+      // Sync to canonical source of truth (Player) to prevent divergence
+      const player = this.modules && this.modules.GameInitSystem
+        ? this.modules.GameInitSystem.getPlayer()
+        : null;
+      if (player) {
+        player.garage = this._garage;
+        player.activeBusId = this._activeBusId;
+        player.garageSlots = this._garageSlots;
+      }
     },
 
     destroy() {

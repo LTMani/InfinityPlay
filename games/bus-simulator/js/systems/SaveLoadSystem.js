@@ -20,6 +20,7 @@
     _saveKey: null,
     _autoSaveInterval: null,
     _lastSaveTime: 0,
+    _pendingSystemData: null,
 
     init(modules) {
       this.modules = modules;
@@ -56,8 +57,11 @@
           }
 
           // Load subsystem states
-          if (data.systems) {
-            EventManager.emit('loadSystemsData', data.systems);
+          // Store for later restoration — systems may not be initialized yet
+          // (loadPlayer runs during GameInitSystem.init, before GarageSystem.init).
+          // restoreSystemData() is called by main.js after all systems are registered.
+          if (data.systems && typeof data.systems === 'object') {
+            this._pendingSystemData = data.systems;
           }
 
           // Phase 8: restore garage configuration
@@ -169,7 +173,8 @@
     },
 
     _restoreSystemData(data) {
-      if (!data) return;
+      if (!data || typeof data !== 'object') return;
+      if (!this.modules) return;
       const systemsToRestore = [
         'DayNightSystem', 'WeatherSystem', 'RouteSystem', 'TripSystem',
         'FuelSystem', 'DamageSystem', 'MaintenanceSystem', 'GarageSystem',
@@ -181,8 +186,24 @@
       for (const name of systemsToRestore) {
         const system = this.modules[name];
         if (system && typeof system.deserialize === 'function' && data[name]) {
-          system.deserialize(data[name]);
+          try {
+            system.deserialize(data[name]);
+          } catch (e) {
+            console.warn('SaveLoadSystem: Failed to restore system ' + name + ':', e);
+          }
         }
+      }
+    },
+
+    /**
+     * Restore system-specific saved state. Called by main.js after all
+     * systems are registered and initialized, to ensure restored data is
+     * not overwritten by a later init() call.
+     */
+    restoreSystemData() {
+      if (this._pendingSystemData) {
+        this._restoreSystemData(this._pendingSystemData);
+        this._pendingSystemData = null;
       }
     },
 

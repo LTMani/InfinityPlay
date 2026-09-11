@@ -119,7 +119,8 @@ class ChessManager {
    * Join an existing room
    */
   joinRoom(roomId, user, asSpectator = false) {
-    const room = this.rooms.get(roomId);
+    const cleanId = (roomId || '').toUpperCase().trim();
+    const room = this.rooms.get(cleanId);
     if (!room) return { error: 'Room not found' };
 
     // Check if room is full for playing
@@ -847,7 +848,8 @@ class ChessManager {
   }
 
   getRoom(roomId) {
-    const room = this.rooms.get(roomId);
+    const cleanId = (roomId || '').toUpperCase().trim();
+    const room = this.rooms.get(cleanId);
     return room ? this.sanitizeRoom(room) : null;
   }
 }

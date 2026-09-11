@@ -19,7 +19,8 @@
 
   class ChessSocketClient {
     constructor(baseUrl = '') {
-      this.baseUrl = baseUrl || (typeof window !== 'undefined' ? window.location.origin : '');
+      const isHttp = typeof window !== 'undefined' && window.location.origin && window.location.origin.startsWith('http');
+      this.baseUrl = baseUrl || (isHttp ? window.location.origin : 'http://localhost:3000');
       this.socket = null;
       this.eventSource = null;
       this.isConnected = false;
@@ -102,7 +103,8 @@
       return new Promise((resolve) => {
         const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
         const wsProto = isSecure ? 'wss:' : 'ws:';
-        const host = (typeof window !== 'undefined' && window.location.host) || 'localhost:3000';
+        let host = (typeof window !== 'undefined' && window.location.host) || 'localhost:3000';
+        if (!host || host === 'null') host = 'localhost:3000';
         const wsUrl = `${wsProto}//${host}/ws/chess`;
 
         try {
@@ -222,7 +224,7 @@
     async createRoom({ timeControlKey = 'rapid_10', preferredColor = 'random', user = null } = {}) {
       await this.connect();
 
-      if (!this.useSSE) {
+      if (!this.useSSE && this.socket && this.socket.readyState === 1) {
         this.socket.send(JSON.stringify({
           type: 'create_room',
           isPrivate: true,
@@ -252,11 +254,12 @@
      */
     async joinRoom(roomId, user = null, asSpectator = false) {
       await this.connect();
+      const cleanRoomId = (roomId || '').toUpperCase().trim();
 
-      if (!this.useSSE) {
+      if (!this.useSSE && this.socket && this.socket.readyState === 1) {
         this.socket.send(JSON.stringify({
           type: 'join_room',
-          roomId,
+          roomId: cleanRoomId,
           user,
           asSpectator
         }));
@@ -264,7 +267,7 @@
         const res = await fetch(`${this.baseUrl}/api/chess/rooms/join`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomId, user, asSpectator })
+          body: JSON.stringify({ roomId: cleanRoomId, user, asSpectator })
         });
         const data = await res.json();
         if (data.success) {
@@ -283,7 +286,7 @@
     async joinMatchmaking(timeControlKey = 'rapid_10', user = null) {
       await this.connect();
 
-      if (!this.useSSE) {
+      if (!this.useSSE && this.socket && this.socket.readyState === 1) {
         this.socket.send(JSON.stringify({
           type: 'matchmake',
           timeControlKey,

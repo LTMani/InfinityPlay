@@ -35,6 +35,8 @@
   const TripSystem = window.BusSim.TripSystem;
   const OperatorSystem = window.BusSim.OperatorSystem;
   const GarageConfig = window.BusSim.GarageConfig;
+  const GarageSystem = window.BusSim.GarageSystem;
+  const SaveLoadSystem = window.BusSim.SaveLoadSystem;
 
   // UI
   const UIManager = window.BusSim.UIManager;
@@ -56,6 +58,7 @@
       engine.init(GameConfig, () => {
         this._registerModules();
         this._registerSystems();
+        this._restoreSystemData();
         this._setupEventHandlers();
       });
 
@@ -91,7 +94,10 @@
       // Core systems (ordered by dependency for init)
       const coreSystems = [
         ['GameLoopSystem', GameLoopSystem],
+        ['SaveLoadSystem', SaveLoadSystem],
+        ['GarageConfig', GarageConfig],
         ['GameInitSystem', GameInitSystem],
+        ['GarageSystem', GarageSystem],
         ['InputSystem', InputSystem],
         ['MovementSystem', MovementSystem],
         ['CameraSystem', CameraSystem],
@@ -108,7 +114,6 @@
         ['TicketSystem', TicketSystem],
         ['TripSystem', TripSystem],
         ['OperatorSystem', OperatorSystem],
-        ['GarageConfig', GarageConfig],
         ['UIManager', UIManager]
       ];
 
@@ -134,7 +139,23 @@
       engine.on('render', (alpha) => this._render(alpha));
     },
 
+    _restoreSystemData() {
+      if (SaveLoadSystem && typeof SaveLoadSystem.restoreSystemData === 'function') {
+        SaveLoadSystem.restoreSystemData();
+      }
+    },
+
     _setupEventHandlers() {
+      // Listen for bus selection (ensures active bus is synced before startGame)
+      EventManager.on('selectBus', (data) => {
+        if (data && data.bus && data.bus.id) {
+          const init = engine.getSystem('GameInitSystem');
+          if (init && init.getPlayer()) {
+            init.getPlayer().activeBusId = data.bus.id;
+          }
+        }
+      });
+
       // Listen for main menu "Start Driving" action
       EventManager.on('startGame', () => {
         const loop = engine.getSystem('GameLoopSystem');

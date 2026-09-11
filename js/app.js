@@ -78,6 +78,15 @@
           this.closeAllModals();
         }
       });
+
+      // PostMessage listener for embedded games exiting
+      window.addEventListener('message', (e) => {
+        if (e.data && (e.data.type === 'exitGame' || e.data.type === 'busSimExit')) {
+          const exitBtn = document.getElementById('gameFrameExitBtn');
+          if (exitBtn) exitBtn.click();
+          else this.closeAllModals();
+        }
+      });
     },
 
     closeAllModals() {
@@ -173,12 +182,17 @@
       const startBtn = document.getElementById('modalStartPlayBtn');
       if (startBtn) {
         startBtn.addEventListener('click', () => {
+          if (game.gameUrl && game.playMode === 'embed') {
+            this.launchEmbeddedGame(game);
+            return;
+          }
+
           if (game.gameUrl) {
             startBtn.innerHTML = `⚡ Launching ${game.name}...`;
             startBtn.disabled = true;
             setTimeout(() => {
               window.location.href = game.gameUrl;
-            }, 300);
+            }, 250);
             return;
           }
 
@@ -192,6 +206,68 @@
       }
 
       modal.classList.add('active');
+    },
+
+    /**
+     * Launches an embedded game (iframe) in fullscreen overlay
+     */
+    launchEmbeddedGame(game) {
+      this.closeAllModals();
+
+      let overlay = document.getElementById('infinityGameFrameOverlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'infinityGameFrameOverlay';
+        overlay.className = 'game-frame-overlay';
+        overlay.innerHTML = `
+          <div class="game-frame-header">
+            <div class="game-frame-title">
+              <span class="game-frame-icon">🎮</span>
+              <span>${game.name}</span>
+            </div>
+            <div class="game-frame-controls">
+              <button class="game-frame-btn game-frame-exit" id="gameFrameExitBtn" title="Exit to Dashboard">✕</button>
+            </div>
+          </div>
+          <div class="game-frame-wrapper">
+            <iframe class="game-frame" id="gameFrameIframe" frameborder="0" allow="autoplay; fullscreen"></iframe>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+      }
+
+      const iframe = document.getElementById('gameFrameIframe');
+      if (iframe) {
+        iframe.src = game.gameUrl;
+      }
+
+      const titleEl = overlay.querySelector('.game-frame-title span:last-child');
+      if (titleEl) titleEl.textContent = game.name;
+
+      const exitBtn = document.getElementById('gameFrameExitBtn');
+      if (exitBtn) {
+        const existing = exitBtn._handler;
+        if (existing) exitBtn.removeEventListener('click', existing);
+        const handler = () => {
+          iframe.src = '';
+          overlay.classList.remove('active');
+          setTimeout(() => {
+            overlay.style.display = 'none';
+          }, 300);
+          window.InfinityPlay.Helpers.showToast(`${game.name} closed. Back to dashboard.`, 'info');
+        };
+        exitBtn._handler = handler;
+        exitBtn.addEventListener('click', handler);
+      }
+
+      overlay.style.display = 'flex';
+      setTimeout(() => overlay.classList.add('active'), 10);
+
+      if (window.InfinityPlay.API) {
+        window.InfinityPlay.API.addRecentlyPlayed(game.id);
+      } else {
+        window.InfinityPlay.Storage.addRecentlyPlayed(game.id);
+      }
     },
 
     /**
