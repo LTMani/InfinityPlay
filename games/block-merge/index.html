@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BLOCK MERGE — Reach Infinity | InfinityPlay</title>
+  <meta name="description" content="Play BLOCK MERGE: A high-octane modern number puzzle game inspired by 2048 on InfinityPlay. Slide numbered blocks, create merges, activate combos, and reach infinity!">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="../../assets/logo.svg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/tiles.css">
+  <link rel="stylesheet" href="css/block-merge.css">
+</head>
+<body>
+
+  <!-- Ambient Glow -->
+  <div class="bm-ambient-glow"></div>
+
+  <div class="bm-container">
+    <!-- Header HUD -->
+    <header class="bm-header">
+      <div class="bm-brand">
+        <div class="bm-badge-row">
+          <span class="bm-badge">PUZZLE</span>
+          <span class="bm-badge" style="color: #fbbf24; border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.12);">TARGET 2048</span>
+        </div>
+        <h1 class="bm-title">BLOCK MERGE</h1>
+        <p class="bm-subtitle">Merge numbers. Reach infinity.</p>
+      </div>
+
+      <div class="bm-scores">
+        <div class="bm-score-box" id="score-box">
+          <div class="bm-score-label">SCORE</div>
+          <div class="bm-score-value" id="score-value">0</div>
+        </div>
+        <div class="bm-score-box best">
+          <div class="bm-score-label">BEST</div>
+          <div class="bm-score-value" id="best-score-value">0</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Controls Toolbar -->
+    <div class="bm-controls">
+      <div class="bm-controls-left">
+        <button class="bm-btn bm-btn-primary" id="btn-new-game" title="Start New Game">
+          <span>🔄</span>
+          <span>New Game</span>
+        </button>
+        <button class="bm-btn" id="btn-undo" title="Undo Last Move" disabled aria-disabled="true">
+          <span>↩</span>
+          <span>Undo</span>
+        </button>
+      </div>
+
+      <div class="bm-controls-right">
+        <button class="bm-btn bm-btn-icon" id="btn-sound" title="Toggle Sound" aria-label="Toggle Sound">
+          🔊
+        </button>
+        <a href="../../index.html" class="bm-btn bm-btn-exit" id="btn-exit-portal" title="Return to InfinityPlay Portal">
+          <span>⮌</span>
+          <span>Exit</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Game Board -->
+    <div class="bm-board-wrapper">
+      <main id="board-container" role="region" aria-label="Block Merge Game Board">
+        <!-- Static background slots -->
+        <div id="grid-background"></div>
+        <!-- Dynamic animated tiles -->
+        <div id="tile-container"></div>
+      </main>
+    </div>
+
+    <!-- Controls Guide & Information -->
+    <div class="bm-info-card">
+      <div class="bm-info-item">
+        <span>🎮</span>
+        <span><strong>Desktop:</strong> Use <span class="bm-kbd">↑</span> <span class="bm-kbd">↓</span> <span class="bm-kbd">←</span> <span class="bm-kbd">→</span> or <span class="bm-kbd">W</span> <span class="bm-kbd">A</span> <span class="bm-kbd">S</span> <span class="bm-kbd">D</span> keys.</span>
+      </div>
+      <div class="bm-info-item">
+        <span>📱</span>
+        <span><strong>Mobile:</strong> Swipe anywhere inside the board to slide blocks.</span>
+      </div>
+      <div class="bm-info-item">
+        <span>💡</span>
+        <span>When two matching numbers collide, they merge into double their value!</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Win Modal (2048 Reached) -->
+  <div class="bm-modal-overlay" id="win-modal" role="dialog" aria-modal="true" aria-labelledby="win-title">
+    <div class="bm-modal-card">
+      <div class="bm-modal-icon">🏆</div>
+      <h2 class="bm-modal-title" id="win-title">YOU WON!</h2>
+      <p class="bm-modal-desc">Incredible! You unlocked the mythical <strong>2048</strong> block! Would you like to keep climbing towards infinity?</p>
+      <div class="bm-modal-actions">
+        <button class="bm-btn bm-btn-primary" id="btn-win-continue">
+          <span>🚀</span>
+          <span>Keep Playing Beyond 2048</span>
+        </button>
+        <button class="bm-btn" id="btn-win-new">
+          <span>🔄</span>
+          <span>Start New Game</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div class="bm-modal-overlay" id="game-over-modal" role="dialog" aria-modal="true" aria-labelledby="gameover-title">
+    <div class="bm-modal-card">
+      <div class="bm-modal-icon">💀</div>
+      <h2 class="bm-modal-title" id="gameover-title">GAME OVER</h2>
+      <p class="bm-modal-desc">No more valid moves available on the board.</p>
+      <div class="bm-modal-stats">
+        <div class="bm-stat-item">
+          <span class="bm-stat-label">Final Score</span>
+          <span class="bm-stat-val" id="final-score-val">0</span>
+        </div>
+        <div class="bm-stat-item">
+          <span class="bm-stat-label">Best Record</span>
+          <span class="bm-stat-val" id="gameover-best-val">0</span>
+        </div>
+      </div>
+      <div class="bm-modal-actions">
+        <button class="bm-btn bm-btn-primary" id="btn-gameover-retry">
+          <span>🔄</span>
+          <span>Try Again</span>
+        </button>
+        <a href="../../index.html" class="bm-btn bm-btn-exit">
+          <span>⮌</span>
+          <span>Exit to Portal</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Restart Modal -->
+  <div class="bm-modal-overlay" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="bm-modal-card">
+      <div class="bm-modal-icon">⚠️</div>
+      <h2 class="bm-modal-title" id="confirm-title">Start New Game?</h2>
+      <p class="bm-modal-desc">Your current in-progress puzzle and board layout will be reset. Are you sure?</p>
+      <div class="bm-modal-actions row">
+        <button class="bm-btn" id="btn-confirm-cancel">Keep Playing</button>
+        <button class="bm-btn bm-btn-primary" id="btn-confirm-yes">Reset & Start</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Continue Saved Game Modal -->
+  <div class="bm-modal-overlay" id="continue-modal" role="dialog" aria-modal="true" aria-labelledby="continue-title">
+    <div class="bm-modal-card">
+      <div class="bm-modal-icon">💾</div>
+      <h2 class="bm-modal-title" id="continue-title">Resume Game?</h2>
+      <p class="bm-modal-desc">You have an unfinished game saved from your last session. Would you like to resume where you left off?</p>
+      <div class="bm-modal-actions row">
+        <button class="bm-btn" id="btn-continue-new">New Game</button>
+        <button class="bm-btn bm-btn-primary" id="btn-continue-yes">Resume</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap App -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
