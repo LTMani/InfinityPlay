@@ -7,13 +7,13 @@
 
 export class VehiclePhysics {
   constructor(config = {}) {
-    // Balanced, comfortable driving parameters
-    this.maxSpeed = config.maxSpeed || 40.0;          // ~144 km/h base top speed
-    this.reverseSpeed = config.reverseSpeed || 12.0;  // ~43 km/h
-    this.acceleration = config.acceleration || 15.0;  // m/s^2 smooth controllable acceleration
-    this.reverseAcceleration = config.reverseAcceleration || 10.0;
-    this.brakingForce = config.brakingForce || 30.0;  // m/s^2 crisp reliable stopping
-    this.handbrakeForce = config.handbrakeForce || 40.0;
+    // Balanced, comfortable driving parameters (10% speed & acceleration boost)
+    this.maxSpeed = config.maxSpeed || 44.0;          // ~158 km/h base top speed (+10%)
+    this.reverseSpeed = config.reverseSpeed || 13.2;  // ~48 km/h (+10%)
+    this.acceleration = config.acceleration || 16.5;  // m/s^2 acceleration (+10%)
+    this.reverseAcceleration = config.reverseAcceleration || 11.0;
+    this.brakingForce = config.brakingForce || 32.0;  // m/s^2 crisp reliable stopping
+    this.handbrakeForce = config.handbrakeForce || 42.0;
     this.friction = config.friction || 2.2;           // Rolling resistance
     this.airDrag = config.airDrag || 0.0015;         // Aerodynamic drag
     this.wheelbase = config.wheelbase || 2.8;         // Distance between axles (meters)
@@ -36,15 +36,15 @@ export class VehiclePhysics {
 
   applyTuning(tuning = {}) {
     const engineStage = Math.max(1, Math.min(3, tuning.engineLevel || 2));
-    // Stage 1: 144 km/h, Stage 2: 162 km/h, Stage 3: 180 km/h
-    this.maxSpeed = 38.0 + (engineStage - 1) * 5.0;
-    this.acceleration = 13.0 + (engineStage - 1) * 3.5;
+    // Stage 1: 150 km/h, Stage 2: 170 km/h, Stage 3: 190 km/h
+    this.maxSpeed = 41.8 + (engineStage - 1) * 5.5;
+    this.acceleration = 14.3 + (engineStage - 1) * 3.85;
 
     const handlingStage = Math.max(1, Math.min(3, tuning.handlingLevel || 2));
     this.maxSteerAngle = 0.40 + (handlingStage - 1) * 0.04;
 
     const brakeStage = Math.max(1, Math.min(3, tuning.brakesLevel || 2));
-    this.brakingForce = 26.0 + (brakeStage - 1) * 5.0;
+    this.brakingForce = 28.0 + (brakeStage - 1) * 5.0;
   }
 
   reset(x = 0, y = 0, z = 0, heading = 0) {
