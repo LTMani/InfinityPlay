@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -15,17 +15,30 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  # Deploy to gh-pages branch (works with "Deploy from a branch")
+  deploy-to-branch:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5
+      - name: Deploy to gh-pages branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: .
+          branch: gh-pages
+          clean: true
+
+  # Deploy directly to GitHub Pages (works with "GitHub Actions" source)
+  deploy-to-pages:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
