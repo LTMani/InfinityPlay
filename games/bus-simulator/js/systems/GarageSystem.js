@@ -268,6 +268,11 @@ serialize() {
       const bus = this.getActiveBus();
       if (!bus || !cfg) return false;
 
+      if (cfg.busTypeId) {
+        const bt = BusTypes ? BusTypes.getById(cfg.busTypeId) : null;
+        bus.busTypeId = cfg.busTypeId;
+        if (bt) bus.busType = bt;
+      }
       if (typeof bus.setService === 'function') {
         bus.setService(cfg.serviceType, cfg.operatorId);
       }

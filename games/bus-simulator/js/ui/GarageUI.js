@@ -53,6 +53,9 @@
       // Phase 8: Statistics Preview
       html += this._renderStatisticsPreview();
 
+      // Phase 8: Validation Status
+      html += this._renderValidationStatus();
+
       html += '<div class="bus-garage-grid">';
 
       // Owned buses
@@ -475,6 +478,94 @@
       `;
     },
 
+    _renderValidationStatus() {
+      const GarageConfig = this.modules.GarageConfig;
+      const GarageSystem = this.modules.GarageSystem;
+      if (!GarageConfig) return '';
+
+      // Use GarageConfig.validate() for basic validation
+      const configValidation = GarageConfig.validate ? GarageConfig.validate() : { valid: true, errors: [] };
+      // Use GarageSystem.validateConfig() for extended validation (bus type exists, operator exists)
+      const systemValidation = GarageSystem && GarageSystem.validateConfig
+        ? GarageSystem.validateConfig()
+        : { valid: true, errors: [] };
+
+      // Combine errors from both validations
+      const allErrors = [...(configValidation.errors || []), ...(systemValidation.errors || [])];
+      const isValid = allErrors.length === 0;
+      const config = GarageConfig.getConfig();
+
+      let html = `
+        <div class="bus-config-section">
+          <h4 class="bus-config-section-title">Validation Status</h4>
+          <div class="bus-validation-status ${isValid ? 'valid' : 'invalid'}">
+      `;
+
+      if (isValid) {
+        html += `
+            <div class="bus-validation-success">
+              <span class="bus-validation-icon">✓</span>
+              <span class="bus-validation-message">Configuration is valid and ready to apply</span>
+            </div>
+        `;
+      } else {
+        html += `
+            <div class="bus-validation-error">
+              <span class="bus-validation-icon">✗</span>
+              <span class="bus-validation-message">Configuration has errors:</span>
+              <ul class="bus-validation-errors">`;
+        for (const error of allErrors) {
+          html += `<li>${this._escapeHtml(error)}</li>`;
+        }
+        html += `
+              </ul>
+            </div>
+        `;
+      }
+
+      // Show warnings if any required fields are missing but have defaults
+      const warnings = [];
+      if (!config.busNumber) warnings.push('Bus number is empty (will use default)');
+      if (!config.destinationBoard) warnings.push('Destination board is empty (will use default)');
+      if (config.customization && config.customization.performance && config.customization.performance.engineTuning !== 'stock') {
+        warnings.push('Performance tuning may affect fuel consumption');
+      }
+      if (warnings.length > 0) {
+        html += `
+            <div class="bus-validation-warnings">
+              <span class="bus-warning-icon">⚠</span>
+              <ul>`;
+        for (const warning of warnings) {
+          html += `<li>${this._escapeHtml(warning)}</li>`;
+        }
+        html += `
+              </ul>
+            </div>
+        `;
+      }
+
+      html += `
+          </div>
+        </div>
+      `;
+
+      // Apply Configuration button (only show when valid)
+      if (isValid) {
+        html += `
+        <div class="bus-config-section">
+          <div class="bus-apply-config">
+            <button class="bus-btn bus-btn-primary bus-btn-lg" 
+                    data-action="apply-configuration">
+              ✓ Apply Configuration
+            </button>
+          </div>
+        </div>
+        `;
+      }
+
+      return html;
+    },
+
     _renderCustomizationCategory(categoryName, currentValues, categoryData) {
       let html = `<div class="bus-customization-category">
         <h5 class="bus-customization-category-title">${categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}</h5>
@@ -543,6 +634,9 @@
             case 'select-customization':
               this._selectCustomization(e.target);
               break;
+            case 'apply-configuration':
+              this._applyConfiguration();
+              break;
           }
         });
       }
@@ -558,6 +652,91 @@
       if (destinationBoardInput) {
         destinationBoardInput.addEventListener('change', (e) => this._updateDestinationBoard(e.target.value));
         destinationBoardInput.addEventListener('blur', (e) => this._updateDestinationBoard(e.target.value));
+      }
+    },
+
+    _applyConfiguration() {
+      const GarageConfig = this.modules.GarageConfig;
+      const GarageSystem = this.modules.GarageSystem;
+      if (!GarageConfig || !GarageSystem) {
+        this._showError('Garage systems not available');
+        return false;
+      }
+
+      // Validate before applying
+      const configValidation = GarageConfig.validate ? GarageConfig.validate() : { valid: true, errors: [] };
+      const systemValidation = GarageSystem.validateConfig ? GarageSystem.validateConfig() : { valid: true, errors: [] };
+      const allErrors = [...(configValidation.errors || []), ...(systemValidation.errors || [])];
+
+      if (allErrors.length > 0) {
+        // Show validation errors in the UI
+        const errorMsg = 'Cannot apply: ' + allErrors.join('; ');
+        this._showError(errorMsg);
+        this.renderGarage(); // Refresh to show errors
+        return false;
+      }
+
+      // Store current active bus for potential rollback
+      const activeBus = GarageSystem.getActiveBus();
+      if (!activeBus) {
+        this._showError('No active bus to configure');
+        return false;
+      }
+
+      // Store previous config for potential rollback
+      const previousConfig = {
+        busTypeId: activeBus.busTypeId,
+        operatorId: activeBus.operatorId,
+        serviceType: activeBus.serviceType,
+        busNumber: activeBus.busNumber,
+        destinationBoard: activeBus.destinationBoard,
+        customization: activeBus.customization ? JSON.parse(JSON.stringify(activeBus.customization)) : {}
+      };
+
+      try {
+        // Apply configuration using existing backend method
+        const success = GarageSystem.applyConfigToActiveBus();
+
+        if (success) {
+          // Emit event for other systems
+          if (typeof EventManager !== 'undefined' && EventManager) {
+            EventManager.emit('garageConfigApplied', { busId: activeBus.id, config: GarageConfig.getConfig() });
+          }
+
+          // Show success message
+          const toast = (typeof window !== 'undefined' && window.InfinityPlay &&
+            window.InfinityPlay.Helpers && window.InfinityPlay.Helpers.showToast);
+          if (toast) {
+            toast('Configuration applied successfully!', 'success');
+          }
+
+          // Refresh UI
+          this.renderGarage();
+          return true;
+        } else {
+          // Application failed - rollback
+          this._rollbackBusConfig(activeBus, previousConfig);
+          this._showError('Failed to apply configuration');
+          return false;
+        }
+      } catch (e) {
+        // Rollback on error
+        this._rollbackBusConfig(activeBus, previousConfig);
+        this._showError('Error applying configuration: ' + e.message);
+        console.error('Apply configuration error:', e);
+        return false;
+      }
+    },
+
+    _rollbackBusConfig(bus, previousConfig) {
+      if (!bus || !previousConfig) return;
+      bus.busTypeId = previousConfig.busTypeId;
+      bus.operatorId = previousConfig.operatorId;
+      bus.serviceType = previousConfig.serviceType;
+      bus.busNumber = previousConfig.busNumber;
+      bus.destinationBoard = previousConfig.destinationBoard;
+      if (previousConfig.customization && typeof bus.setCustomization === 'function') {
+        bus.setCustomization(previousConfig.customization);
       }
     },
 

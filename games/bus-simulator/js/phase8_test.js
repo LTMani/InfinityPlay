@@ -126,6 +126,10 @@ function assertArrayContains(arr, item, name) {
   return test(name, arr.includes(item), `expected array to contain ${item}`);
 }
 
+function assertTrue(condition, name) {
+  return test(name, !!condition, `expected true, got ${condition}`);
+}
+
 console.log('=== Phase 8 Integration Tests ===\n');
 
 // ============================================
@@ -220,6 +224,7 @@ assertEqual(validation.errors.length, 0, 'No validation errors for valid config'
 
 // 1.9 Reject invalid configuration (missing bus type)
 GarageConfig.reset();
+GarageConfig.config.busTypeId = null;
 GarageConfig.setOperator(null);
 GarageConfig.setServiceType(null);
 const invalidConfig = GarageConfig.getConfig();
@@ -332,12 +337,15 @@ console.log('\n--- TEST 4: Validation Failure Tests ---');
 GarageConfig.reset();
 
 // 4.1 GarageConfig validation detects missing required fields
+GarageConfig.config.busTypeId = null;
+GarageConfig.config.operatorId = null;
+GarageConfig.config.serviceType = null;
 const emptyValidation = GarageConfig.validate();
 assertFalsy(emptyValidation.valid, 'Empty config fails validation');
 assertEqual(emptyValidation.errors.length, 3, 'Three validation errors for missing required fields');
 
 // 4.2 GarageSystem validation detects invalid bus type
-GarageConfig.setBusType('non-existent-type');
+GarageConfig.config.busTypeId = 'non-existent-type';
 GarageConfig.setOperator('rtc-ap');
 GarageConfig.setServiceType('local');
 const invalidBusTypeValidation = GarageSystem.validateConfig();
