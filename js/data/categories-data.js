@@ -9,7 +9,7 @@ const categoriesData = [
     slug: 'Racing',
     icon: 'assets/categories/cat_racing_art.png',
     fullCard: 'assets/categories/cat_racing_full.png',
-    gameCount: 2,
+    gameCount: 3,
     gradient: 'linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(185, 28, 28, 0.05))',
     borderColor: 'rgba(239, 68, 68, 0.3)'
   },
@@ -39,7 +39,7 @@ const categoriesData = [
     slug: 'Puzzle',
     icon: 'assets/categories/cat_puzzle_art.png',
     fullCard: 'assets/categories/cat_puzzle_full.png',
-    gameCount: 1,
+    gameCount: 2,
     gradient: 'linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(126, 34, 206, 0.05))',
     borderColor: 'rgba(168, 85, 247, 0.3)'
   },

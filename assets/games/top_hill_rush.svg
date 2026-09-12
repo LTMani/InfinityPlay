@@ -1,0 +1,44 @@
+<svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="topSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#080e18"/>
+      <stop offset="50%" style="stop-color:#1e3a5f"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="topHill1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#15803d"/>
+    </linearGradient>
+    <linearGradient id="topHill2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#16a34a"/>
+      <stop offset="100%" style="stop-color:#0f5132"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="640" height="360" fill="url(#topSkyGrad)"/>
+  <rect x="30" y="30" width="580" height="300" rx="16" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <circle cx="520" cy="90" r="32" fill="#fef08a" filter="url(#glow)" opacity="0.9"/>
+  <path d="M0 360 Q160 160 360 280 T640 200 L640 360 Z" fill="url(#topHill2)" opacity="0.7"/>
+  <path d="M0 360 Q120 240 280 220 Q400 200 540 290 L640 360 Z" fill="url(#topHill1)"/>
+  <circle cx="190" cy="170" r="14" fill="#fbbf24" stroke="#d97706" stroke-width="3" filter="url(#glow)"/>
+  <circle cx="240" cy="150" r="14" fill="#fbbf24" stroke="#d97706" stroke-width="3" filter="url(#glow)"/>
+  <circle cx="290" cy="140" r="14" fill="#fbbf24" stroke="#d97706" stroke-width="3" filter="url(#glow)"/>
+  <g transform="translate(260, 160) rotate(-15) scale(1.2)">
+    <path d="M0 20 L15 5 L55 5 L70 20 L80 25 L80 38 L-5 38 L-5 25 Z" fill="#ef4444"/>
+    <path d="M18 7 L50 7 L45 20 L10 20 Z" fill="#38bdf8" opacity="0.8"/>
+    <circle cx="30" cy="14" r="7" fill="#facc15"/>
+    <circle cx="33" cy="14" r="3" fill="#1e293b"/>
+    <circle cx="12" cy="40" r="12" fill="#1e293b" stroke="#64748b" stroke-width="3"/>
+    <circle cx="62" cy="40" r="12" fill="#1e293b" stroke="#64748b" stroke-width="3"/>
+    <circle cx="12" cy="40" r="4" fill="#94a3b8"/>
+    <circle cx="62" cy="40" r="4" fill="#94a3b8"/>
+  </g>
+  <text x="320" y="305" font-family="Inter, sans-serif" font-size="24" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="0.08em" filter="url(#glow)">HILL RUSH</text>
+  <text x="320" y="330" font-family="Inter, sans-serif" font-size="12" font-weight="500" fill="#94a3b8" text-anchor="middle" letter-spacing="0.1em">PHYSICS CLIMB • STUNTS &amp; UPGRADES</text>
+</svg>
