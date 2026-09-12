@@ -5,6 +5,25 @@
 
 const gamesData = [
   {
+    id: 'hill-rush',
+    name: 'Hill Rush',
+    category: 'Racing',
+    rating: 5.0,
+    plays: 19500,
+    playsFormatted: '19.5K',
+    rank: 1,
+    badge: 'NEW 2D',
+    isTop: true,
+    thumbnail: 'assets/games/thumb_hill_rush.svg',
+    topThumbnail: 'assets/games/top_hill_rush.svg',
+    description: 'Conquer steep slopes and rugged terrains in this physics-based hill climbing racer. Perform wild flips, collect coins, and upgrade your engines and tires.',
+    tags: ['Racing', 'Physics', '2D', 'Upgrade', 'Missions'],
+    releaseDate: '2026-09-12',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/hill-rush/index.html',
+    playMode: 'embed'
+  },
+  {
     id: 'railway-commander',
     name: 'Railway Commander',
     category: 'Simulation',
