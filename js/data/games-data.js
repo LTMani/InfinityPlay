@@ -61,6 +61,25 @@ const gamesData = [
     playMode: 'embed'
   },
   {
+    id: 'laser-logic',
+    name: 'Laser Logic',
+    category: 'Puzzle',
+    rating: 5.0,
+    plays: 0,
+    playsFormatted: '0',
+    rank: null,
+    badge: 'NEW',
+    isTop: true,
+    thumbnail: 'assets/games/thumb_laser_logic.svg',
+    topThumbnail: 'assets/games/top_laser_logic.svg',
+    description: 'Direct lasers through mirrors and prisms to hit all targets. Rotate mirrors, split beams with prisms, and solve increasingly complex optical puzzles.',
+    tags: ['Puzzle', 'Logic', 'Laser', 'Optics', 'Brain Teaser'],
+    releaseDate: '2026-09-12',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/laser-logic/index.html',
+    playMode: 'embed'
+  },
+  {
     id: 'ultimate-racing',
     name: 'Ultimate Racing',
     category: 'Racing',
