@@ -6,6 +6,9 @@
 (function () {
   'use strict';
 
+  const Bus = (typeof window !== 'undefined' && window.BusSim && window.BusSim.Bus) ||
+    (typeof require !== 'undefined' ? require('./Bus') : null);
+
   const PrivateTravelsData = (typeof window !== 'undefined' && window.BusSim && window.BusSim.PrivateTravelsData) ||
     (typeof require !== 'undefined' ? require('../data/private-travels') : null);
 
@@ -174,7 +177,19 @@
   };
 
   Player.deserialize = function (data) {
-    return new Player(data);
+    if (!data || typeof data !== 'object') return new Player();
+    const player = new Player(data);
+    if (Array.isArray(player.garage) && Bus && typeof Bus.deserialize === 'function') {
+      player.garage = player.garage
+        .map(entry => {
+          if (!entry || typeof entry !== 'object') return null;
+          if (entry instanceof Bus) return entry;
+          if (entry.busTypeId) return Bus.deserialize(entry);
+          return null;
+        })
+        .filter(bus => bus !== null);
+    }
+    return player;
   };
 
   if (typeof window !== 'undefined') {

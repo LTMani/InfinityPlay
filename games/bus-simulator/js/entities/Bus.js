@@ -430,6 +430,53 @@
     }
   };
 
+  Bus.deserialize = function (data) {
+    if (!data || typeof data !== 'object') return null;
+
+    const busTypeId = data.busTypeId || 'pallevelugu';
+    const busType = BusTypes && BusTypes.getById(busTypeId) || BusTypes && BusTypes.rtcBusTypes && BusTypes.rtcBusTypes[0];
+    if (!busType) return null;
+
+    const bus = new Bus(
+      data.x || 0,
+      data.y || 0,
+      busTypeId,
+      data.operatorId || null,
+      data.serviceType || 'city',
+      data.busNumber || null,
+      data.destinationBoard || null,
+      data.customization
+    );
+
+    if (data.id !== undefined && data.id !== null) {
+      bus.id = data.id;
+    }
+
+    const runtimeProps = [
+      'vx', 'vy', 'speed', 'targetSpeed', 'steering', 'angle',
+      'fuelLevel', 'fuelCapacity', 'fuelEfficiency', 'isLowFuel',
+      'condition', 'damage', 'isDamaged',
+      'passengersOnBoard', 'passengersWaiting', 'boardedPassengers',
+      'passengerCapacity', 'baseStandingCapacity', 'maxStanding',
+      'standingPassengers', 'allowStanding', 'boardingTimePerPassenger',
+      'alightTimePerPassenger', 'serviceFareMultiplier',
+      'maxSpeed', 'baseMaxSpeed',
+      'maintenanceCondition', 'lastMaintenance', 'maintenanceInterval',
+      'value', 'purchasePrice',
+      'color', 'tintColor', 'fleetNumber',
+      'busNumber', 'destinationBoard',
+      'tripsCompleted', 'tripDistance', 'tripRevenue', 'tripStartTime',
+      'reverseMode', 'reverseSpeed',
+      'active', 'width', 'height', 'rotation', 'collisionRadius', 'tags'
+    ];
+
+    for (const key of runtimeProps) {
+      if (key in data) bus[key] = data[key];
+    }
+
+    return bus;
+  };
+
   if (typeof window !== 'undefined') {
     window.BusSim = window.BusSim || {};
     window.BusSim.Bus = Bus;

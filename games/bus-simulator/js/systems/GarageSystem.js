@@ -178,9 +178,10 @@
       return { success: true, value: resaleValue };
     },
 
-serialize() {
+    serialize() {
+      // Player.garage is the canonical source; do not duplicate the full fleet here.
+      // Only GarageSystem-specific state (slots, active id) is persisted.
       return {
-        garage: this._garage.map(b => b.serialize ? b.serialize() : b),
         activeBusId: this._activeBusId,
         garageSlots: this._garageSlots
       };
@@ -318,17 +319,27 @@ serialize() {
     },
 
     deserialize(data) {
-      this._garage = data.garage || [];
-      this._activeBusId = data.activeBusId || (this._garage[0] ? this._garage[0].id : null);
-      this._garageSlots = data.garageSlots || 5;
-
-      // Sync to canonical source of truth (Player) to prevent divergence
       const player = this.modules && this.modules.GameInitSystem
         ? this.modules.GameInitSystem.getPlayer()
         : null;
+
+      if (player && Array.isArray(player.garage)) {
+        // Player is the canonical owner of Bus instances (restored by Player.deserialize).
+        // Reference the player's garage array to prevent divergence.
+        this._garage = player.garage;
+      } else {
+        this._garage = [];
+      }
+
+      this._activeBusId = (data && data.activeBusId) || (this._garage[0] ? this._garage[0].id : null);
+      this._garageSlots = (data && data.garageSlots) || 5;
+
+      // Sync to canonical source of truth (Player) to prevent divergence
       if (player) {
+        if (this._activeBusId !== undefined && this._activeBusId !== null) {
+          player.activeBusId = this._activeBusId;
+        }
         player.garage = this._garage;
-        player.activeBusId = this._activeBusId;
         player.garageSlots = this._garageSlots;
       }
     },
