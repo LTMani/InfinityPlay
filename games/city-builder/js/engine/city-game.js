@@ -122,22 +122,38 @@
     bindInputEvents() {
       const canvas = this.renderer.canvas;
 
-      // Mouse Move
-      canvas.addEventListener('mousemove', (e) => {
+      // Mouse Down (Canvas)
+      canvas.addEventListener('mousedown', (e) => {
+        if (e.button !== 0 && e.button !== 1) return; // Left or middle click
+        const rect = canvas.getBoundingClientRect();
+        this.renderer.camera.isDragging = true;
+        this.renderer.camera.dragStartX = e.clientX - rect.left;
+        this.renderer.camera.dragStartY = e.clientY - rect.top;
+        this.renderer.camera.lastMouseX = e.clientX - rect.left;
+        this.renderer.camera.lastMouseY = e.clientY - rect.top;
+      });
+
+      // Mouse Move on Window (ensures smooth dragging even over HUDs or bottom bar)
+      window.addEventListener('mousemove', (e) => {
+        if (!this.renderer.camera.isDragging) return;
         const rect = canvas.getBoundingClientRect();
         const mx = e.clientX - rect.left;
         const my = e.clientY - rect.top;
+        const dx = mx - this.renderer.camera.lastMouseX;
+        const dy = my - this.renderer.camera.lastMouseY;
+        this.renderer.camera.x += dx;
+        this.renderer.camera.y += dy;
+        this.renderer.camera.lastMouseX = mx;
+        this.renderer.camera.lastMouseY = my;
+        this.renderer.clampCamera();
+      });
 
-        if (this.renderer.camera.isDragging) {
-          const dx = mx - this.renderer.camera.lastMouseX;
-          const dy = my - this.renderer.camera.lastMouseY;
-          this.renderer.camera.x += dx;
-          this.renderer.camera.y += dy;
-          this.renderer.camera.lastMouseX = mx;
-          this.renderer.camera.lastMouseY = my;
-          return;
-        }
-
+      // Mouse Move on Canvas (Hover & Placement Preview only when NOT dragging)
+      canvas.addEventListener('mousemove', (e) => {
+        if (this.renderer.camera.isDragging) return;
+        const rect = canvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
         const grid = this.renderer.screenToGrid(mx, my);
         this.renderer.hoverTile = grid;
 
@@ -145,16 +161,6 @@
         if (this.renderer.placementMode) {
           this.updatePlacementCoords(grid.x, grid.y);
         }
-      });
-
-      // Mouse Down
-      canvas.addEventListener('mousedown', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        this.renderer.camera.isDragging = true;
-        this.renderer.camera.dragStartX = e.clientX - rect.left;
-        this.renderer.camera.dragStartY = e.clientY - rect.top;
-        this.renderer.camera.lastMouseX = e.clientX - rect.left;
-        this.renderer.camera.lastMouseY = e.clientY - rect.top;
       });
 
       // Mouse Up / Click
@@ -173,24 +179,56 @@
         }
       });
 
-      // Zoom via Mouse Wheel
+      // Wheel Event: Smooth Trackpad Panning vs Zooming
       canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
-        const zoomDelta = e.deltaY < 0 ? 1.12 : 0.89;
-        const newZoom = Math.min(2.0, Math.max(0.45, this.renderer.camera.zoom * zoomDelta));
+
+        // While dragging the map, ignore all wheel zoom events
+        if (this.renderer.camera.isDragging) return;
 
         const rect = canvas.getBoundingClientRect();
         const mx = e.clientX - rect.left;
         const my = e.clientY - rect.top;
 
-        // Zoom towards mouse position
-        this.renderer.camera.x = mx - (mx - this.renderer.camera.x) * (newZoom / this.renderer.camera.zoom);
-        this.renderer.camera.y = my - (my - this.renderer.camera.y) * (newZoom / this.renderer.camera.zoom);
+        // Trackpad Two-Finger Pan:
+        // Modern trackpads fire wheel events without ctrlKey and with pixel-based smooth deltas.
+        // Swiping two fingers down/up should PAN the map, NOT zoom!
+        const isTrackpadPan = !e.ctrlKey && (Math.abs(e.deltaX) > 0 || (e.deltaMode === 0 && Math.abs(e.deltaY) < 35));
+
+        if (isTrackpadPan) {
+          this.renderer.camera.x -= e.deltaX;
+          this.renderer.camera.y -= e.deltaY;
+          this.renderer.clampCamera();
+          return;
+        }
+
+        // Deliberate Zoom Gestures (Pinch-to-zoom with Ctrl or discrete mouse scroll wheel)
+        let zoomFactor;
+        if (e.ctrlKey) {
+          // Trackpad pinch-to-zoom
+          zoomFactor = Math.pow(0.995, e.deltaY);
+        } else {
+          // Discrete mouse scroll wheel notches (gentle 8% steps instead of harsh jumps)
+          zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+        }
+
+        const oldZoom = this.renderer.camera.zoom;
+        const newZoom = Math.min(2.0, Math.max(0.45, oldZoom * zoomFactor));
+        if (Math.abs(newZoom - oldZoom) < 0.001) return;
+
+        // Zoom centered on cursor position
+        this.renderer.camera.x = mx - (mx - this.renderer.camera.x) * (newZoom / oldZoom);
+        this.renderer.camera.y = my - (my - this.renderer.camera.y) * (newZoom / oldZoom);
         this.renderer.camera.zoom = newZoom;
+        this.renderer.clampCamera();
       }, { passive: false });
 
-      // Touch Gestures for Mobile & Tablet
+      // Touch Gestures for Mobile, Tablet & Touchscreens
       let touchStartDist = 0;
+      let touchStartZoom = 1.0;
+      let touchMidX = 0;
+      let touchMidY = 0;
+
       canvas.addEventListener('touchstart', (e) => {
         const rect = canvas.getBoundingClientRect();
         if (e.touches.length === 1) {
@@ -202,15 +240,19 @@
           this.renderer.camera.lastMouseY = t.clientY - rect.top;
         } else if (e.touches.length === 2) {
           this.renderer.camera.isDragging = false;
-          touchStartDist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          );
+          const t0 = e.touches[0];
+          const t1 = e.touches[1];
+          touchStartDist = Math.hypot(t0.clientX - t1.clientX, t0.clientY - t1.clientY);
+          touchStartZoom = this.renderer.camera.zoom;
+          touchMidX = ((t0.clientX + t1.clientX) / 2) - rect.left;
+          touchMidY = ((t0.clientY + t1.clientY) / 2) - rect.top;
         }
-      });
+      }, { passive: false });
 
       canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
         const rect = canvas.getBoundingClientRect();
+
         if (e.touches.length === 1 && this.renderer.camera.isDragging) {
           const t = e.touches[0];
           const mx = t.clientX - rect.left;
@@ -221,28 +263,42 @@
           this.renderer.camera.y += dy;
           this.renderer.camera.lastMouseX = mx;
           this.renderer.camera.lastMouseY = my;
+          this.renderer.clampCamera();
 
           const grid = this.renderer.screenToGrid(mx, my);
           this.renderer.hoverTile = grid;
           if (this.renderer.placementMode) {
             this.updatePlacementCoords(grid.x, grid.y);
           }
-        } else if (e.touches.length === 2) {
-          const dist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          );
-          if (touchStartDist > 0) {
-            const factor = dist / touchStartDist;
-            this.renderer.camera.zoom = Math.min(2.0, Math.max(0.45, this.renderer.camera.zoom * factor));
-            touchStartDist = dist;
+        } else if (e.touches.length === 2 && touchStartDist > 0) {
+          const t0 = e.touches[0];
+          const t1 = e.touches[1];
+          const dist = Math.hypot(t0.clientX - t1.clientX, t0.clientY - t1.clientY);
+          const ratio = dist / touchStartDist;
+          const newZoom = Math.min(2.0, Math.max(0.45, touchStartZoom * ratio));
+          const oldZoom = this.renderer.camera.zoom;
+
+          if (Math.abs(newZoom - oldZoom) > 0.001) {
+            this.renderer.camera.x = touchMidX - (touchMidX - this.renderer.camera.x) * (newZoom / oldZoom);
+            this.renderer.camera.y = touchMidY - (touchMidY - this.renderer.camera.y) * (newZoom / oldZoom);
+            this.renderer.camera.zoom = newZoom;
+            this.renderer.clampCamera();
           }
         }
-      }, { passive: true });
+      }, { passive: false });
 
       canvas.addEventListener('touchend', (e) => {
         if (e.touches.length === 0) {
           this.renderer.camera.isDragging = false;
+          touchStartDist = 0;
+        } else if (e.touches.length === 1) {
+          // One finger remains: transition smoothly to single-finger drag
+          const rect = canvas.getBoundingClientRect();
+          const t = e.touches[0];
+          this.renderer.camera.isDragging = true;
+          this.renderer.camera.lastMouseX = t.clientX - rect.left;
+          this.renderer.camera.lastMouseY = t.clientY - rect.top;
+          touchStartDist = 0;
         }
       });
 

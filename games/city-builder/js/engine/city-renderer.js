@@ -97,13 +97,13 @@
 
     clampCamera() {
       const size = this.config.GRID_SIZE || 20;
-      const maxDist = size * this.tileW * 0.9;
+      const maxDist = size * this.tileW * 1.15;
 
       const worldCenterX = (this.viewWidth / 2 - this.camera.x) / this.camera.zoom;
       const worldCenterY = (this.viewHeight / 2 - this.camera.y) / this.camera.zoom;
 
       const clampedX = Math.max(-maxDist, Math.min(maxDist, worldCenterX));
-      const clampedY = Math.max(-200, Math.min(size * this.tileH + 300, worldCenterY));
+      const clampedY = Math.max(-450, Math.min(size * this.tileH + 450, worldCenterY));
 
       this.camera.x = this.viewWidth / 2 - clampedX * this.camera.zoom;
       this.camera.y = this.viewHeight / 2 - clampedY * this.camera.zoom;
