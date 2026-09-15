@@ -1,0 +1,103 @@
+<svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="topHwSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0b132b"/>
+      <stop offset="40%" style="stop-color:#1c2541"/>
+      <stop offset="75%" style="stop-color:#3a506b"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="topRoadGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1e293b"/>
+      <stop offset="50%" style="stop-color:#334155"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
+    </linearGradient>
+    <linearGradient id="topCanopyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#d97706"/>
+    </linearGradient>
+    <filter id="topHwGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Sky & Horizon -->
+  <rect width="480" height="270" fill="url(#topHwSky)"/>
+  
+  <!-- Ocean Horizon & Sun Glow -->
+  <circle cx="370" cy="120" r="42" fill="#fbbf24" opacity="0.6" filter="url(#topHwGlow)"/>
+  <rect x="0" y="140" width="480" height="30" fill="#0284c7" opacity="0.35"/>
+
+  <!-- Mountain Silhouettes -->
+  <polygon points="0,150 90,110 180,145 280,115 380,148 480,130 480,270 0,270" fill="#0f172a" opacity="0.8"/>
+
+  <!-- Multilane Highway Perspective Ribbon -->
+  <path d="M-60 270 L210 148 L250 148 L420 270 Z" fill="url(#topRoadGrad)"/>
+  <!-- Road White Edge Lines -->
+  <line x1="-60" y1="270" x2="210" y2="148" stroke="#f8fafc" stroke-width="3" opacity="0.8"/>
+  <line x1="420" y1="270" x2="250" y2="148" stroke="#f8fafc" stroke-width="3" opacity="0.8"/>
+  <!-- Yellow Dashed Centerlines -->
+  <line x1="180" y1="270" x2="230" y2="148" stroke="#fbbf24" stroke-width="3" stroke-dasharray="14 10"/>
+
+  <!-- Off-ramp Curve into Oasis Plaza -->
+  <path d="M235 160 Q290 180 340 270" fill="none" stroke="#475569" stroke-width="16" stroke-linecap="round"/>
+  
+  <!-- Travel Plaza Canopy & Buildings -->
+  <g transform="translate(290, 160)">
+    <!-- Columns -->
+    <rect x="12" y="15" width="4" height="32" fill="#94a3b8"/>
+    <rect x="56" y="15" width="4" height="32" fill="#94a3b8"/>
+    <!-- Yellow Canopy Roof -->
+    <polygon points="0,18 72,9 78,15 6,24" fill="url(#topCanopyGrad)" filter="url(#topHwGlow)"/>
+    <rect x="6" y="18" width="66" height="6" fill="#fbbf24"/>
+    <!-- Fuel Dispensers -->
+    <rect x="22" y="30" width="9" height="17" fill="#dc2626" rx="1"/>
+    <rect x="42" y="30" width="9" height="17" fill="#16a34a" rx="1"/>
+  </g>
+
+  <!-- QuickMart Store & Motel -->
+  <g transform="translate(365, 145)">
+    <rect x="0" y="18" width="60" height="38" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+    <rect x="6" y="30" width="48" height="24" fill="#38bdf8" opacity="0.4"/>
+    <rect x="9" y="12" width="42" height="7" fill="#06b6d4" filter="url(#topHwGlow)"/>
+  </g>
+
+  <!-- High-Speed Supercar on Highway -->
+  <g transform="translate(68, 190) scale(1.1)">
+    <path d="M0 16 L12 4 L48 4 L64 12 L72 16 L72 26 L-4 26 Z" fill="#3b82f6"/>
+    <path d="M14 6 L44 6 L40 14 L8 14 Z" fill="#93c5fd" opacity="0.85"/>
+    <circle cx="12" cy="27" r="8" fill="#0f172a" stroke="#cbd5e1" stroke-width="2"/>
+    <circle cx="56" cy="27" r="8" fill="#0f172a" stroke="#cbd5e1" stroke-width="2"/>
+    <ellipse cx="68" cy="18" rx="4" ry="2.5" fill="#fef08a" filter="url(#topHwGlow)"/>
+    <!-- Headlight Beam -->
+    <polygon points="72,18 160,10 160,38 72,24" fill="#fef08a" opacity="0.25"/>
+  </g>
+
+  <!-- Commercial Freight Truck -->
+  <g transform="translate(195, 215) scale(0.95)">
+    <rect x="0" y="0" width="65" height="32" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+    <path d="M65 8 L82 8 L88 18 L88 32 L65 32 Z" fill="#dc2626"/>
+    <circle cx="15" cy="34" r="6" fill="#0f172a"/>
+    <circle cx="32" cy="34" r="6" fill="#0f172a"/>
+    <circle cx="75" cy="34" r="6" fill="#0f172a"/>
+  </g>
+
+  <!-- Interstate 66 Route Shield Badge -->
+  <g transform="translate(28, 22)">
+    <path d="M0 9 C0 3 4 0 10 0 L36 0 C42 0 46 3 46 9 L46 24 C46 39 23 48 23 48 C23 48 0 39 0 24 Z" fill="#1d4ed8" stroke="#ffffff" stroke-width="2" filter="url(#topHwGlow)"/>
+    <path d="M3 7 C3 3 6 1 10 1 L36 1 C40 1 43 3 43 7 L43 15 L3 15 Z" fill="#dc2626"/>
+    <text x="23" y="12" font-family="'Impact', 'Arial Black', sans-serif" font-size="8" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">INTERSTATE</text>
+    <text x="23" y="36" font-family="'Impact', 'Arial Black', sans-serif" font-size="20" font-weight="900" fill="#ffffff" text-anchor="middle">66</text>
+  </g>
+
+  <!-- Game Title Badge -->
+  <g transform="translate(240, 246)">
+    <rect x="-140" y="-18" width="280" height="28" rx="8" fill="#020617" opacity="0.9" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="0" y="2" font-family="'Chakra Petch', 'Inter', sans-serif" font-size="16" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="0.1em">
+      HIGHWAY <tspan fill="#fbbf24">OASIS TYCOON</tspan>
+    </text>
+  </g>
+</svg>

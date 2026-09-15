@@ -1,7 +1,10 @@
-﻿# OS metadata
+# OS metadata
 .DS_Store
 Thumbs.db
 desktop.ini
 
 # Temporary logs
 *.log
+
+# Dependencies
+node_modules/
