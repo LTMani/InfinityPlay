@@ -9,13 +9,18 @@
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="../../assets/games/thumb_railway_commander.svg">
 
+  <!-- Cache Control (Prevent stale browser caches) -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700;800;900&family=Orbitron:wght@700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
   <!-- Game Stylesheet -->
-  <link rel="stylesheet" href="styles/game.css">
+  <link rel="stylesheet" href="styles/game.css?v=2.5.0">
 </head>
 <body>
 
@@ -266,14 +271,14 @@
   <section class="overlay-screen" id="screenBriefing">
     <div class="modal-card">
       <div class="card-brand-badge">MISSION BRIEFING</div>
-      <h2 class="card-title" id="briefingTitle">MISSION 1: Training Run</h2>
-      <p class="card-subtitle" id="briefingTagline">Master train controls & safe station stopping</p>
+      <h2 class="card-title" id="briefingTitle">MISSION 1: Arakkonam Express</h2>
+      <p class="card-subtitle" id="briefingTagline">Drive the WAP-7 Rajdhani Express to Arakkonam Junction</p>
 
       <div class="briefing-details">
-        <div><span class="meta-lbl">ROUTE:</span> <strong id="briefingRoute">Central Depot → Riverside Junction</strong></div>
-        <div><span class="meta-lbl">DISTANCE:</span> <strong id="briefingDistance">1.8 km</strong></div>
-        <div><span class="meta-lbl">SPEED LIMIT:</span> <strong id="briefingSpeedLimit">60 km/h</strong></div>
-        <div><span class="meta-lbl">OBJECTIVE:</span> <p id="briefingObjective" style="font-size: 0.8rem; margin-top: 2px;">Learn controls and arrive safely.</p></div>
+        <div><span class="meta-lbl">ROUTE:</span> <strong id="briefingRoute">Chennai Central → Arakkonam Junction</strong></div>
+        <div><span class="meta-lbl">DISTANCE:</span> <strong id="briefingDistance">2.4 km</strong></div>
+        <div><span class="meta-lbl">SPEED LIMIT:</span> <strong id="briefingSpeedLimit">80 km/h</strong></div>
+        <div><span class="meta-lbl">OBJECTIVE:</span> <p id="briefingObjective" style="font-size: 0.8rem; margin-top: 2px;">Master 25kV OHE electric traction, follow multi-aspect color signals, and dock at Platform 1.</p></div>
       </div>
 
       <div>
@@ -452,6 +457,6 @@
   </section>
 
   <!-- Standalone Game Bootstrap (Works on both HTTP servers and direct file:// protocol) -->
-  <script src="dist/game.bundle.js"></script>
+  <script src="dist/game.bundle.js?v=2.5.0"></script>
 </body>
 </html>
