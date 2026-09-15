@@ -238,7 +238,8 @@
 
       const iframe = document.getElementById('gameFrameIframe');
       if (iframe) {
-        iframe.src = game.gameUrl;
+        const cacheBuster = (game.gameUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
+        iframe.src = game.gameUrl + cacheBuster;
       }
 
       const titleEl = overlay.querySelector('.game-frame-title span:last-child');

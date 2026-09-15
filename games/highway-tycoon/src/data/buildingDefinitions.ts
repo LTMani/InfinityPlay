@@ -1,0 +1,218 @@
+import { BuildingDefinition } from '../types';
+
+export const BUILDING_DEFINITIONS: Record<string, BuildingDefinition> = {
+  // --- ROADS & INFRASTRUCTURE ---
+  DRIVEWAY: {
+    id: 'DRIVEWAY',
+    type: 'DRIVEWAY',
+    name: 'Asphalt Driveway',
+    category: 'INFRASTRUCTURE',
+    cost: 50,
+    dailyUpkeep: 1,
+    width: 1,
+    height: 1,
+    description: 'Paved access route for vehicles entering and moving inside the rest stop.',
+    unlockLevel: 1,
+    color: '#334155',
+    secondaryColor: '#64748b'
+  },
+  PARKING_CAR: {
+    id: 'PARKING_CAR',
+    type: 'PARKING_CAR',
+    name: 'Standard Parking Bay',
+    category: 'INFRASTRUCTURE',
+    cost: 120,
+    dailyUpkeep: 2,
+    width: 1,
+    height: 1,
+    description: 'Designated parking bay for standard sedans, SUVs, and passenger cars.',
+    unlockLevel: 1,
+    color: '#1e293b',
+    secondaryColor: '#facc15'
+  },
+  PARKING_TRUCK: {
+    id: 'PARKING_TRUCK',
+    type: 'PARKING_TRUCK',
+    name: 'Semi-Truck Long Bay',
+    category: 'INFRASTRUCTURE',
+    cost: 250,
+    dailyUpkeep: 5,
+    width: 2,
+    height: 1,
+    description: 'Oversized reinforced parking spot designed for 18-wheelers and tour buses.',
+    unlockLevel: 1,
+    color: '#1e293b',
+    secondaryColor: '#38bdf8'
+  },
+
+  // --- PETROL & ENERGY ---
+  PUMP_ISLAND: {
+    id: 'PUMP_ISLAND',
+    type: 'PUMP_ISLAND',
+    name: 'Dual Fuel Dispenser',
+    category: 'PETROL',
+    cost: 2500,
+    dailyUpkeep: 25,
+    width: 2,
+    height: 1,
+    description: 'High-speed dual dispenser supplying Regular 87 and Premium 93 octane fuels.',
+    unlockLevel: 1,
+    color: '#f59e0b',
+    secondaryColor: '#ef4444',
+    capacity: 2
+  },
+  DIESEL_ISLAND: {
+    id: 'DIESEL_ISLAND',
+    type: 'PUMP_ISLAND',
+    name: 'Ultra High-Flow Diesel',
+    category: 'PETROL',
+    cost: 4500,
+    dailyUpkeep: 40,
+    width: 2,
+    height: 2,
+    description: 'Heavy-duty commercial diesel pump with satellite nozzle for commercial freight trucks.',
+    unlockLevel: 2,
+    color: '#10b981',
+    secondaryColor: '#059669',
+    capacity: 2
+  },
+  EV_STATION: {
+    id: 'EV_STATION',
+    type: 'EV_STATION',
+    name: '350kW DC Fast Supercharger',
+    category: 'PETROL',
+    cost: 3800,
+    dailyUpkeep: 30,
+    width: 1,
+    height: 1,
+    description: 'Ultra-fast electric vehicle charger attracting high-net-worth EV travelers.',
+    unlockLevel: 2,
+    color: '#06b6d4',
+    secondaryColor: '#38bdf8',
+    capacity: 1
+  },
+
+  // --- SLEEP & HOSPITALITY ---
+  MOTEL_ROOM: {
+    id: 'MOTEL_ROOM',
+    type: 'MOTEL_ROOM',
+    name: 'Classic Motel Suite',
+    category: 'HOSPITALITY',
+    cost: 5000,
+    dailyUpkeep: 35,
+    width: 2,
+    height: 2,
+    description: 'Comfortable air-conditioned motel room for weary roadtrippers and family travelers.',
+    unlockLevel: 1,
+    color: '#8b5cf6',
+    secondaryColor: '#c084fc',
+    capacity: 1
+  },
+  MOTEL_CABIN: {
+    id: 'MOTEL_CABIN',
+    type: 'MOTEL_CABIN',
+    name: 'Soundproof Trucker Cabin',
+    category: 'HOSPITALITY',
+    cost: 3500,
+    dailyUpkeep: 20,
+    width: 1,
+    height: 2,
+    description: 'Acoustically isolated private sleeper pod with blackout blinds and heavy-duty mattress.',
+    unlockLevel: 1,
+    color: '#6366f1',
+    secondaryColor: '#818cf8',
+    capacity: 1
+  },
+
+  // --- COMMERCIAL SERVICES ---
+  CONVENIENCE_STORE: {
+    id: 'CONVENIENCE_STORE',
+    type: 'CONVENIENCE_STORE',
+    name: '24/7 Oasis Mart',
+    category: 'COMMERCIAL',
+    cost: 6000,
+    dailyUpkeep: 50,
+    width: 3,
+    height: 2,
+    description: 'Snacks, hot coffee bar, energy drinks, lottery tickets, and car accessories.',
+    unlockLevel: 1,
+    color: '#10b981',
+    secondaryColor: '#34d399',
+    capacity: 8
+  },
+  DINER: {
+    id: 'DINER',
+    type: 'DINER',
+    name: 'Route Highway Diner',
+    category: 'COMMERCIAL',
+    cost: 9500,
+    dailyUpkeep: 80,
+    width: 3,
+    height: 3,
+    description: 'Iconic chrome diner serving hot burgers, pancake stacks, and bottomless black coffee.',
+    unlockLevel: 2,
+    color: '#ef4444',
+    secondaryColor: '#f87171',
+    capacity: 12
+  },
+  CAR_WASH: {
+    id: 'CAR_WASH',
+    type: 'CAR_WASH',
+    name: 'Express Tunnel Car Wash',
+    category: 'COMMERCIAL',
+    cost: 7200,
+    dailyUpkeep: 60,
+    width: 2,
+    height: 3,
+    description: 'Touchless automated wash tunnel that leaves highway grime behind.',
+    unlockLevel: 3,
+    color: '#0284c7',
+    secondaryColor: '#38bdf8',
+    capacity: 2
+  },
+  RESTROOM: {
+    id: 'RESTROOM',
+    type: 'RESTROOM',
+    name: 'Sanitary Restroom Facility',
+    category: 'COMMERCIAL',
+    cost: 1800,
+    dailyUpkeep: 15,
+    width: 1,
+    height: 1,
+    description: 'Essential high-volume restrooms. Keeping these clean is crucial for your reputation rating!',
+    unlockLevel: 1,
+    color: '#059669',
+    secondaryColor: '#6ee7b7',
+    capacity: 4
+  },
+
+  // --- DECOR & ATTRACTIONS ---
+  BILLBOARD: {
+    id: 'BILLBOARD',
+    type: 'BILLBOARD',
+    name: 'Neon Highway Megaboard',
+    category: 'DECOR',
+    cost: 3000,
+    dailyUpkeep: 25,
+    width: 1,
+    height: 1,
+    description: 'Illuminated billboard visible from 5 miles out, boosting customer highway turn-in rate by +25%.',
+    unlockLevel: 1,
+    color: '#ec4899',
+    secondaryColor: '#f43f5e'
+  },
+  TREE: {
+    id: 'TREE',
+    type: 'TREE',
+    name: 'Landscaped Oasis Palms',
+    category: 'DECOR',
+    cost: 150,
+    dailyUpkeep: 2,
+    width: 1,
+    height: 1,
+    description: 'Pleasant shade trees improving overall customer satisfaction and park ambiance.',
+    unlockLevel: 1,
+    color: '#15803d',
+    secondaryColor: '#22c55e'
+  }
+};

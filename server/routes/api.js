@@ -3,7 +3,12 @@
  */
 
 const store = require('../data/store');
+const ChessManager = require('../chess/chess-manager');
+const ChessSocketServer = require('../chess/chess-socket-server');
 const CityBuilderManager = require('../city-builder/city-builder-manager');
+
+const chessManager = new ChessManager(store);
+const chessSocketServer = new ChessSocketServer(chessManager);
 const cityBuilderManager = new CityBuilderManager(store);
 
 function sendJSON(res, data, statusCode = 200) {
@@ -167,6 +172,143 @@ async function handleAPIRoute(req, res) {
   }
 
   // ==========================================
+  // CHESS GAME ENDPOINTS
+  // ==========================================
+
+  // GET /api/chess/leaderboard
+  if (pathname === '/api/chess/leaderboard' && method === 'GET') {
+    const lb = (store.getChessLeaderboard && store.getChessLeaderboard()) || [
+      { rank: 1, name: 'Magnus C.', elo: 2850, wins: 142, losses: 12 },
+      { rank: 2, name: 'Hikaru N.', elo: 2810, wins: 135, losses: 18 },
+      { rank: 3, name: 'Grandmaster AI', elo: 2750, wins: 120, losses: 25 },
+      { rank: 4, name: 'Tharun (You)', elo: 1650, wins: 28, losses: 14 }
+    ];
+    return sendJSON(res, { leaderboard: lb });
+  }
+
+  // GET /api/chess/history
+  if (pathname === '/api/chess/history' && method === 'GET') {
+    const hist = (store.getChessHistory && store.getChessHistory(query.userId)) || [];
+    return sendJSON(res, { history: hist });
+  }
+
+  // GET /api/chess/stats
+  if (pathname === '/api/chess/stats' && method === 'GET') {
+    const stats = (store.getChessStats && store.getChessStats(query.userId)) || { elo: 1650, gamesPlayed: 42, wins: 28, losses: 14, draws: 0, totalGames: 42 };
+    return sendJSON(res, { stats });
+  }
+
+  // POST /api/chess/rooms/create
+  if (pathname === '/api/chess/rooms/create' && method === 'POST') {
+    const body = await parseBody(req);
+    const result = chessManager.createRoom({
+      isPrivate: body.isPrivate !== false,
+      timeControlKey: body.timeControlKey || 'rapid_10',
+      preferredColor: body.preferredColor || 'random',
+      hostUser: body.user
+    });
+    return sendJSON(res, {
+      success: true,
+      roomId: result.room.id,
+      color: result.hostColor,
+      sessionToken: result.sessionToken,
+      room: chessManager.sanitizeRoom(result.room)
+    });
+  }
+
+  // POST /api/chess/rooms/join
+  if (pathname === '/api/chess/rooms/join' && method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.roomId) {
+      return sendJSON(res, { error: 'Missing roomId' }, 400);
+    }
+    const result = chessManager.joinRoom(body.roomId.toUpperCase().trim(), body.user, body.asSpectator);
+    if (result.error) {
+      return sendJSON(res, { error: result.error }, 400);
+    }
+    return sendJSON(res, {
+      success: true,
+      roomId: result.room.id,
+      color: result.color,
+      sessionToken: result.sessionToken,
+      room: chessManager.sanitizeRoom(result.room)
+    });
+  }
+
+  // GET /api/chess/rooms/:code
+  const roomMatch = pathname.match(/^\/api\/chess\/rooms\/([a-zA-Z0-9_-]+)$/);
+  if (roomMatch && method === 'GET') {
+    const code = roomMatch[1].toUpperCase();
+    const room = chessManager.getRoom(code);
+    if (!room) {
+      return sendJSON(res, { error: 'Chess room not found' }, 404);
+    }
+    return sendJSON(res, { room });
+  }
+
+  // POST /api/chess/matchmaking
+  if (pathname === '/api/chess/matchmaking' && method === 'POST') {
+    const body = await parseBody(req);
+    const result = await chessManager.joinMatchmaking(body.timeControlKey || 'rapid_10', body.user);
+    return sendJSON(res, result);
+  }
+
+  // POST /api/chess/matchmaking/cancel
+  if (pathname === '/api/chess/matchmaking/cancel' && method === 'POST') {
+    const body = await parseBody(req);
+    const success = chessManager.cancelMatchmaking(body.timeControlKey, body.userId);
+    return sendJSON(res, { success });
+  }
+
+  // GET /api/chess/stream/:code (SSE Fallback)
+  const streamMatch = pathname.match(/^\/api\/chess\/stream\/([a-zA-Z0-9_-]+)$/);
+  if (streamMatch && method === 'GET') {
+    const code = streamMatch[1].toUpperCase();
+    const sessionToken = query.token;
+    return chessSocketServer.handleSSEStream(req, res, code, sessionToken);
+  }
+
+  // POST /api/chess/action (REST fallback for move/chat/draw/resign/rematch)
+  if (pathname === '/api/chess/action' && method === 'POST') {
+    const body = await parseBody(req);
+    const { action, roomId, sessionToken } = body;
+    if (!roomId || !sessionToken) {
+      return sendJSON(res, { error: 'Missing roomId or sessionToken' }, 400);
+    }
+
+    if (action === 'move') {
+      const result = chessManager.makeMove(roomId, sessionToken, body.move);
+      return sendJSON(res, result);
+    }
+    if (action === 'resign') {
+      const result = chessManager.resignGame(roomId, sessionToken);
+      return sendJSON(res, result);
+    }
+    if (action === 'offer_draw') {
+      const result = chessManager.offerDraw(roomId, sessionToken);
+      return sendJSON(res, result);
+    }
+    if (action === 'respond_draw') {
+      const result = chessManager.respondDraw(roomId, sessionToken, body.accept);
+      return sendJSON(res, result);
+    }
+    if (action === 'rematch') {
+      const result = chessManager.requestRematch(roomId, sessionToken);
+      return sendJSON(res, result);
+    }
+    if (action === 'chat') {
+      const result = chessManager.sendChat(roomId, sessionToken, body.message, body.emoji);
+      return sendJSON(res, result);
+    }
+    if (action === 'reconnect') {
+      const result = chessManager.handleReconnect(sessionToken);
+      return sendJSON(res, result);
+    }
+
+    return sendJSON(res, { error: `Unknown chess action ${action}` }, 400);
+  }
+
+  // ==========================================
   // CITY BUILDER API ROUTES
   // ==========================================
   if (pathname.startsWith('/api/city-builder/')) {
@@ -265,4 +407,4 @@ async function handleAPIRoute(req, res) {
   return sendJSON(res, { error: 'API endpoint not found', path: pathname }, 404);
 }
 
-module.exports = { handleAPIRoute };
+module.exports = { handleAPIRoute, chessManager, chessSocketServer, cityBuilderManager };

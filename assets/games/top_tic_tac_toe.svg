@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGlowTop" cx="50%" cy="40%" r="75%">
+      <stop offset="0%" stop-color="#1b2033"/>
+      <stop offset="50%" stop-color="#0b0e17"/>
+      <stop offset="100%" stop-color="#040508"/>
+    </radialGradient>
+
+    <!-- Glowing Filters -->
+    <filter id="glowCyanTop" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="glowGoldTop" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="cardShadowTop" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.85"/>
+    </filter>
+
+    <!-- Gradients -->
+    <linearGradient id="boardGradTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#242b3d"/>
+      <stop offset="50%" stop-color="#141824"/>
+      <stop offset="100%" stop-color="#0a0d14"/>
+    </linearGradient>
+
+    <linearGradient id="xGradTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="30%" stop-color="#38bdf8"/>
+      <stop offset="70%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0c4a6e"/>
+    </linearGradient>
+
+    <linearGradient id="oGradTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="30%" stop-color="#fbbf24"/>
+      <stop offset="70%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+
+    <linearGradient id="laserBeam" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#bgGlowTop)"/>
+
+  <!-- Ambient Light Beam -->
+  <ellipse cx="400" cy="180" rx="350" ry="120" fill="#00f0ff" opacity="0.06"/>
+  <ellipse cx="400" cy="220" rx="280" ry="80" fill="#f59e0b" opacity="0.04"/>
+
+  <!-- 3D Board Plinth -->
+  <g filter="url(#cardShadowTop)" transform="translate(250, 60)">
+    <!-- Base Plate -->
+    <rect x="0" y="0" width="300" height="300" rx="24" fill="url(#boardGradTop)" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+    <rect x="8" y="8" width="284" height="284" rx="18" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="2"/>
+
+    <!-- Inner Cells Grid (3x3, cell size 78, gap 12, offset 21) -->
+    <!-- Row 0 -->
+    <rect x="21" y="21" width="78" height="78" rx="14" fill="#0c0e15" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+    <rect x="111" y="21" width="78" height="78" rx="14" fill="#0c0e15" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+    <rect x="201" y="21" width="78" height="78" rx="14" fill="#0c0e15" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+
+    <!-- Row 1 -->
+    <rect x="21" y="111" width="78" height="78" rx="14" fill="#0c0e15" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+    <rect x="111" y="111" width="78" height="78" rx="14" fill="#0c0e15" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+    <rect x="201" y="111" width="78" height="78" rx="14" fill="#0c0e15" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+
+    <!-- Row 2 -->
+    <rect x="21" y="201" width="78" height="78" rx="14" fill="#0c0e15" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+    <rect x="111" y="201" width="78" height="78" rx="14" fill="#0c0e15" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+    <rect x="201" y="201" width="78" height="78" rx="14" fill="#0c0e15" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+
+    <!-- Piece: X at (0,0) [21,21] -->
+    <g filter="url(#glowCyanTop)" transform="translate(32, 32)">
+      <line x1="12" y1="12" x2="44" y2="44" stroke="url(#xGradTop)" stroke-width="10" stroke-linecap="round"/>
+      <line x1="44" y1="12" x2="12" y2="44" stroke="url(#xGradTop)" stroke-width="10" stroke-linecap="round"/>
+      <line x1="14" y1="14" x2="42" y2="42" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+    </g>
+
+    <!-- Piece: O at (1,1) [111,111] -->
+    <g filter="url(#glowGoldTop)" transform="translate(122, 122)">
+      <circle cx="28" cy="28" r="22" fill="none" stroke="url(#oGradTop)" stroke-width="10"/>
+      <circle cx="28" cy="28" r="25" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.7"/>
+    </g>
+
+    <!-- Piece: X at (2,0) [201,21] -->
+    <g filter="url(#glowCyanTop)" transform="translate(212, 32)">
+      <line x1="12" y1="12" x2="44" y2="44" stroke="url(#xGradTop)" stroke-width="10" stroke-linecap="round"/>
+      <line x1="44" y1="12" x2="12" y2="44" stroke="url(#xGradTop)" stroke-width="10" stroke-linecap="round"/>
+      <line x1="14" y1="14" x2="42" y2="42" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+    </g>
+
+    <!-- Piece: X at (2,2) [201,201] -->
+    <g filter="url(#glowCyanTop)" transform="translate(212, 212)">
+      <line x1="12" y1="12" x2="44" y2="44" stroke="url(#xGradTop)" stroke-width="10" stroke-linecap="round"/>
+      <line x1="44" y1="12" x2="12" y2="44" stroke="url(#xGradTop)" stroke-width="10" stroke-linecap="round"/>
+      <line x1="14" y1="14" x2="42" y2="42" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+    </g>
+
+    <!-- Piece: O at (0,2) [21,201] -->
+    <g filter="url(#glowGoldTop)" transform="translate(32, 212)">
+      <circle cx="28" cy="28" r="22" fill="none" stroke="url(#oGradTop)" stroke-width="10"/>
+    </g>
+
+    <!-- Winning Line traversing right column -->
+    <line x1="240" y1="36" x2="240" y2="264" stroke="url(#laserBeam)" stroke-width="6" stroke-linecap="round" filter="url(#glowCyanTop)"/>
+    <circle cx="240" cy="36" r="6" fill="#ffffff" filter="url(#glowCyanTop)"/>
+    <circle cx="240" cy="150" r="6" fill="#ffffff" filter="url(#glowCyanTop)"/>
+    <circle cx="240" cy="264" r="6" fill="#ffffff" filter="url(#glowCyanTop)"/>
+  </g>
+
+  <!-- Typography & Badges -->
+  <g transform="translate(400, 410)">
+    <rect x="-180" y="-30" width="360" height="48" rx="24" fill="rgba(15,23,42,0.85)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+    <text x="0" y="0" font-family="'Inter', -apple-system, sans-serif" font-size="20" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="0.1em">TIC-TAC-TOE</text>
+    <text x="0" y="14" font-family="'Inter', -apple-system, sans-serif" font-size="10" font-weight="700" fill="#38bdf8" text-anchor="middle" letter-spacing="0.25em">ULTIMATE ARENA</text>
+  </g>
+
+  <!-- Tags badge row -->
+  <g transform="translate(400, 470)">
+    <text x="0" y="0" font-family="'Inter', -apple-system, sans-serif" font-size="12" font-weight="600" fill="#64748b" text-anchor="middle" letter-spacing="0.05em">MINIMAX AI • 10 LEVELS • REALISTIC TABLETOP • LOCAL 2P</text>
+  </g>
+</svg>
+

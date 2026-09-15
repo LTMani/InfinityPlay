@@ -58,7 +58,7 @@ function serveStaticFile(req, res, pathname) {
 
     res.writeHead(200, {
       'Content-Type': contentType,
-      'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=86400'
+      'Cache-Control': 'no-cache, must-revalidate'
     });
 
     const stream = fs.createReadStream(filePath);
