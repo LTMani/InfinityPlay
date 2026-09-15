@@ -16,7 +16,7 @@ class CityBuilderManager {
    */
   getCity(userId, userName = 'Mayor') {
     let city = this.store.getCitySave(userId);
-    if (!city || !city.version || city.version < 2) {
+    if (!city || !city.version || city.version < 2 || !city.resources || city.resources.elixir === undefined) {
       city = CityConfig.createStarterCity(userId, userName);
       this.store.saveCitySave(userId, city);
     }
@@ -77,8 +77,9 @@ class CityBuilderManager {
       city.trainingQueue = remainingQueue;
     }
 
-    // 3. Compute dynamic storage caps based on Treasury and Storage buildings
+    // 3. Compute dynamic storage caps based on Treasury, Elixir Storage, and general Storage buildings
     let goldCap = CityConfig.RESOURCES.gold.baseStorage;
+    let elixirCap = (CityConfig.RESOURCES.elixir && CityConfig.RESOURCES.elixir.baseStorage) || 5000;
     let woodCap = CityConfig.RESOURCES.wood.baseStorage;
     let stoneCap = CityConfig.RESOURCES.stone.baseStorage;
     let foodCap = CityConfig.RESOURCES.food.baseStorage;
@@ -91,7 +92,10 @@ class CityBuilderManager {
 
       if (bld.type === 'treasury' && levelData.goldCap) {
         goldCap += levelData.goldCap;
+      } else if (bld.type === 'elixir_storage' && levelData.elixirCap) {
+        elixirCap += levelData.elixirCap;
       } else if (bld.type === 'storage' && levelData.resourceCap) {
+        elixirCap += levelData.resourceCap;
         woodCap += levelData.resourceCap;
         stoneCap += levelData.resourceCap;
         foodCap += levelData.resourceCap;
@@ -101,6 +105,7 @@ class CityBuilderManager {
     // Check tech: polymer masonry (+25% storage cap)
     if (city.unlockedTechs && city.unlockedTechs.includes('reinforced_masonry')) {
       goldCap = Math.floor(goldCap * 1.25);
+      elixirCap = Math.floor(elixirCap * 1.25);
       woodCap = Math.floor(woodCap * 1.25);
       stoneCap = Math.floor(stoneCap * 1.25);
       foodCap = Math.floor(foodCap * 1.25);
@@ -108,6 +113,7 @@ class CityBuilderManager {
 
     city.storageCaps = {
       gold: goldCap,
+      elixir: elixirCap,
       wood: woodCap,
       stone: stoneCap,
       food: foodCap,
@@ -116,6 +122,7 @@ class CityBuilderManager {
 
     // 4. Compute dynamic production rates per minute
     let goldRate = 0;
+    let elixirRate = 0;
     let woodRate = 0;
     let stoneRate = 0;
     let foodRate = 0;
@@ -132,6 +139,9 @@ class CityBuilderManager {
       if (bld.type === 'gold_mine' && city.unlockedTechs && city.unlockedTechs.includes('deep_mining')) {
         bldRate *= 1.20;
       }
+      if (bld.type === 'elixir_collector') {
+        bldRate *= 1.20;
+      }
       if (bld.type === 'lumber_yard' && city.unlockedTechs && city.unlockedTechs.includes('sawmill_steam')) {
         bldRate *= 1.20;
       }
@@ -143,6 +153,7 @@ class CityBuilderManager {
       }
 
       if (bld.type === 'gold_mine') goldRate += bldRate;
+      else if (bld.type === 'elixir_collector') elixirRate += bldRate;
       else if (bld.type === 'lumber_yard') woodRate += bldRate;
       else if (bld.type === 'stone_quarry') stoneRate += bldRate;
       else if (bld.type === 'farm') foodRate += bldRate;
@@ -152,21 +163,24 @@ class CityBuilderManager {
     const cityHall = (city.buildings || []).find(b => b.type === 'city_hall');
     if (cityHall && cityHall.level >= 4) {
       goldRate *= 1.15;
+      elixirRate *= 1.15;
       woodRate *= 1.15;
       stoneRate *= 1.15;
       foodRate *= 1.15;
     }
 
     // 5. Calculate accumulated resources over elapsed seconds
-    let earned = { gold: 0, wood: 0, stone: 0, food: 0 };
+    let earned = { gold: 0, elixir: 0, wood: 0, stone: 0, food: 0 };
     if (elapsedSeconds > 0) {
       const minutes = elapsedSeconds / 60;
       earned.gold = Math.floor(goldRate * minutes);
+      earned.elixir = Math.floor(elixirRate * minutes);
       earned.wood = Math.floor(woodRate * minutes);
       earned.stone = Math.floor(stoneRate * minutes);
       earned.food = Math.floor(foodRate * minutes);
 
       city.resources.gold = Math.min(city.storageCaps.gold, (city.resources.gold || 0) + earned.gold);
+      city.resources.elixir = Math.min(city.storageCaps.elixir, (city.resources.elixir || 0) + earned.elixir);
       city.resources.wood = Math.min(city.storageCaps.wood, (city.resources.wood || 0) + earned.wood);
       city.resources.stone = Math.min(city.storageCaps.stone, (city.resources.stone || 0) + earned.stone);
       city.resources.food = Math.min(city.storageCaps.food, (city.resources.food || 0) + earned.food);
@@ -179,6 +193,7 @@ class CityBuilderManager {
 
     city.productionRates = {
       gold: Math.round(goldRate),
+      elixir: Math.round(elixirRate),
       wood: Math.round(woodRate),
       stone: Math.round(stoneRate),
       food: Math.round(foodRate)
@@ -278,6 +293,7 @@ class CityBuilderManager {
     const cost = level1.cost;
     if (
       (city.resources.gold || 0) < (cost.gold || 0) ||
+      (city.resources.elixir || 0) < (cost.elixir || 0) ||
       (city.resources.wood || 0) < (cost.wood || 0) ||
       (city.resources.stone || 0) < (cost.stone || 0) ||
       (city.resources.food || 0) < (cost.food || 0)
@@ -287,6 +303,7 @@ class CityBuilderManager {
 
     // Deduct cost
     city.resources.gold -= (cost.gold || 0);
+    city.resources.elixir = Math.max(0, (city.resources.elixir || 0) - (cost.elixir || 0));
     city.resources.wood -= (cost.wood || 0);
     city.resources.stone -= (cost.stone || 0);
     city.resources.food -= (cost.food || 0);
@@ -348,6 +365,7 @@ class CityBuilderManager {
     const cost = nextSpec.cost;
     if (
       (city.resources.gold || 0) < (cost.gold || 0) ||
+      (city.resources.elixir || 0) < (cost.elixir || 0) ||
       (city.resources.wood || 0) < (cost.wood || 0) ||
       (city.resources.stone || 0) < (cost.stone || 0) ||
       (city.resources.food || 0) < (cost.food || 0)
@@ -357,6 +375,7 @@ class CityBuilderManager {
 
     // Deduct resources
     city.resources.gold -= (cost.gold || 0);
+    city.resources.elixir = Math.max(0, (city.resources.elixir || 0) - (cost.elixir || 0));
     city.resources.wood -= (cost.wood || 0);
     city.resources.stone -= (cost.stone || 0);
     city.resources.food -= (cost.food || 0);

@@ -36,7 +36,10 @@
       const local = localStorage.getItem(`infinity_city_${userId}`);
       if (local) {
         try {
-          return { success: true, city: JSON.parse(local) };
+          const parsed = JSON.parse(local);
+          if (parsed && parsed.version >= 2 && parsed.resources && parsed.resources.elixir !== undefined) {
+            return { success: true, city: parsed };
+          }
         } catch (e) {}
       }
       return null;
@@ -248,6 +251,103 @@
       const btnRankings = document.getElementById('btnDockRankings');
       if (btnRankings) btnRankings.addEventListener('click', () => this.openRankingsModal());
 
+      // Clash of Clans Corner Action Buttons
+      const btnCocAttack = document.getElementById('btnCocAttack');
+      if (btnCocAttack) {
+        btnCocAttack.addEventListener('click', () => {
+          this.audio.playClick();
+          this.openWorldModal();
+        });
+      }
+
+      const btnCocShop = document.getElementById('btnCocShop');
+      if (btnCocShop) {
+        btnCocShop.addEventListener('click', () => {
+          this.audio.playClick();
+          this.openBuildModal();
+        });
+      }
+
+      const btnCocArmy = document.getElementById('btnCocArmy');
+      if (btnCocArmy) {
+        btnCocArmy.addEventListener('click', () => {
+          this.audio.playClick();
+          this.openArmyModal();
+        });
+      }
+
+      const btnCocQuests = document.getElementById('btnCocQuests');
+      if (btnCocQuests) {
+        btnCocQuests.addEventListener('click', () => {
+          this.audio.playClick();
+          this.openRankingsModal();
+        });
+      }
+
+      const btnCocSettings = document.getElementById('btnCocSettings');
+      if (btnCocSettings) {
+        btnCocSettings.addEventListener('click', () => {
+          this.audio.playClick();
+          this.audio.enabled = !this.audio.enabled;
+          this.showToast(this.audio.enabled ? 'Sound FX Enabled' : 'Sound FX Muted', 'info');
+        });
+      }
+
+      // Clash of Clans Top HUD Plus Buttons
+      const btnAddGold = document.getElementById('btnAddGold');
+      if (btnAddGold) {
+        btnAddGold.addEventListener('click', () => {
+          this.audio.playCoin();
+          if (this.game && this.game.city) {
+            const cap = (this.game.city.storageCaps && this.game.city.storageCaps.gold) || 5000;
+            this.game.city.resources.gold = Math.min(cap, (this.game.city.resources.gold || 0) + 1000);
+            this.game.updateHUD();
+            this.showToast('+1,000 Gold added!', 'success');
+          }
+        });
+      }
+
+      const btnAddElixir = document.getElementById('btnAddElixir');
+      if (btnAddElixir) {
+        btnAddElixir.addEventListener('click', () => {
+          this.audio.playCoin();
+          if (this.game && this.game.city) {
+            const cap = (this.game.city.storageCaps && this.game.city.storageCaps.elixir) || 5000;
+            this.game.city.resources.elixir = Math.min(cap, (this.game.city.resources.elixir || 0) + 1000);
+            this.game.updateHUD();
+            this.showToast('+1,000 Elixir added!', 'success');
+          }
+        });
+      }
+
+      const btnAddGems = document.getElementById('btnAddGems');
+      if (btnAddGems) {
+        btnAddGems.addEventListener('click', () => {
+          this.audio.playGem();
+          if (this.game && this.game.city) {
+            this.game.city.resources.gems = (this.game.city.resources.gems || 0) + 100;
+            this.game.updateHUD();
+            this.showToast('+100 Gems claimed!', 'success');
+          }
+        });
+      }
+
+      const btnAddBuilder = document.getElementById('btnAddBuilder');
+      if (btnAddBuilder) {
+        btnAddBuilder.addEventListener('click', () => {
+          this.audio.playClick();
+          this.showToast('All 2/2 Builders are ready to construct!', 'info');
+        });
+      }
+
+      const btnAddShield = document.getElementById('btnAddShield');
+      if (btnAddShield) {
+        btnAddShield.addEventListener('click', () => {
+          this.audio.playClick();
+          this.showToast('Village Shield protection active!', 'info');
+        });
+      }
+
       // Bind rankings modal tabs
       document.querySelectorAll('.rank-tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -308,10 +408,11 @@
         const reqMet = !level1.reqCityHall || chLevel >= level1.reqCityHall;
 
         const hasGold = (this.game.city.resources.gold || 0) >= (cost.gold || 0);
+        const hasElixir = (this.game.city.resources.elixir || 0) >= (cost.elixir || 0);
         const hasWood = (this.game.city.resources.wood || 0) >= (cost.wood || 0);
         const hasStone = (this.game.city.resources.stone || 0) >= (cost.stone || 0);
         const hasFood = (this.game.city.resources.food || 0) >= (cost.food || 0);
-        const canAfford = hasGold && hasWood && hasStone && hasFood;
+        const canAfford = hasGold && hasElixir && hasWood && hasStone && hasFood;
 
         const disabled = alreadyBuilt || !reqMet || !canAfford;
 
@@ -334,6 +435,7 @@
 
             <div class="build-card-costs">
               ${cost.gold ? `<span class="cost-tag ${hasGold ? '' : 'insufficient'}">🪙 ${cost.gold}</span>` : ''}
+              ${cost.elixir ? `<span class="cost-tag ${hasElixir ? '' : 'insufficient'}">💧 ${cost.elixir}</span>` : ''}
               ${cost.wood ? `<span class="cost-tag ${hasWood ? '' : 'insufficient'}">🪵 ${cost.wood}</span>` : ''}
               ${cost.stone ? `<span class="cost-tag ${hasStone ? '' : 'insufficient'}">🪨 ${cost.stone}</span>` : ''}
               ${cost.food ? `<span class="cost-tag ${hasFood ? '' : 'insufficient'}">🌾 ${cost.food}</span>` : ''}
