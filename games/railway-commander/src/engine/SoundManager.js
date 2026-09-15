@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Railway Commander - Web Audio API Synthesizer & Sound Manager
  * Generates realistic train engine RPM hum, track click-clack, pneumatic air brakes,
  * locomotive horn chords, station chimes, and alarms without external audio file dependencies.
@@ -64,9 +64,9 @@ export class SoundManager {
 
   /**
    * Start or update continuous locomotive engine sound
-   * Modulates engine pitch and filter cutoff with throttle and speed
+   * Modulates WAP-7 3-phase electric traction motor whine & rumble with throttle and speed
    */
-  updateEngineSound(throttleLevel, speedKmh) {
+  updateEngineSound(throttleInput, speedKmh) {
     if (!this.soundEnabled) {
       this.stopEngineSound();
       return;
@@ -74,34 +74,43 @@ export class SoundManager {
     this.resume();
     if (!this.ctx) return;
 
+    const throttlePercent = typeof throttleInput === 'number' && throttleInput > 5 ? throttleInput : (throttleInput || 0) * 20;
+
     if (!this.engineRunning) {
       try {
         const now = this.ctx.currentTime;
         this.engineGain = this.ctx.createGain();
         this.engineGain.gain.setValueAtTime(0.01, now);
-        this.engineGain.gain.exponentialRampToValueAtTime(0.18, now + 0.3);
+        this.engineGain.gain.exponentialRampToValueAtTime(0.22, now + 0.3);
 
         this.engineFilter = this.ctx.createBiquadFilter();
         this.engineFilter.type = 'lowpass';
-        this.engineFilter.frequency.setValueAtTime(120, now);
+        this.engineFilter.frequency.setValueAtTime(300, now);
 
-        // Low rumble oscillator
+        // Low rumble oscillator (blower / transformer hum)
         this.engineOsc1 = this.ctx.createOscillator();
         this.engineOsc1.type = 'sawtooth';
-        this.engineOsc1.frequency.setValueAtTime(45, now);
+        this.engineOsc1.frequency.setValueAtTime(50, now); // 50 Hz mains traction hum
 
-        // Sub-harmonic diesel buzz
+        // Sub-harmonic traction hum
         this.engineOsc2 = this.ctx.createOscillator();
         this.engineOsc2.type = 'triangle';
-        this.engineOsc2.frequency.setValueAtTime(90, now);
+        this.engineOsc2.frequency.setValueAtTime(100, now);
+
+        // High-frequency 3-phase electric traction motor whine (IGBT inverter)
+        this.engineOsc3 = this.ctx.createOscillator();
+        this.engineOsc3.type = 'sine';
+        this.engineOsc3.frequency.setValueAtTime(450, now);
 
         this.engineOsc1.connect(this.engineFilter);
         this.engineOsc2.connect(this.engineFilter);
+        this.engineOsc3.connect(this.engineFilter);
         this.engineFilter.connect(this.engineGain);
         this.engineGain.connect(this.masterGain);
 
         this.engineOsc1.start();
         this.engineOsc2.start();
+        this.engineOsc3.start();
         this.engineRunning = true;
       } catch (e) {
         return;
@@ -111,17 +120,22 @@ export class SoundManager {
     if (this.engineRunning && this.engineOsc1 && this.engineFilter && this.engineGain) {
       const now = this.ctx.currentTime;
       const speedRatio = Math.min(1.0, speedKmh / 140);
-      const throttleRatio = throttleLevel / 5;
+      const throttleRatio = throttlePercent / 100;
 
-      // Base engine frequency (45Hz idle -> 135Hz full throttle at speed)
-      const targetFreq = 42 + (throttleRatio * 45) + (speedRatio * 48);
-      const targetCutoff = 100 + (throttleRatio * 220) + (speedRatio * 180);
-      const targetVolume = 0.12 + (throttleRatio * 0.14) + (speedRatio * 0.08);
+      // Transformer hum scales slightly (50 Hz to 90 Hz)
+      const humFreq = 50 + (throttleRatio * 35) + (speedRatio * 15);
+      // IGBT Traction motor whine climbs high with speed (350 Hz idle -> 1400 Hz at high speed)
+      const inverterFreq = 380 + (throttleRatio * 320) + (speedRatio * 750);
+      const filterCutoff = 350 + (throttleRatio * 450) + (speedRatio * 650);
+      const volume = 0.12 + (throttleRatio * 0.16) + (speedRatio * 0.10);
 
-      this.engineOsc1.frequency.setTargetAtTime(targetFreq, now, 0.15);
-      this.engineOsc2.frequency.setTargetAtTime(targetFreq * 2, now, 0.15);
-      this.engineFilter.frequency.setTargetAtTime(targetCutoff, now, 0.15);
-      this.engineGain.gain.setTargetAtTime(targetVolume, now, 0.15);
+      this.engineOsc1.frequency.setTargetAtTime(humFreq, now, 0.15);
+      this.engineOsc2.frequency.setTargetAtTime(humFreq * 2, now, 0.15);
+      if (this.engineOsc3) {
+        this.engineOsc3.frequency.setTargetAtTime(inverterFreq, now, 0.15);
+      }
+      this.engineFilter.frequency.setTargetAtTime(filterCutoff, now, 0.15);
+      this.engineGain.gain.setTargetAtTime(volume, now, 0.15);
     }
   }
 
@@ -133,6 +147,7 @@ export class SoundManager {
         setTimeout(() => {
           if (this.engineOsc1) { this.engineOsc1.stop(); this.engineOsc1.disconnect(); this.engineOsc1 = null; }
           if (this.engineOsc2) { this.engineOsc2.stop(); this.engineOsc2.disconnect(); this.engineOsc2 = null; }
+          if (this.engineOsc3) { this.engineOsc3.stop(); this.engineOsc3.disconnect(); this.engineOsc3 = null; }
           this.engineRunning = false;
         }, 250);
       } catch (e) {
@@ -158,7 +173,7 @@ export class SoundManager {
     if (!this.ctx || !this.soundEnabled) return;
     try {
       const now = this.ctx.currentTime;
-      const vol = Math.min(0.22, 0.05 + (speedKmh / 140) * 0.17);
+      const vol = Math.min(0.24, 0.06 + (speedKmh / 140) * 0.18);
 
       // Strike 1
       this.createClickImpulse(now, vol);
@@ -193,16 +208,17 @@ export class SoundManager {
   }
 
   /**
-   * Powerful Dual-Tone Locomotive Horn
+   * Authentic Indian Railways RDSO Twin-Tone Electric Locomotive Air Horn (WAP-7)
    */
   playHorn(active = true) {
     if (!active) {
       if (this.hornGain && this.ctx) {
         const now = this.ctx.currentTime;
-        this.hornGain.gain.setTargetAtTime(0.001, now, 0.1);
+        this.hornGain.gain.setTargetAtTime(0.001, now, 0.12);
         setTimeout(() => {
           if (this.hornOsc1) { this.hornOsc1.stop(); this.hornOsc1.disconnect(); this.hornOsc1 = null; }
           if (this.hornOsc2) { this.hornOsc2.stop(); this.hornOsc2.disconnect(); this.hornOsc2 = null; }
+          if (this.hornOsc3) { this.hornOsc3.stop(); this.hornOsc3.disconnect(); this.hornOsc3 = null; }
           this.hornGain = null;
         }, 150);
       }
@@ -216,28 +232,35 @@ export class SoundManager {
       const now = this.ctx.currentTime;
       this.hornGain = this.ctx.createGain();
       this.hornGain.gain.setValueAtTime(0.001, now);
-      this.hornGain.gain.exponentialRampToValueAtTime(0.35, now + 0.08);
+      this.hornGain.gain.exponentialRampToValueAtTime(0.42, now + 0.05);
 
-      // American Nathan K3L style chord: ~311 Hz (Eb4) and ~440 Hz (A4)
+      // Indian Railways dual air-horn tuning:
+      // High chime: 494 Hz (B4) + 370 Hz (F#4) + 554 Hz (C#5)
       this.hornOsc1 = this.ctx.createOscillator();
       this.hornOsc1.type = 'sawtooth';
-      this.hornOsc1.frequency.setValueAtTime(311.13, now);
+      this.hornOsc1.frequency.setValueAtTime(370.00, now); // F#4
 
       this.hornOsc2 = this.ctx.createOscillator();
       this.hornOsc2.type = 'sawtooth';
-      this.hornOsc2.frequency.setValueAtTime(440.00, now);
+      this.hornOsc2.frequency.setValueAtTime(493.88, now); // B4
+
+      this.hornOsc3 = this.ctx.createOscillator();
+      this.hornOsc3.type = 'sawtooth';
+      this.hornOsc3.frequency.setValueAtTime(554.37, now); // C#5
 
       const filter = this.ctx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1400, now);
+      filter.frequency.setValueAtTime(1600, now);
 
       this.hornOsc1.connect(filter);
       this.hornOsc2.connect(filter);
+      this.hornOsc3.connect(filter);
       filter.connect(this.hornGain);
       this.hornGain.connect(this.masterGain);
 
       this.hornOsc1.start(now);
       this.hornOsc2.start(now);
+      this.hornOsc3.start(now);
     } catch (e) {}
   }
 
@@ -250,7 +273,7 @@ export class SoundManager {
 
     try {
       const now = this.ctx.currentTime;
-      const duration = isEmergency ? 1.4 : 0.6;
+      const duration = isEmergency ? 1.5 : 0.65;
       const bufferSize = this.ctx.sampleRate * duration;
       const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
       const data = buffer.getChannelData(0);
@@ -269,7 +292,7 @@ export class SoundManager {
       filter.Q.setValueAtTime(1.5, now);
 
       const gain = this.ctx.createGain();
-      gain.gain.setValueAtTime(isEmergency ? 0.35 : 0.2, now);
+      gain.gain.setValueAtTime(isEmergency ? 0.38 : 0.22, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
       noise.connect(filter);
@@ -282,31 +305,83 @@ export class SoundManager {
   }
 
   /**
-   * Station Arrival Bell / Chime
+   * Authentic Indian Railways Iconic 4-Note Station Announcement Chime
+   * Notes: C5 (523.25 Hz) -> G4 (392.00 Hz) -> G#4 (415.30 Hz) -> C5 (523.25 Hz)
    */
   playStationChime() {
     this.resume();
     if (!this.ctx || !this.soundEnabled) return;
     try {
       const now = this.ctx.currentTime;
-      const notes = [659.25, 523.25]; // E5 then C5
+      const notes = [523.25, 392.00, 415.30, 523.25];
+      const durations = [0.28, 0.28, 0.28, 0.45];
+
+      let t = now;
       notes.forEach((freq, idx) => {
-        const t = now + (idx * 0.28);
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
 
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, t);
 
-        gain.gain.setValueAtTime(0.25, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+        gain.gain.setValueAtTime(0.3, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + durations[idx] + 0.35);
 
         osc.connect(gain);
         gain.connect(this.masterGain);
 
         osc.start(t);
-        osc.stop(t + 0.85);
+        osc.stop(t + durations[idx] + 0.4);
+        t += durations[idx];
       });
+    } catch (e) {}
+  }
+
+  /**
+   * Passenger Doors Open/Close Sound with Warning Beeps & Pneumatic Piston
+   */
+  playDoorSound(isOpen) {
+    this.resume();
+    if (!this.ctx || !this.soundEnabled) return;
+    try {
+      const now = this.ctx.currentTime;
+      // 2 warning beeps
+      [0, 0.22].forEach(offset => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(isOpen ? 880 : 660, now + offset);
+        gain.gain.setValueAtTime(0.2, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.12);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.13);
+      });
+      // Pneumatic door hiss
+      this.playAirBrakeHiss(false);
+    } catch (e) {}
+  }
+
+  /**
+   * Pantograph Raise/Lower Contact Spark Crackle
+   */
+  playPantographSpark() {
+    this.resume();
+    if (!this.ctx || !this.soundEnabled) return;
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(150, now);
+      osc.frequency.exponentialRampToValueAtTime(80, now + 0.25);
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.26);
     } catch (e) {}
   }
 

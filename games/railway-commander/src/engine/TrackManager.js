@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Railway Commander - Track & Route Manager
  * Generates and manages railway track geometry, curvature,
  * speed limit zones, stations, signals, and procedural scenery elements.
@@ -9,6 +9,7 @@ export class TrackManager {
     this.totalDistanceMeters = 5000;
     this.segments = []; // Curvature & elevation segments
     this.speedLimitZones = []; // [{ from, to, limitKmh }]
+    this.trackSwitches = []; // [{ position, direction, name }]
     this.stations = []; // [{ id, name, stopPosition, platformLength, nameSide }]
     this.signals = []; // [{ id, position, defaultAspect, isDynamic }]
     this.scenery = []; // [{ type, position, offsetSide, scale, variant }]
@@ -32,6 +33,10 @@ export class TrackManager {
       { from: 0, to: 800, limitKmh: 60 },
       { from: 800, to: 2800, limitKmh: 100 },
       { from: 2800, to: this.totalDistanceMeters, limitKmh: 50 }
+    ];
+
+    this.trackSwitches = routeConfig.trackSwitches || [
+      { position: 720, direction: 'right', name: 'Points No. 12B' }
     ];
 
     this.stations = routeConfig.stations || [];
@@ -135,6 +140,75 @@ export class TrackManager {
         });
       }
     }
+
+    // 4. Station Platform Crowds & Indian Railway Life (Coolies, passengers, chai stalls)
+    for (const st of this.stations) {
+      const platLength = st.platformLength || 160;
+      const platStart = st.stopPosition - platLength * 0.72;
+      const platEnd = st.stopPosition + platLength * 0.28;
+      const platSideX = 1.95; // right side platform
+
+      // Coolies in red kurtas carrying heavy metal trunk boxes on their heads
+      for (let pz = platStart + 12; pz < platEnd - 8; pz += 26) {
+        this.scenery.push({
+          type: 'coolie',
+          position: pz,
+          side: 1,
+          dist: platSideX + 1.25,
+          trunkColor: (Math.floor(pz) % 2 === 0) ? '#b45309' : '#0284c7'
+        });
+      }
+
+      // Commuters & Passengers walking along the platform with bags
+      for (let pz = platStart + 6; pz < platEnd - 4; pz += 16) {
+        this.scenery.push({
+          type: 'passenger',
+          position: pz,
+          side: 1,
+          dist: platSideX + 1.8 + ((Math.floor(pz) % 4) * 0.28),
+          shirtColor: ['#f8fafc', '#0284c7', '#ea580c', '#eab308', '#ec4899'][Math.floor(pz) % 5]
+        });
+      }
+
+      // Indian Railway Chai & Snack Stalls ("CHAI / SNACKS")
+      this.scenery.push({
+        type: 'tea_stall',
+        position: platStart + 35,
+        side: 1,
+        dist: platSideX + 3.1
+      });
+      if (platEnd - platStart > 110) {
+        this.scenery.push({
+          type: 'tea_stall',
+          position: platStart + 105,
+          side: 1,
+          dist: platSideX + 3.1
+        });
+      }
+
+      // Station Luggage Trolleys & wheelbarrows
+      this.scenery.push({
+        type: 'trolley',
+        position: platStart + 20,
+        side: 1,
+        dist: platSideX + 2.2
+      });
+      this.scenery.push({
+        type: 'trolley',
+        position: platStart + 80,
+        side: 1,
+        dist: platSideX + 2.2
+      });
+
+      // Parked Opposing Passenger Rake / Coaches on Left Track (as seen in screenshot)
+      this.scenery.push({
+        type: 'parked_train',
+        position: platStart - 30,
+        endPosition: platEnd + 30,
+        side: -1,
+        dist: 3.4
+      });
+    }
   }
 
   /**
@@ -198,6 +272,21 @@ export class TrackManager {
         return {
           ...st,
           distanceMeters: Math.round(st.stopPosition - currentPosition)
+        };
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get upcoming track switch / turnout
+   */
+  getNextTrackSwitch(currentPosition, lookAheadMeters = 800) {
+    for (const sw of this.trackSwitches) {
+      if (sw.position > currentPosition && (sw.position - currentPosition) <= lookAheadMeters) {
+        return {
+          ...sw,
+          distanceMeters: Math.round(sw.position - currentPosition)
         };
       }
     }

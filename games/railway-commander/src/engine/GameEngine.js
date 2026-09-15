@@ -199,12 +199,21 @@ export class GameEngine {
     }
   }
 
+  applyEmergencyBrake() {
+    this.onEmergencyBrake();
+  }
+
+  pauseGame() {
+    this.togglePause();
+  }
+
   onEmergencyBrake() {
     this.soundManager.resume();
     this.physics.applyEmergencyBrake();
     this.missionSystem.recordEmergencyBrake();
     this.soundManager.playAirBrakeHiss(true);
-    this.uiManager.showNotification('EMERGENCY BRAKE APPLIED!', 'danger');
+    this.uiManager.setEventLog('EMERGENCY BRAKE APPLIED');
+    this.uiManager.showNotification('🛑 EMERGENCY BRAKE APPLIED!', 'danger');
   }
 
   onHorn(active) {
@@ -215,14 +224,96 @@ export class GameEngine {
   onToggleHeadlights() {
     const state = this.physics.toggleHeadlights();
     this.soundManager.playClick();
+    if (this.uiManager.dom.ledHeadlights) {
+      this.uiManager.dom.ledHeadlights.className = state ? 'aux-led on' : 'aux-led off';
+    }
+    if (this.uiManager.dom.btnHeadlights) {
+      this.uiManager.dom.btnHeadlights.classList.toggle('active', state);
+    }
+    this.uiManager.setEventLog(state ? 'HEADLIGHTS HIGH BEAM ON' : 'HEADLIGHTS OFF');
     this.uiManager.showNotification(state ? 'Headlights: ON' : 'Headlights: OFF', 'info', 1500);
+    return state;
+  }
+
+  onTogglePantograph() {
+    this.soundManager.resume();
+    const isUp = this.physics.togglePantograph();
+    this.soundManager.playPantographSpark();
+    if (this.uiManager.dom.ledPantograph) {
+      this.uiManager.dom.ledPantograph.className = isUp ? 'aux-led on' : 'aux-led off';
+    }
+    if (this.uiManager.dom.btnPantograph) {
+      this.uiManager.dom.btnPantograph.classList.toggle('active', isUp);
+    }
+    this.uiManager.setEventLog(isUp ? 'PANTOGRAPH RAISED (25kV OHE)' : 'PANTOGRAPH LOWERED - NO TRACTION');
+    this.uiManager.showNotification(isUp ? 'Pantograph: RAISED' : 'Pantograph: LOWERED', 'info', 1500);
+    return isUp;
+  }
+
+  onTogglePower() {
+    this.soundManager.resume();
+    const pwr = this.physics.toggleEnginePower();
+    this.soundManager.playClick();
+    if (this.uiManager.dom.ledPower) {
+      this.uiManager.dom.ledPower.className = pwr ? 'aux-led on' : 'aux-led off';
+    }
+    if (this.uiManager.dom.btnEnginePower) {
+      this.uiManager.dom.btnEnginePower.classList.toggle('active', pwr);
+    }
+    this.uiManager.setEventLog(pwr ? 'TRACTION INVERTERS ONLINE' : 'TRACTION INVERTERS OFFLINE');
+    this.uiManager.showNotification(pwr ? 'Traction Power: ON' : 'Traction Power: OFF', 'info', 1500);
+    return pwr;
+  }
+
+  onToggleDoors() {
+    this.soundManager.resume();
+    const ok = this.physics.toggleDoors();
+    if (ok) {
+      const open = this.physics.doorsOpen;
+      this.soundManager.playDoorSound(open);
+      if (this.uiManager.dom.ledDoors) {
+        this.uiManager.dom.ledDoors.className = open ? 'aux-led on' : 'aux-led off';
+      }
+      if (this.uiManager.dom.btnDoors) {
+        this.uiManager.dom.btnDoors.classList.toggle('active', open);
+      }
+      this.uiManager.setEventLog(open ? 'DOORS OPEN - PLATFORM PASSENGERS' : 'DOORS CLOSED - SAFETY LOCKED');
+      this.uiManager.showNotification(open ? 'Passenger Doors: OPEN' : 'Passenger Doors: CLOSED', 'info', 1500);
+    } else {
+      this.uiManager.showNotification('Cannot open doors while train is moving!', 'warning', 2000);
+    }
+    return ok;
+  }
+
+  onStationChime() {
+    this.soundManager.resume();
+    this.soundManager.playStationChime();
+    this.uiManager.setEventLog('STATION ANNOUNCEMENT CHIME');
+    this.uiManager.showNotification('📢 "Yatri kripya dhyan dein..."', 'info', 2000);
+  }
+
+  onToggleReverser() {
+    this.soundManager.resume();
+    const next = this.physics.reverser === 'F' ? 'R' : 'F';
+    if (this.physics.setReverser(next)) {
+      this.soundManager.playClick();
+      if (this.uiManager.dom.btnRevForward && this.uiManager.dom.btnRevReverse) {
+        this.uiManager.dom.btnRevForward.classList.toggle('active', next === 'F');
+        this.uiManager.dom.btnRevReverse.classList.toggle('active', next === 'R');
+      }
+      this.uiManager.setEventLog(`REVERSER: ${next === 'F' ? 'FORWARD (F)' : 'REVERSE (R)'}`);
+      this.uiManager.showNotification(`Reverser: ${next === 'F' ? 'FORWARD' : 'REVERSE'}`, 'info', 1500);
+    }
   }
 
   onToggleCamera() {
     this.soundManager.playClick();
-    const newMode = this.renderer.cameraMode === 'chase' ? 'cab' : 'chase';
-    this.renderer.setCameraMode(newMode);
-    this.uiManager.showNotification(`Camera View: ${newMode.toUpperCase()}`, 'info', 1500);
+    const mode = this.renderer.cycleCameraMode();
+    if (this.uiManager.dom.hudCameraBadge) {
+      this.uiManager.dom.hudCameraBadge.textContent = this.renderer.getCameraModeLabel();
+    }
+    this.uiManager.setEventLog(`CAMERA: ${mode.toUpperCase()} VIEW`);
+    this.uiManager.showNotification(`Camera View: ${mode.toUpperCase()}`, 'info', 1500);
   }
 
   togglePause() {

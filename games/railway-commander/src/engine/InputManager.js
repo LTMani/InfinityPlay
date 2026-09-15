@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Railway Commander - Input Manager
  * Handles keyboard controls, on-screen touch buttons, and responsive inputs
  * without interfering with parent platform page navigation.
@@ -71,7 +71,7 @@ export class InputManager {
     const key = e.key;
 
     // Pause toggle
-    if (key === 'Escape' || key === 'p' || key === 'P') {
+    if (key === 'Escape') {
       e.preventDefault();
       this.engine.togglePause();
       return;
@@ -135,6 +135,30 @@ export class InputManager {
       case 'C':
         e.preventDefault();
         this.engine.onToggleCamera();
+        break;
+
+      case 'p':
+      case 'P':
+        e.preventDefault();
+        this.engine.onTogglePantograph();
+        break;
+
+      case 'o':
+      case 'O':
+        e.preventDefault();
+        this.engine.onToggleDoors();
+        break;
+
+      case 'n':
+      case 'N':
+        e.preventDefault();
+        this.engine.onStationChime();
+        break;
+
+      case 'r':
+      case 'R':
+        e.preventDefault();
+        this.engine.onToggleReverser();
         break;
     }
   }

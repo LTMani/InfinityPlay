@@ -82,7 +82,7 @@ html, body {
 }
 
 /* ==========================================================================
-   IN-GAME HEADS-UP DISPLAY (HUD)
+   IN-GAME HEADS-UP DISPLAY (HUD) - INDIAN RAILWAYS WAP-7 COCKPIT
    ========================================================================== */
 .hud-layer {
   position: fixed;
@@ -101,415 +101,637 @@ html, body {
   display: none !important;
 }
 
-/* Top Action & Mission Bar */
+/* 1. TOP HUD BAR */
 .hud-top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
-  background: linear-gradient(180deg, rgba(7, 11, 20, 0.85) 0%, rgba(7, 11, 20, 0) 100%);
+  padding: 16px 28px;
+  background: linear-gradient(180deg, rgba(3, 7, 18, 0.9) 0%, rgba(3, 7, 18, 0.6) 60%, rgba(3, 7, 18, 0) 100%);
   pointer-events: auto;
 }
 
-.hud-mission-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-width: 45%;
-}
-
-.hud-mission-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(2, 132, 199, 0.2);
-  border: 1px solid rgba(2, 132, 199, 0.4);
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--color-cyan);
-  letter-spacing: 0.05em;
-  width: fit-content;
-}
-
-.hud-mission-title {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: #ffffff;
-  text-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
-}
-
-.hud-mission-objective {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.hud-top-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.hud-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--border-glass);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-main);
-}
-
-.hud-pill.active {
-  border-color: var(--color-cyan);
-  color: var(--color-cyan);
-}
-
-.hud-btn {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--border-glass);
-  color: var(--text-main);
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.15s ease;
-}
-
-.hud-btn:hover {
-  background: rgba(2, 132, 199, 0.3);
-  border-color: var(--color-cyan);
-  transform: translateY(-1px);
-}
-
-/* Middle Layout: Left & Right Instrument Panels */
-.hud-middle-layout {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 24px;
-  pointer-events: none;
-}
-
-/* Left: Speedometer Cluster */
-.hud-speed-cluster {
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--border-glass);
-  border-radius: 18px;
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
-  pointer-events: auto;
-  min-width: 170px;
-}
-
-.gauge-wrap {
-  position: relative;
-  width: 130px;
-  height: 90px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.speed-gauge-svg {
-  width: 130px;
-  height: 90px;
-}
-
-.gauge-needle {
-  position: absolute;
-  bottom: 12px;
-  width: 4px;
-  height: 52px;
-  background: linear-gradient(180deg, var(--color-cyan) 0%, transparent 100%);
-  transform-origin: bottom center;
-  transform: rotate(-120deg);
-  border-radius: 2px;
-  transition: transform 0.08s linear;
-  box-shadow: 0 0 10px var(--color-cyan);
-}
-
-.speed-digital-display {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  margin-top: -6px;
-}
-
-.speed-val {
-  font-family: var(--font-mono);
-  font-size: 2.5rem;
-  font-weight: 900;
-  color: #ffffff;
-  line-height: 1;
-  text-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
-}
-
-.speed-unit {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.speed-limit-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.04);
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border-glass);
-}
-
-.limit-sign {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 3px solid var(--color-red);
-  background: #ffffff;
-  color: #000000;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.limit-text {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.overspeed-badge {
-  background: rgba(239, 68, 68, 0.25);
-  border: 1px solid var(--color-red);
-  color: #ffffff;
-  font-size: 0.75rem;
-  font-weight: 800;
-  padding: 4px 10px;
-  border-radius: 6px;
-  letter-spacing: 0.05em;
-  animation: pulseAlert 0.8s infinite alternate;
-}
-
-.overspeed-badge.hidden {
-  display: none !important;
-}
-
-@keyframes pulseAlert {
-  0% { transform: scale(0.96); box-shadow: 0 0 6px var(--color-red); }
-  100% { transform: scale(1.04); box-shadow: 0 0 20px var(--color-red); }
-}
-
-/* Right: Signals & Stations Info Cluster */
-.hud-nav-cluster {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 220px;
-  pointer-events: auto;
-}
-
-.nav-card {
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--border-glass);
-  border-radius: 14px;
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.nav-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.74rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.06em;
-}
-
-.nav-card-main {
+/* Top Left Actions */
+.hud-top-left-actions {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.signal-optic {
-  font-size: 1.6rem;
-  line-height: 1;
-  filter: drop-shadow(0 0 8px currentColor);
-}
-
-.nav-card-texts {
-  display: flex;
-  flex-direction: column;
-}
-
-.nav-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.nav-dist {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--color-cyan);
-}
-
-/* Center Notification Alert Toast */
-.hud-alert-banner {
-  position: fixed;
-  top: 85px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-20px);
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--border-glow);
-  padding: 10px 24px;
-  border-radius: 30px;
-  font-size: 0.92rem;
-  font-weight: 700;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 50;
-  text-align: center;
-  max-width: 90vw;
-}
-
-.hud-alert-banner.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-.hud-alert-banner.success {
-  border-color: var(--color-green);
-  color: #86efac;
-  box-shadow: 0 0 25px rgba(34, 197, 94, 0.35);
-}
-
-.hud-alert-banner.warning {
-  border-color: var(--color-yellow);
-  color: #fde047;
-  box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
-}
-
-.hud-alert-banner.danger {
-  border-color: var(--color-red);
-  color: #fca5a5;
-  box-shadow: 0 0 25px rgba(239, 68, 68, 0.45);
-}
-
-/* ==========================================================================
-   BOTTOM CONTROLS CONSOLE
-   ========================================================================== */
-.hud-bottom-console {
-  background: linear-gradient(0deg, rgba(7, 11, 20, 0.95) 0%, rgba(7, 11, 20, 0.65) 75%, transparent 100%);
-  padding: 16px 24px 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  pointer-events: auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.console-lever-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.hud-icon-btn {
   background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--border-glass);
-  padding: 10px 16px;
-  border-radius: 14px;
-}
-
-.lever-label-col {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  min-width: 85px;
-}
-
-.lever-title {
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-}
-
-.lever-val {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  font-weight: 800;
-  color: #ffffff;
-}
-
-.meter-track {
-  width: 90px;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.meter-fill {
-  height: 100%;
-  width: 0%;
-  transition: width 0.1s ease;
-  border-radius: 4px;
-}
-
-.meter-fill.throttle {
-  background: linear-gradient(90deg, #0284c7, var(--color-cyan));
-  box-shadow: 0 0 10px var(--color-cyan);
-}
-
-.meter-fill.brake {
-  background: linear-gradient(90deg, #ea580c, var(--color-red));
-  box-shadow: 0 0 10px var(--color-red);
-}
-
-.console-btn {
-  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(10px);
   border: 1px solid var(--border-glass);
   color: #ffffff;
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.15s ease;
+}
+
+.hud-icon-btn:hover {
+  background: rgba(2, 132, 199, 0.3);
+  border-color: var(--color-cyan);
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+}
+
+.hud-cam-mode-badge {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-glass);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.76rem;
   font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--color-cyan);
+}
+
+/* Top Center: Next Stop Cluster */
+.hud-next-stop-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.hud-next-stop-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #94a3b8;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+}
+
+.hud-next-stop-name {
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: -2px 0 0;
+  line-height: 1.1;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 255, 255, 0.35);
+}
+
+.hud-next-stop-dist {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-cyan);
+  letter-spacing: 0.04em;
+}
+
+/* Top Right: Clock & Speed Cluster */
+.hud-top-right-cluster {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* Digital LED Amber 7-Segment Clock */
+.hud-clock-bezel {
+  background: #020617;
+  border: 2px solid #334155;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.9), 0 4px 14px rgba(0,0,0,0.6);
+  border-radius: 8px;
+  padding: 4px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hud-clock-digits {
+  font-family: 'Share Tech Mono', 'Orbitron', monospace;
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #ff9800;
+  text-shadow: 0 0 10px rgba(255, 152, 0, 0.8), 0 0 22px rgba(255, 110, 0, 0.6);
+  letter-spacing: 0.12em;
+  line-height: 1;
+}
+
+/* Speedometer & Limit Dial */
+.hud-speedometer-cluster {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hud-speed-digital {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 0.9;
+}
+
+.hud-speed-num {
+  font-family: var(--font-main);
+  font-size: 3.4rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.04em;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9);
+}
+
+.hud-speed-unit {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+.hud-speed-dial-wrap {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.speed-arc-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.speed-arc-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 6;
+}
+
+.speed-arc-val {
+  fill: none;
+  stroke: #22c55e;
+  stroke-width: 6;
+  stroke-dasharray: 238;
+  stroke-dashoffset: 80;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+.hud-limit-badge {
+  background: #15803d;
+  border: 1px solid #4ade80;
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  z-index: 2;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+.hud-limit-timer {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #e2e8f0;
+  margin-top: 2px;
+  font-weight: 800;
+  z-index: 2;
+}
+
+/* 2. MIDDLE VIEW AREA: LEFT WARNINGS & OVERSPEED TOAST */
+.hud-middle-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 28px;
+  pointer-events: none;
+  flex: 1;
+}
+
+.hud-left-alerts-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.track-alert-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(10, 15, 29, 0.86);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 30px;
+  padding: 6px 16px 6px 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+  width: fit-content;
+  transition: all 0.2s ease;
+}
+
+.track-alert-chip:hover {
+  transform: translateX(4px);
+  border-color: var(--color-cyan);
+}
+
+.chip-icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chip-signal-icon {
+  background: #0f172a;
+  border: 2px solid #ef4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+
+.optic-lens-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.optic-lens-dot.red {
+  background: #ef4444;
+  box-shadow: 0 0 14px #ef4444;
+  animation: redPulse 0.9s infinite alternate;
+}
+
+.optic-lens-dot.yellow {
+  background: #f59e0b;
+  box-shadow: 0 0 14px #f59e0b;
+}
+
+.optic-lens-dot.green {
+  background: #22c55e;
+  box-shadow: 0 0 14px #22c55e;
+}
+
+@keyframes redPulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 20px #ef4444; }
+}
+
+.chip-speed-icon {
+  background: #ffffff;
+  border: 3px solid #dc2626;
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
+}
+
+.speed-sign-val {
+  color: #000000;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.chip-track-icon {
+  background: #0f172a;
+  border: 2px solid #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+}
+
+.track-arrow-glyph {
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.chip-content {
+  display: flex;
+  align-items: center;
+}
+
+.chip-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+/* Center Overspeed Alert */
+.hud-center-alert-toast {
+  background: rgba(220, 38, 38, 0.92);
+  border: 2px solid #fca5a5;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 900;
+  padding: 10px 24px;
+  border-radius: 30px;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.8);
+  animation: pulseAlert 0.8s infinite alternate;
+  pointer-events: none;
+  margin: 0 auto;
+}
+
+.hud-center-alert-toast.hidden {
+  display: none !important;
+}
+
+@keyframes pulseAlert {
+  0% { transform: scale(0.96); box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+  100% { transform: scale(1.04); box-shadow: 0 0 35px rgba(239, 68, 68, 0.9); }
+}
+
+/* 3. BOTTOM INTERFACE & DRIVER COCKPIT CONSOLE */
+.hud-bottom-dock {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 28px 22px;
+  pointer-events: auto;
+  gap: 20px;
+  background: linear-gradient(0deg, rgba(3, 7, 18, 0.95) 0%, rgba(3, 7, 18, 0.65) 75%, transparent 100%);
+}
+
+/* Timetable & Live Event Capsule */
+.hud-timetable-capsule {
+  background: rgba(10, 15, 29, 0.88);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  padding: 10px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+  min-width: 320px;
+}
+
+.timetable-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.timetable-target {
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+.status-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+  animation: blinkGreen 1.2s infinite alternate;
+}
+
+@keyframes blinkGreen {
+  0% { opacity: 0.4; }
+  100% { opacity: 1; box-shadow: 0 0 12px #22c55e; }
+}
+
+.timetable-event {
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.event-icon {
+  font-size: 0.9rem;
+}
+
+/* Modern Locomotive Driver Control Console */
+.hud-console-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: 18px;
+  padding: 10px 18px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.7);
+}
+
+/* Emergency Stop Hexagonal Button */
+.btn-emergency-stop-hex {
+  width: 66px;
+  height: 66px;
+  background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 50%, #991b1b 100%);
+  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+  transition: transform 0.12s ease, filter 0.12s ease;
+  flex-shrink: 0;
+}
+
+.btn-emergency-stop-hex:hover {
+  filter: brightness(1.2);
+  transform: scale(1.05);
+  box-shadow: 0 0 28px rgba(239, 68, 68, 0.8);
+}
+
+.btn-emergency-stop-hex:active {
+  transform: scale(0.95);
+}
+
+.hex-text {
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+
+.hex-text strong {
+  font-size: 0.75rem;
+  color: #fee2e2;
+}
+
+/* Auxiliary Function Dock */
+.aux-functions-dock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 6px 10px;
+}
+
+.aux-fn-btn {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid var(--border-glass);
+  border-radius: 10px;
+  color: #ffffff;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  min-width: 48px;
+}
+
+.aux-fn-btn:hover {
+  background: rgba(2, 132, 199, 0.3);
+  border-color: var(--color-cyan);
+}
+
+.aux-fn-btn.active {
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+.aux-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.aux-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #475569;
+}
+
+.aux-led.on {
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+.aux-led.off {
+  background: #ef4444;
+}
+
+.aux-title {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+/* Big Circular Blue Air Horn Button */
+.btn-circular-horn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: 3px solid #38bdf8;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.55);
+  color: #ffffff;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-left: 4px;
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+}
+
+.btn-circular-horn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.85);
+}
+
+.btn-circular-horn:active {
+  transform: scale(0.94);
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+  box-shadow: 0 0 35px rgba(56, 189, 248, 1);
+}
+
+.horn-trumpet-glyph {
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+/* Reverser Switch Dock */
+.reverser-dock {
+  display: flex;
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.reverser-toggle-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 900;
+  width: 34px;
+  height: 38px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.reverser-toggle-btn.active {
+  background: #0284c7;
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+/* Throttle Slider Module */
+.throttle-console-module {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 170px;
+}
+
+.throttle-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.throttle-label-text {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: var(--color-cyan);
+  letter-spacing: 0.04em;
+}
+
+.throttle-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.throttle-step-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-glass);
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 900;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -517,64 +739,42 @@ html, body {
   transition: all 0.12s ease;
 }
 
-.console-btn:hover {
+.throttle-step-btn:hover {
   background: rgba(2, 132, 199, 0.4);
   border-color: var(--color-cyan);
-  transform: scale(1.05);
 }
 
-.console-btn:active {
-  transform: scale(0.95);
+.throttle-range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 10px;
+  background: #1e293b;
+  border-radius: 5px;
+  outline: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.btn-emergency-brake {
-  background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%);
-  border: 2px solid #f87171;
-  color: #ffffff;
-  padding: 0 20px;
-  height: 48px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 900;
-  letter-spacing: 0.05em;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.throttle-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-cyan);
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
-  transition: all 0.12s ease;
+  box-shadow: 0 0 12px var(--color-cyan);
+  border: 2px solid #ffffff;
 }
 
-.btn-emergency-brake:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #f87171 100%);
-  box-shadow: 0 0 30px rgba(239, 68, 68, 0.7);
-  transform: scale(1.03);
-}
-
-.btn-emergency-brake:active {
-  transform: scale(0.96);
-}
-
-.btn-horn {
-  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
-  border: 1px solid #fcd34d;
-  color: #ffffff;
-  padding: 0 18px;
-  height: 48px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 800;
+.throttle-range-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-cyan);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.12s ease;
-  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-}
-
-.btn-horn:active {
-  transform: scale(0.95);
-  box-shadow: 0 0 25px rgba(245, 158, 11, 0.8);
+  box-shadow: 0 0 12px var(--color-cyan);
+  border: 2px solid #ffffff;
 }
 
 /* ==========================================================================

@@ -12,7 +12,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700;800;900&family=Orbitron:wght@700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
   <!-- Game Stylesheet -->
   <link rel="stylesheet" href="styles/game.css">
@@ -29,138 +29,181 @@
   </a>
 
   <!-- ======================================================================
-       1. IN-GAME HEADS-UP DISPLAY (HUD)
+       1. IN-GAME HEADS-UP DISPLAY (HUD) - INDIAN RAILWAYS WAP-7 COCKPIT
        ====================================================================== -->
   <div class="hud-layer hidden" id="gameHUD">
-    <!-- Top Action & Mission Info Bar -->
+    <!-- Top HUD Bar -->
     <div class="hud-top-bar">
-      <div class="hud-mission-info">
-        <div class="hud-mission-badge">🚆 RAILWAY SIMULATOR</div>
-        <div class="hud-mission-title" id="hudMissionName">Training Run</div>
-        <div class="hud-mission-objective" id="hudMissionObjective">Maintain speed limits and arrive at Riverside Junction.</div>
+      <!-- Top Left: Camera View & Pause Buttons -->
+      <div class="hud-top-left-actions">
+        <button class="hud-icon-btn" id="btnPauseGame" title="Pause Game (ESC)">
+          <span>⏸</span>
+        </button>
+        <button class="hud-icon-btn" id="btnCameraToggle" title="Toggle Camera View: Platform / Cab / Chase (C)">
+          <span>📹</span>
+        </button>
+        <div class="hud-cam-mode-badge" id="hudCameraBadge">PLATFORM VIEW</div>
       </div>
 
-      <div class="hud-top-actions">
-        <div class="hud-pill" id="hudDistanceDriven">0.00 km</div>
-        <div class="hud-pill" id="hudCameraBadge">🎥 CHASE VIEW</div>
-        <div class="hud-pill" id="hudHeadlightsBadge">💡 LIGHTS ON</div>
-        <button class="hud-btn" id="btnPauseGame" title="Pause Game (ESC)">⏸ PAUSE</button>
-      </div>
-    </div>
-
-    <!-- Center Notification Toast Banner -->
-    <div class="hud-alert-banner" id="hudAlertBanner">Signal Clear • Drive Safe</div>
-
-    <!-- Middle Instrument Layout -->
-    <div class="hud-middle-layout">
-      <!-- Left: Speedometer Cluster -->
-      <div class="hud-speed-cluster">
-        <div class="gauge-wrap">
-          <svg class="speed-gauge-svg" viewBox="0 0 140 100">
-            <!-- Background Arc -->
-            <path d="M 20 85 A 50 50 0 1 1 120 85" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="8" stroke-linecap="round" />
-            <!-- Active Colored Speed Arc -->
-            <path d="M 20 85 A 50 50 0 0 1 70 35" fill="none" stroke="url(#speedGrad)" stroke-width="8" stroke-linecap="round" />
-            <defs>
-              <linearGradient id="speedGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stop-color="#0284c7" />
-                <stop offset="100%" stop-color="#00f0ff" />
-              </linearGradient>
-            </defs>
-          </svg>
-          <div class="gauge-needle" id="hudSpeedGaugeNeedle"></div>
-        </div>
-
-        <div class="speed-digital-display">
-          <span class="speed-val" id="hudSpeedVal">0</span>
-          <span class="speed-unit">KM/H</span>
-        </div>
-
-        <div class="speed-limit-box">
-          <div class="limit-sign" id="hudSpeedLimitVal">60</div>
-          <span class="limit-text">SPEED LIMIT</span>
-        </div>
-
-        <div class="overspeed-badge hidden" id="hudOverspeedBadge">⚠ OVERSPEEDING</div>
+      <!-- Top Center: Next Stop Station Banner -->
+      <div class="hud-next-stop-cluster">
+        <span class="hud-next-stop-label">NEXT STOP</span>
+        <h2 class="hud-next-stop-name" id="hudNextStopName">ARAKKONAM</h2>
+        <span class="hud-next-stop-dist" id="hudNextStopDist">in 1,600 Mts</span>
       </div>
 
-      <!-- Right: Signals & Stations Navigation Cards -->
-      <div class="hud-nav-cluster">
-        <!-- Next Signal -->
-        <div class="nav-card">
-          <div class="nav-card-header">
-            <span>UPCOMING SIGNAL</span>
-            <span id="hudSignalDist">550m</span>
+      <!-- Top Right: Digital Station Clock, Speedometer & Limit Cluster -->
+      <div class="hud-top-right-cluster">
+        <!-- Digital Amber 7-Segment LED Clock -->
+        <div class="hud-clock-bezel">
+          <div class="hud-clock-digits" id="hudDigitalClock">22:15</div>
+        </div>
+
+        <!-- Large Speedometer Display & Speed Limit Dial -->
+        <div class="hud-speedometer-cluster">
+          <div class="hud-speed-digital">
+            <span class="hud-speed-num" id="hudSpeedVal">0</span>
+            <span class="hud-speed-unit">KMPH</span>
           </div>
-          <div class="nav-card-main">
-            <span class="signal-optic" id="hudSignalIcon">🟢</span>
-            <div class="nav-card-texts">
-              <span class="nav-title" id="hudSignalName">Depot Exit Signal</span>
-              <span class="nav-dist">Track Clear</span>
+
+          <div class="hud-speed-dial-wrap">
+            <svg class="speed-arc-svg" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="38" class="speed-arc-bg" />
+              <circle cx="50" cy="50" r="38" class="speed-arc-val" id="hudSpeedArc" />
+            </svg>
+            <div class="hud-limit-badge" id="hudSpeedLimitBadge">
+              <span class="limit-num" id="hudSpeedLimitVal">70</span>
+              <span class="limit-unit">KMPH</span>
             </div>
-          </div>
-        </div>
-
-        <!-- Next Station -->
-        <div class="nav-card">
-          <div class="nav-card-header">
-            <span>NEXT STATION</span>
-            <span id="hudStationDist">1600m</span>
-          </div>
-          <div class="nav-card-main">
-            <span style="font-size: 1.5rem;">🚉</span>
-            <div class="nav-card-texts">
-              <span class="nav-title" id="hudStationName">Riverside Junction</span>
-              <span class="nav-dist">Scheduled Stop</span>
-            </div>
+            <span class="hud-limit-timer" id="hudLimitTimer">25S</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Bottom Driver Control Console -->
-    <div class="hud-bottom-console">
-      <!-- Throttle Notch Lever -->
-      <div class="console-lever-group">
-        <div class="lever-label-col">
-          <span class="lever-title">THROTTLE</span>
-          <span class="lever-val" id="hudThrottleLevel">T: 0/5</span>
-          <div class="meter-track">
-            <div class="meter-fill throttle" id="hudThrottleFill"></div>
+    <!-- Middle View Area: Left Warning Stack & Overspeed Warning -->
+    <div class="hud-middle-container">
+      <!-- Left Track Warnings Stack -->
+      <div class="hud-left-alerts-stack" id="hudLeftAlerts">
+        <!-- 1. Upcoming Signal Alert -->
+        <div class="track-alert-chip alert-signal" id="alertSignalChip">
+          <div class="chip-icon-circle chip-signal-icon" id="alertSignalCircle">
+            <span class="optic-lens-dot green" id="alertSignalOptic"></span>
+          </div>
+          <div class="chip-content">
+            <span class="chip-title" id="alertSignalText">GREEN SIGNAL in 550Mts</span>
           </div>
         </div>
-        <button class="console-btn" id="btnThrottleDown" title="Throttle Down (A / Left)">−</button>
-        <button class="console-btn" id="btnThrottleUp" title="Throttle Up (W / Up)">+</button>
-      </div>
 
-      <!-- Service Brake Lever -->
-      <div class="console-lever-group">
-        <div class="lever-label-col">
-          <span class="lever-title">BRAKE</span>
-          <span class="lever-val" id="hudBrakeLevel">B: 0/5</span>
-          <div class="meter-track">
-            <div class="meter-fill brake" id="hudBrakeFill"></div>
+        <!-- 2. Upcoming Speed Limit Alert -->
+        <div class="track-alert-chip alert-speed" id="alertSpeedChip">
+          <div class="chip-icon-circle chip-speed-icon">
+            <span class="speed-sign-val" id="alertSpeedSignVal">50</span>
+          </div>
+          <div class="chip-content">
+            <span class="chip-title" id="alertSpeedText">SPEED LIMIT in 150Mts</span>
           </div>
         </div>
-        <button class="console-btn" id="btnBrakeDown" title="Brake Release (D / Right)">−</button>
-        <button class="console-btn" id="btnBrakeUp" title="Brake Apply (S / Down)">+</button>
+
+        <!-- 3. Upcoming Track Change / Switch Alert -->
+        <div class="track-alert-chip alert-track-change" id="alertTrackChangeChip">
+          <div class="chip-icon-circle chip-track-icon">
+            <span class="track-arrow-glyph">↱</span>
+          </div>
+          <div class="chip-content">
+            <span class="chip-title" id="alertTrackChangeText">TRACK CHANGE in 230Mts</span>
+          </div>
+        </div>
       </div>
 
-      <!-- Emergency Brake -->
-      <button class="btn-emergency-brake" id="btnEmergencyBrake" title="Emergency Brake (SPACE)">
-        <span>🛑</span>
-        <span>EMERGENCY BRAKE</span>
-      </button>
+      <!-- Center Dynamic Overspeeding Alert Toast -->
+      <div class="hud-center-alert-toast hidden" id="hudOverspeedToast">
+        ⚠ OVERSPEEDING! REDUCE SPEED
+      </div>
+    </div>
 
-      <!-- Horn -->
-      <button class="btn-horn" id="btnHorn" title="Locomotive Horn (H)">
-        <span>📯</span>
-        <span>HORN</span>
-      </button>
+    <!-- Bottom Interface: Timetable Status & Driver Cockpit Console -->
+    <div class="hud-bottom-dock">
+      <!-- Left: Objective & Event Log Capsule -->
+      <div class="hud-timetable-capsule">
+        <div class="timetable-row timetable-target">
+          <span class="status-pulse-dot"></span>
+          <span id="hudTimetableTarget">REACH ARAKKONAM BY 10:45 PM</span>
+        </div>
+        <div class="timetable-row timetable-event">
+          <span class="event-icon">💼</span>
+          <span id="hudStatusLog">9:40 PM | CAB ACTIVE • TRACK CLEAR</span>
+        </div>
+      </div>
 
-      <!-- Headlights & Camera -->
-      <button class="console-btn" id="btnHeadlights" title="Headlights (L)">💡</button>
-      <button class="console-btn" id="btnCameraToggle" title="Toggle Camera View (C)">🎥</button>
+      <!-- Center & Right: Authentic Locomotive Console -->
+      <div class="hud-console-bar">
+        <!-- Emergency Stop Hex Button -->
+        <button class="btn-emergency-stop-hex" id="btnEmergencyBrake" title="Emergency Brake (SPACE)">
+          <span class="hex-text">EMERGENCY<br><strong>STOP</strong></span>
+        </button>
+
+        <!-- Train Auxiliary Functions Dock -->
+        <div class="aux-functions-dock">
+          <!-- Pantograph -->
+          <button class="aux-fn-btn active" id="btnPantograph" title="Toggle Pantograph (P)">
+            <span class="aux-icon">⚡</span>
+            <span class="aux-led on" id="ledPantograph"></span>
+            <span class="aux-title">PANTO</span>
+          </button>
+
+          <!-- Traction Inverter / Power -->
+          <button class="aux-fn-btn active" id="btnEnginePower" title="Locomotive Inverter Power (E)">
+            <span class="aux-icon">⚙</span>
+            <span class="aux-led on" id="ledPower"></span>
+            <span class="aux-title">POWER</span>
+          </button>
+
+          <!-- Headlights -->
+          <button class="aux-fn-btn active" id="btnHeadlights" title="High-Beam Headlights (L)">
+            <span class="aux-icon">💡</span>
+            <span class="aux-led on" id="ledHeadlights"></span>
+            <span class="aux-title">LIGHTS</span>
+          </button>
+
+          <!-- Passenger Doors -->
+          <button class="aux-fn-btn" id="btnDoors" title="Open/Close Passenger Doors (O)">
+            <span class="aux-icon">🚪</span>
+            <span class="aux-led off" id="ledDoors"></span>
+            <span class="aux-title">DOORS</span>
+          </button>
+
+          <!-- Indian Railway Station Announcement Chime -->
+          <button class="aux-fn-btn" id="btnStationChime" title="Station Announcement Chime (N)">
+            <span class="aux-icon">📢</span>
+            <span class="aux-led off" id="ledChime"></span>
+            <span class="aux-title">CHIME</span>
+          </button>
+
+          <!-- Big Round Indian Railway Air Horn Button -->
+          <button class="btn-circular-horn" id="btnHorn" title="Locomotive Air Horn (H / Click & Hold)">
+            <span class="horn-trumpet-glyph">🎺</span>
+          </button>
+        </div>
+
+        <!-- Reverser Selector (Forward / Reverse) -->
+        <div class="reverser-dock">
+          <button class="reverser-toggle-btn active" id="btnRevForward" title="Forward (F)">F</button>
+          <button class="reverser-toggle-btn" id="btnRevReverse" title="Reverse (R)">R</button>
+        </div>
+
+        <!-- Throttle Notch & Percentage Bar -->
+        <div class="throttle-console-module">
+          <div class="throttle-header-row">
+            <span class="throttle-label-text" id="hudThrottleReadout">THROTTLE 0%</span>
+          </div>
+          <div class="throttle-slider-container">
+            <button class="throttle-step-btn" id="btnThrottleDown" title="Throttle Down (A / Left)">−</button>
+            <input type="range" class="throttle-range-slider" id="hudThrottleSlider" min="0" max="100" value="0" step="5">
+            <button class="throttle-step-btn" id="btnThrottleUp" title="Throttle Up (W / Up)">+</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

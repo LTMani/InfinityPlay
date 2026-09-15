@@ -1,7 +1,13 @@
 /**
- * Railway Commander - UI Manager
- * Handles HUD gauges, digital speedometer, throttle/brake LED indicators,
- * warning banners, mission briefing, countdowns, pause, game-over, and results modals.
+ * Railway Commander - Indian Railways WAP-7 Cockpit & UI Manager
+ * Handles:
+ * - Top HUD: Next Stop ARAKKONAM cluster, Amber digital 7-segment 22:15 clock,
+ *   bold 80 KMPH speed readout, circular speed gauge, 70 KMPH speed limit dial
+ * - Left Warnings: Red Signal in 200Mts, Speed Limit in 150Mts, Track Change in 230Mts
+ * - Bottom Timetable: Arrival target & real-time driver log
+ * - Driver Console: Emergency Stop button, Auxiliary dock (Panto, Power, Lights, Doors, Chime, big blue Horn),
+ *   Reverser [F] [R], Throttle slider with percentage readout
+ * - Menus, countdown, briefing, results, and pause modals
  */
 
 export class UIManager {
@@ -9,6 +15,10 @@ export class UIManager {
     this.engine = gameEngine;
     this.dom = {};
     this.notificationTimeout = null;
+
+    // Simulation Clock
+    this.simSeconds = 22 * 3600 + 15 * 60; // 22:15:00 default
+    this.lastLogMessage = '9:40 PM | CAB ACTIVE • TRACK CLEAR';
   }
 
   init() {
@@ -29,31 +39,67 @@ export class UIManager {
     this.dom.screenComplete = document.getElementById('screenComplete');
     this.dom.screenFailed = document.getElementById('screenFailed');
 
-    // HUD Elements
-    this.dom.hudSpeedVal = document.getElementById('hudSpeedVal');
-    this.dom.hudSpeedGaugeNeedle = document.getElementById('hudSpeedGaugeNeedle');
-    this.dom.hudSpeedLimitVal = document.getElementById('hudSpeedLimitVal');
-    this.dom.hudOverspeedBadge = document.getElementById('hudOverspeedBadge');
-
-    this.dom.hudThrottleFill = document.getElementById('hudThrottleFill');
-    this.dom.hudThrottleLevel = document.getElementById('hudThrottleLevel');
-    this.dom.hudBrakeFill = document.getElementById('hudBrakeFill');
-    this.dom.hudBrakeLevel = document.getElementById('hudBrakeLevel');
-    this.dom.hudEBrakeBadge = document.getElementById('hudEBrakeBadge');
-
-    this.dom.hudSignalIcon = document.getElementById('hudSignalIcon');
-    this.dom.hudSignalDist = document.getElementById('hudSignalDist');
-    this.dom.hudSignalName = document.getElementById('hudSignalName');
-
-    this.dom.hudStationName = document.getElementById('hudStationName');
-    this.dom.hudStationDist = document.getElementById('hudStationDist');
-    this.dom.hudDistanceDriven = document.getElementById('hudDistanceDriven');
-
-    this.dom.hudMissionName = document.getElementById('hudMissionName');
-    this.dom.hudMissionObjective = document.getElementById('hudMissionObjective');
-    this.dom.hudAlertBanner = document.getElementById('hudAlertBanner');
+    // Top Bar HUD
     this.dom.hudCameraBadge = document.getElementById('hudCameraBadge');
-    this.dom.hudHeadlightsBadge = document.getElementById('hudHeadlightsBadge');
+    this.dom.btnCameraToggle = document.getElementById('btnCameraToggle');
+    this.dom.btnPauseGame = document.getElementById('btnPauseGame');
+
+    this.dom.hudNextStopName = document.getElementById('hudNextStopName');
+    this.dom.hudNextStopDist = document.getElementById('hudNextStopDist');
+
+    this.dom.hudDigitalClock = document.getElementById('hudDigitalClock');
+    this.dom.hudSpeedVal = document.getElementById('hudSpeedVal');
+    this.dom.hudSpeedArc = document.getElementById('hudSpeedArc');
+    this.dom.hudSpeedLimitVal = document.getElementById('hudSpeedLimitVal');
+    this.dom.hudSpeedLimitBadge = document.getElementById('hudSpeedLimitBadge');
+    this.dom.hudLimitTimer = document.getElementById('hudLimitTimer');
+
+    // Left Alert Chips
+    this.dom.hudLeftAlerts = document.getElementById('hudLeftAlerts');
+    this.dom.alertSignalChip = document.getElementById('alertSignalChip');
+    this.dom.alertSignalOptic = document.getElementById('alertSignalOptic');
+    this.dom.alertSignalText = document.getElementById('alertSignalText');
+
+    this.dom.alertSpeedChip = document.getElementById('alertSpeedChip');
+    this.dom.alertSpeedSignVal = document.getElementById('alertSpeedSignVal');
+    this.dom.alertSpeedText = document.getElementById('alertSpeedText');
+
+    this.dom.alertTrackChangeChip = document.getElementById('alertTrackChangeChip');
+    this.dom.alertTrackChangeText = document.getElementById('alertTrackChangeText');
+
+    this.dom.hudOverspeedToast = document.getElementById('hudOverspeedToast');
+
+    // Bottom Timetable & Status Capsule
+    this.dom.hudTimetableTarget = document.getElementById('hudTimetableTarget');
+    this.dom.hudStatusLog = document.getElementById('hudStatusLog');
+
+    // Bottom Driver Console Controls
+    this.dom.btnEmergencyBrake = document.getElementById('btnEmergencyBrake');
+
+    this.dom.btnPantograph = document.getElementById('btnPantograph');
+    this.dom.ledPantograph = document.getElementById('ledPantograph');
+
+    this.dom.btnEnginePower = document.getElementById('btnEnginePower');
+    this.dom.ledPower = document.getElementById('ledPower');
+
+    this.dom.btnHeadlights = document.getElementById('btnHeadlights');
+    this.dom.ledHeadlights = document.getElementById('ledHeadlights');
+
+    this.dom.btnDoors = document.getElementById('btnDoors');
+    this.dom.ledDoors = document.getElementById('ledDoors');
+
+    this.dom.btnStationChime = document.getElementById('btnStationChime');
+    this.dom.ledChime = document.getElementById('ledChime');
+
+    this.dom.btnHorn = document.getElementById('btnHorn');
+
+    this.dom.btnRevForward = document.getElementById('btnRevForward');
+    this.dom.btnRevReverse = document.getElementById('btnRevReverse');
+
+    this.dom.hudThrottleReadout = document.getElementById('hudThrottleReadout');
+    this.dom.hudThrottleSlider = document.getElementById('hudThrottleSlider');
+    this.dom.btnThrottleDown = document.getElementById('btnThrottleDown');
+    this.dom.btnThrottleUp = document.getElementById('btnThrottleUp');
 
     // Countdown
     this.dom.countdownNumber = document.getElementById('countdownNumber');
@@ -91,6 +137,7 @@ export class UIManager {
   }
 
   bindEvents() {
+    // Menu navigation
     document.getElementById('btnMenuPlay')?.addEventListener('click', () => {
       this.engine.soundManager.playClick();
       this.engine.prepareMission('mission-1');
@@ -160,6 +207,143 @@ export class UIManager {
       this.engine.quitToMenu();
     });
 
+    // Camera Mode Switcher Button
+    this.dom.btnCameraToggle?.addEventListener('click', () => {
+      this.engine.soundManager.playClick();
+      const mode = this.engine.renderer.cycleCameraMode();
+      if (this.dom.hudCameraBadge) {
+        this.dom.hudCameraBadge.textContent = this.engine.renderer.getCameraModeLabel();
+      }
+      this.setEventLog(`CAMERA: ${mode.toUpperCase()} VIEW`);
+    });
+
+    // Pause Game Button
+    this.dom.btnPauseGame?.addEventListener('click', () => {
+      this.engine.soundManager.playClick();
+      this.engine.pauseGame();
+    });
+
+    // Emergency Stop Button
+    this.dom.btnEmergencyBrake?.addEventListener('click', () => {
+      this.engine.applyEmergencyBrake();
+      this.setEventLog('EMERGENCY BRAKE APPLIED');
+      this.showNotification('🛑 EMERGENCY BRAKE ENGAGED!', 'danger');
+    });
+
+    // Pantograph Toggle Button
+    this.dom.btnPantograph?.addEventListener('click', () => {
+      const isUp = this.engine.physics.togglePantograph();
+      this.engine.soundManager.playPantographSpark();
+      if (this.dom.ledPantograph) {
+        this.dom.ledPantograph.className = isUp ? 'aux-led on' : 'aux-led off';
+      }
+      this.dom.btnPantograph.classList.toggle('active', isUp);
+      this.setEventLog(isUp ? 'PANTOGRAPH RAISED (25kV OHE)' : 'PANTOGRAPH LOWERED - NO TRACTION');
+    });
+
+    // Traction Inverter Power Toggle Button
+    this.dom.btnEnginePower?.addEventListener('click', () => {
+      const pwr = this.engine.physics.toggleEnginePower();
+      this.engine.soundManager.playClick();
+      if (this.dom.ledPower) {
+        this.dom.ledPower.className = pwr ? 'aux-led on' : 'aux-led off';
+      }
+      this.dom.btnEnginePower.classList.toggle('active', pwr);
+      this.setEventLog(pwr ? 'TRACTION INVERTERS ONLINE' : 'TRACTION INVERTERS OFFLINE');
+    });
+
+    // Headlights Toggle Button
+    this.dom.btnHeadlights?.addEventListener('click', () => {
+      const hl = this.engine.physics.toggleHeadlights();
+      this.engine.soundManager.playClick();
+      if (this.dom.ledHeadlights) {
+        this.dom.ledHeadlights.className = hl ? 'aux-led on' : 'aux-led off';
+      }
+      this.dom.btnHeadlights.classList.toggle('active', hl);
+      this.setEventLog(hl ? 'HEADLIGHTS HIGH BEAM ON' : 'HEADLIGHTS OFF');
+    });
+
+    // Passenger Doors Toggle Button
+    this.dom.btnDoors?.addEventListener('click', () => {
+      const ok = this.engine.physics.toggleDoors();
+      if (ok) {
+        const open = this.engine.physics.doorsOpen;
+        this.engine.soundManager.playDoorSound(open);
+        if (this.dom.ledDoors) {
+          this.dom.ledDoors.className = open ? 'aux-led on' : 'aux-led off';
+        }
+        this.dom.btnDoors.classList.toggle('active', open);
+        this.setEventLog(open ? 'DOORS OPEN - PLATFORM PASSENGERS' : 'DOORS CLOSED - SAFETY LOCKED');
+      } else {
+        this.showNotification('Cannot open doors while train is moving!', 'warning');
+      }
+    });
+
+    // Station Announcement Chime Button
+    this.dom.btnStationChime?.addEventListener('click', () => {
+      this.engine.soundManager.playStationChime();
+      this.setEventLog('STATION ANNOUNCEMENT CHIME');
+      this.showNotification('📢 "Yatri kripya dhyan dein..."', 'info');
+    });
+
+    // Big Blue Circular Locomotive Horn Button (Touch & Mouse hold)
+    const hornBtn = this.dom.btnHorn;
+    if (hornBtn) {
+      const hornStart = (e) => {
+        e.preventDefault();
+        this.engine.physics.setHorn(true);
+        this.engine.soundManager.playHorn(true);
+      };
+      const hornEnd = (e) => {
+        e.preventDefault();
+        this.engine.physics.setHorn(false);
+        this.engine.soundManager.playHorn(false);
+      };
+
+      hornBtn.addEventListener('mousedown', hornStart);
+      hornBtn.addEventListener('mouseup', hornEnd);
+      hornBtn.addEventListener('mouseleave', hornEnd);
+      hornBtn.addEventListener('touchstart', hornStart, { passive: false });
+      hornBtn.addEventListener('touchend', hornEnd, { passive: false });
+    }
+
+    // Reverser Selector [F] [R]
+    this.dom.btnRevForward?.addEventListener('click', () => {
+      if (this.engine.physics.setReverser('F')) {
+        this.engine.soundManager.playClick();
+        this.dom.btnRevForward.classList.add('active');
+        this.dom.btnRevReverse.classList.remove('active');
+        this.setEventLog('REVERSER: FORWARD (F)');
+      }
+    });
+
+    this.dom.btnRevReverse?.addEventListener('click', () => {
+      if (this.engine.physics.setReverser('R')) {
+        this.engine.soundManager.playClick();
+        this.dom.btnRevReverse.classList.add('active');
+        this.dom.btnRevForward.classList.remove('active');
+        this.setEventLog('REVERSER: REVERSE (R)');
+      }
+    });
+
+    // Throttle Range Slider
+    this.dom.hudThrottleSlider?.addEventListener('input', (e) => {
+      const pct = parseInt(e.target.value, 10) || 0;
+      this.engine.physics.setThrottlePercent(pct);
+    });
+
+    // Throttle Step Buttons
+    this.dom.btnThrottleUp?.addEventListener('click', () => {
+      this.engine.physics.throttleUp();
+      this.engine.soundManager.playClick();
+    });
+
+    this.dom.btnThrottleDown?.addEventListener('click', () => {
+      this.engine.physics.throttleDown();
+      this.engine.soundManager.playClick();
+    });
+
+    // Sound & Settings
     const sfxBtn = document.getElementById('btnSettingSound');
     if (sfxBtn) {
       sfxBtn.addEventListener('click', () => {
@@ -189,6 +373,13 @@ export class UIManager {
         btn.classList.add('active');
       });
     });
+  }
+
+  setEventLog(msg) {
+    this.lastLogMessage = `9:40 PM | ${msg}`;
+    if (this.dom.hudStatusLog) {
+      this.dom.hudStatusLog.textContent = this.lastLogMessage;
+    }
   }
 
   showScreen(targetId) {
@@ -304,6 +495,9 @@ export class UIManager {
 
   showHUD() {
     this.showScreen('gameHUD');
+    if (this.dom.hudCameraBadge) {
+      this.dom.hudCameraBadge.textContent = this.engine.renderer.getCameraModeLabel();
+    }
   }
 
   showPause() {
@@ -312,7 +506,7 @@ export class UIManager {
 
   showMissionFailed(reason) {
     if (this.dom.failedReason) {
-      this.dom.failedReason.textContent = reason || 'Mission rules violation.';
+      this.dom.failedReason.textContent = reason || 'Safety regulations violation.';
     }
     this.showScreen('screenFailed');
   }
@@ -418,90 +612,178 @@ export class UIManager {
     });
   }
 
+  /**
+   * Main HUD Frame Update
+   */
   updateHUD(state, nextSignal, nextStation, missionConfig) {
     if (!state) return;
 
+    // 1. Digital Speedometer & Speed Arc
     const speed = Math.round(state.speedKmh);
     if (this.dom.hudSpeedVal) {
       this.dom.hudSpeedVal.textContent = speed;
     }
 
-    if (this.dom.hudSpeedGaugeNeedle) {
-      const ratio = Math.min(1.0, speed / 140);
-      const angle = -120 + (ratio * 240);
-      this.dom.hudSpeedGaugeNeedle.style.transform = `rotate(${angle}deg)`;
+    if (this.dom.hudSpeedArc) {
+      // Circumference = 2 * PI * 38 = ~238.7
+      const speedRatio = Math.min(1.0, speed / 140);
+      const strokeOffset = 238 - (speedRatio * 180);
+      this.dom.hudSpeedArc.style.strokeDashoffset = strokeOffset;
     }
 
+    // Speed Limit Display
     if (this.dom.hudSpeedLimitVal) {
       this.dom.hudSpeedLimitVal.textContent = state.speedLimitKmh;
     }
-    if (this.dom.hudOverspeedBadge) {
+
+    // Overspeed Toast
+    if (this.dom.hudOverspeedToast) {
       if (state.overspeedWarning) {
-        this.dom.hudOverspeedBadge.classList.remove('hidden');
-        this.dom.hudOverspeedBadge.textContent = '⚠ OVERSPEEDING';
+        this.dom.hudOverspeedToast.classList.remove('hidden');
       } else {
-        this.dom.hudOverspeedBadge.classList.add('hidden');
+        this.dom.hudOverspeedToast.classList.add('hidden');
       }
     }
 
-    if (this.dom.hudThrottleLevel) {
-      this.dom.hudThrottleLevel.textContent = `T: ${state.throttleLevel}/5`;
+    // 2. Top Center: Next Stop Station
+    if (this.dom.hudNextStopName) {
+      const stName = nextStation ? nextStation.name : (missionConfig?.stations?.[0]?.name || 'ARAKKONAM');
+      this.dom.hudNextStopName.textContent = stName;
     }
-    if (this.dom.hudThrottleFill) {
-      this.dom.hudThrottleFill.style.width = `${(state.throttleLevel / 5) * 100}%`;
-    }
-
-    if (this.dom.hudBrakeLevel) {
-      this.dom.hudBrakeLevel.textContent = `B: ${state.brakeLevel}/5`;
-    }
-    if (this.dom.hudBrakeFill) {
-      this.dom.hudBrakeFill.style.width = `${(state.brakeLevel / 5) * 100}%`;
-    }
-
-    if (this.dom.hudEBrakeBadge) {
-      this.dom.hudEBrakeBadge.style.display = state.emergencyBrake ? 'inline-block' : 'none';
+    if (this.dom.hudNextStopDist) {
+      if (nextStation) {
+        this.dom.hudNextStopDist.textContent = `in ${nextStation.distanceMeters.toLocaleString()} Mts`;
+      } else {
+        this.dom.hudNextStopDist.textContent = 'ARRIVED';
+      }
     }
 
-    if (nextSignal) {
-      const colors = { GREEN: '🟢', YELLOW: '🟡', RED: '🔴' };
-      if (this.dom.hudSignalIcon) this.dom.hudSignalIcon.textContent = colors[nextSignal.aspect] || '🟢';
-      if (this.dom.hudSignalDist) this.dom.hudSignalDist.textContent = `${nextSignal.distanceMeters}m`;
-      if (this.dom.hudSignalName) this.dom.hudSignalName.textContent = nextSignal.name;
-    } else {
-      if (this.dom.hudSignalIcon) this.dom.hudSignalIcon.textContent = '🟢';
-      if (this.dom.hudSignalDist) this.dom.hudSignalDist.textContent = '--';
-      if (this.dom.hudSignalName) this.dom.hudSignalName.textContent = 'Track Clear';
+    // 3. Digital Amber LED Clock (e.g. 22:15)
+    if (this.dom.hudDigitalClock) {
+      const clockStr = missionConfig?.initialClock || '22:15';
+      this.dom.hudDigitalClock.textContent = clockStr;
     }
 
-    if (nextStation) {
-      if (this.dom.hudStationName) this.dom.hudStationName.textContent = nextStation.name;
-      if (this.dom.hudStationDist) this.dom.hudStationDist.textContent = `${nextStation.distanceMeters}m`;
-    } else {
-      if (this.dom.hudStationName) this.dom.hudStationName.textContent = 'Terminus Reached';
-      if (this.dom.hudStationDist) this.dom.hudStationDist.textContent = '0m';
+    // 4. Left Track Warnings Stack
+    // 4a. Signal Alert
+    if (this.dom.alertSignalChip && this.dom.alertSignalText) {
+      if (nextSignal && nextSignal.distanceMeters <= 800) {
+        this.dom.alertSignalChip.style.display = 'flex';
+        this.dom.alertSignalText.textContent = `${nextSignal.aspect} SIGNAL in ${nextSignal.distanceMeters}Mts`;
+        if (this.dom.alertSignalOptic) {
+          this.dom.alertSignalOptic.className = `optic-lens-dot ${nextSignal.aspect.toLowerCase()}`;
+        }
+      } else {
+        this.dom.alertSignalChip.style.display = 'none';
+      }
     }
 
-    if (this.dom.hudDistanceDriven) {
-      this.dom.hudDistanceDriven.textContent = `${state.positionKm} km`;
+    // 4b. Speed Limit Notice Alert
+    if (this.dom.alertSpeedChip && this.dom.alertSpeedText) {
+      const speedNotice = this.engine.trackManager.getNextSpeedLimitNotice(state.positionMeters, 650);
+      if (speedNotice) {
+        this.dom.alertSpeedChip.style.display = 'flex';
+        if (this.dom.alertSpeedSignVal) {
+          this.dom.alertSpeedSignVal.textContent = speedNotice.nextLimit;
+        }
+        this.dom.alertSpeedText.textContent = `SPEED LIMIT in ${speedNotice.distance}Mts`;
+      } else {
+        this.dom.alertSpeedChip.style.display = 'none';
+      }
     }
 
-    if (missionConfig) {
-      if (this.dom.hudMissionName) this.dom.hudMissionName.textContent = missionConfig.title;
-      if (this.dom.hudMissionObjective) this.dom.hudMissionObjective.textContent = missionConfig.objective;
+    // 4c. Track Change / Switch Notice Alert
+    if (this.dom.alertTrackChangeChip && this.dom.alertTrackChangeText) {
+      const trackSwitch = this.engine.trackManager.getNextTrackSwitch(state.positionMeters, 650);
+      if (trackSwitch) {
+        this.dom.alertTrackChangeChip.style.display = 'flex';
+        this.dom.alertTrackChangeText.textContent = `TRACK CHANGE in ${trackSwitch.distanceMeters}Mts`;
+      } else {
+        this.dom.alertTrackChangeChip.style.display = 'none';
+      }
     }
 
-    if (this.dom.hudHeadlightsBadge) {
-      this.dom.hudHeadlightsBadge.textContent = state.headlights ? '💡 LIGHTS ON' : '💡 LIGHTS OFF';
-      this.dom.hudHeadlightsBadge.classList.toggle('active', state.headlights);
+    // 5. Bottom Timetable Target
+    if (this.dom.hudTimetableTarget && missionConfig) {
+      const targetTime = missionConfig.targetTime || '10:45 PM';
+      const destName = missionConfig.stations?.[missionConfig.stations.length - 1]?.name || 'ARAKKONAM';
+      this.dom.hudTimetableTarget.textContent = `REACH ${destName} BY ${targetTime}`;
     }
+
+    // Dynamic Log Status
+    if (this.dom.hudStatusLog) {
+      if (state.emergencyBrake) {
+        this.dom.hudStatusLog.textContent = '9:40 PM | EMERGENCY BRAKE APPLIED';
+      } else if (state.doorsOpen) {
+        this.dom.hudStatusLog.textContent = '9:40 PM | DOORS OPEN • PASSENGERS BOARDING';
+      } else if (state.overspeedWarning) {
+        this.dom.hudStatusLog.textContent = '9:40 PM | ⚠ OVERSPEED RESTRICTION EXCEEDED';
+      } else if (!state.pantographUp) {
+        this.dom.hudStatusLog.textContent = '9:40 PM | PANTOGRAPH LOWERED • NO 25kV OHE';
+      } else {
+        this.dom.hudStatusLog.textContent = this.lastLogMessage;
+      }
+    }
+
+    // 6. Throttle & Console Controls
+    if (this.dom.hudThrottleReadout) {
+      this.dom.hudThrottleReadout.textContent = `THROTTLE ${state.throttlePercent}%`;
+    }
+    if (this.dom.hudThrottleSlider) {
+      if (document.activeElement !== this.dom.hudThrottleSlider) {
+        this.dom.hudThrottleSlider.value = state.throttlePercent;
+      }
+    }
+
+    // Aux button LEDs & states
+    if (this.dom.ledPantograph) {
+      this.dom.ledPantograph.className = state.pantographUp ? 'aux-led on' : 'aux-led off';
+    }
+    if (this.dom.btnPantograph) {
+      this.dom.btnPantograph.classList.toggle('active', state.pantographUp);
+    }
+
+    if (this.dom.ledPower) {
+      this.dom.ledPower.className = state.enginePower ? 'aux-led on' : 'aux-led off';
+    }
+    if (this.dom.btnEnginePower) {
+      this.dom.btnEnginePower.classList.toggle('active', state.enginePower);
+    }
+
+    if (this.dom.ledHeadlights) {
+      this.dom.ledHeadlights.className = state.headlights ? 'aux-led on' : 'aux-led off';
+    }
+    if (this.dom.btnHeadlights) {
+      this.dom.btnHeadlights.classList.toggle('active', state.headlights);
+    }
+
+    if (this.dom.ledDoors) {
+      this.dom.ledDoors.className = state.doorsOpen ? 'aux-led on' : 'aux-led off';
+    }
+    if (this.dom.btnDoors) {
+      this.dom.btnDoors.classList.toggle('active', state.doorsOpen);
+    }
+
+    // Reverser buttons
+    if (this.dom.btnRevForward && this.dom.btnRevReverse) {
+      this.dom.btnRevForward.classList.toggle('active', state.reverser === 'F');
+      this.dom.btnRevReverse.classList.toggle('active', state.reverser === 'R');
+    }
+
+    // Camera Badge
     if (this.dom.hudCameraBadge) {
-      this.dom.hudCameraBadge.textContent = this.engine.renderer.cameraMode === 'cab' ? '🎥 CAB VIEW' : '🎥 CHASE VIEW';
+      this.dom.hudCameraBadge.textContent = this.engine.renderer.getCameraModeLabel();
     }
   }
 
-  showNotification(message, type = 'info', duration = 3000) {
-    const banner = this.dom.hudAlertBanner;
-    if (!banner) return;
+  showNotification(message, type = 'info', duration = 3200) {
+    let banner = document.getElementById('hudNotificationToast');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'hudNotificationToast';
+      banner.className = 'hud-alert-banner';
+      document.body.appendChild(banner);
+    }
 
     if (this.notificationTimeout) {
       clearTimeout(this.notificationTimeout);

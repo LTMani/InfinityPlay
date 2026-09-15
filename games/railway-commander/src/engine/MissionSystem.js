@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Railway Commander - Mission & Progression System
  * Defines handcrafted missions, objective tracking, score calculations,
  * and unlock progression.
@@ -8,72 +8,91 @@ export const MISSIONS_DATA = [
   {
     id: 'mission-1',
     number: 1,
-    title: 'Training Run',
-    tagline: 'Master train controls & safe station stopping',
-    objective: 'Learn throttle and brake controls, maintain the 60 km/h speed limit, and stop accurately at Riverside Junction.',
-    route: 'Central Depot → Riverside Junction',
-    distanceMeters: 1800,
-    distanceFormatted: '1.8 km',
-    speedLimitKmh: 60,
+    title: 'Arakkonam Express',
+    tagline: 'WAP-7 Rajdhani run to Arakkonam Junction',
+    objective: 'Operate the WAP-7 Rajdhani Express. Follow signals, observe speed limits, negotiate track switches, and stop accurately at Arakkonam Junction Platform 1.',
+    route: 'Chennai Central → Arakkonam Junction',
+    distanceMeters: 2200,
+    distanceFormatted: '2.2 km',
+    speedLimitKmh: 70,
+    targetTime: '10:45 PM',
+    initialClock: '22:15',
     environment: 'city',
-    timeOfDay: 'day', // 'day' | 'sunset' | 'night'
-    weather: 'clear', // 'clear' | 'rain' | 'fog'
+    timeOfDay: 'sunset', // sunset dusk matching reference screenshot
+    weather: 'clear',
     rewardXp: 500,
     rewardCoins: 250,
     speedLimitZones: [
-      { from: 0, to: 1800, limitKmh: 60 }
+      { from: 0, to: 950, limitKmh: 70 },
+      { from: 950, to: 2200, limitKmh: 50 }
+    ],
+    trackSwitches: [
+      { position: 720, direction: 'right', name: 'Points No. 12B (Track Change)' }
     ],
     stations: [
-      { id: 'st_riverside', name: 'Riverside Junction', stopPosition: 1620, platformLength: 130, mandatory: true }
+      { 
+        id: 'st_arakkonam', 
+        name: 'ARAKKONAM', 
+        nativeTamil: 'அரக்கோணம்', 
+        nativeHindi: 'अरक्कोणम', 
+        stopPosition: 1950, 
+        platformLength: 170, 
+        mandatory: true 
+      }
     ],
     signals: [
-      { id: 'sig_1', name: 'Depot Exit Signal', positionMeters: 550, aspect: 'GREEN' },
-      { id: 'sig_2', name: 'Riverside Approach Signal', positionMeters: 1250, aspect: 'GREEN' }
+      { id: 'sig_1', name: 'Chennai Central Outbound', positionMeters: 550, aspect: 'GREEN' },
+      { id: 'sig_2', name: 'Arakkonam Outer Home Signal', positionMeters: 1450, aspect: 'YELLOW' }
     ]
   },
   {
     id: 'mission-2',
     number: 2,
-    title: 'City Express',
-    tagline: 'Dynamic speed limit transitions & multi-station timetable',
-    objective: 'Operate an express commuter run. Accelerate through the 100 km/h high-speed zone and execute smooth stops at both stations.',
-    route: 'Central Depot → Riverside Junction → Metro Harbor',
+    title: 'Rajdhani Superfast',
+    tagline: '130 KMPH high-speed trunk route corridor',
+    objective: 'Accelerate the WAP-7 rake to 130 km/h along the trunk main line. Execute smooth braking for Kanpur Central arrival.',
+    route: 'New Delhi → Aligarh → Kanpur Central',
     distanceMeters: 3800,
     distanceFormatted: '3.8 km',
-    speedLimitKmh: 100,
+    speedLimitKmh: 130,
+    targetTime: '11:30 PM',
+    initialClock: '23:05',
     environment: 'city',
-    timeOfDay: 'sunset',
+    timeOfDay: 'night',
     weather: 'clear',
     rewardXp: 850,
     rewardCoins: 450,
     speedLimitZones: [
-      { from: 0, to: 700, limitKmh: 60 },
-      { from: 700, to: 2400, limitKmh: 100 },
-      { from: 2400, to: 3800, limitKmh: 50 }
+      { from: 0, to: 700, limitKmh: 80 },
+      { from: 700, to: 2600, limitKmh: 130 },
+      { from: 2600, to: 3800, limitKmh: 50 }
+    ],
+    trackSwitches: [
+      { position: 1100, direction: 'right', name: 'Aligarh Crossover' }
     ],
     stations: [
-      { id: 'st_riverside', name: 'Riverside Junction', stopPosition: 1550, platformLength: 130, mandatory: true },
-      { id: 'st_metro_harbor', name: 'Metro Harbor', stopPosition: 3580, platformLength: 140, mandatory: true }
+      { id: 'st_kanpur', name: 'KANPUR CENTRAL', nativeHindi: 'कानपुर सेंट्रल', stopPosition: 3580, platformLength: 180, mandatory: true }
     ],
     signals: [
       { id: 'sig_1', name: 'Depot Exit Block', positionMeters: 600, aspect: 'GREEN' },
-      { id: 'sig_2', name: 'Riverside Approach', positionMeters: 1200, aspect: 'YELLOW' },
-      { id: 'sig_3', name: 'Corridor High-Speed Signal', positionMeters: 2200, aspect: 'GREEN' },
-      { id: 'sig_4', name: 'Harbor Yard Approach', positionMeters: 3100, aspect: 'YELLOW' }
+      { id: 'sig_2', name: 'Trunk Corridor Clear', positionMeters: 1600, aspect: 'GREEN' },
+      { id: 'sig_3', name: 'Kanpur Yard Approach', positionMeters: 3100, aspect: 'YELLOW' }
     ]
   },
   {
     id: 'mission-3',
     number: 3,
-    title: 'Signal Master',
-    tagline: 'Strict signal compliance & dynamic holding blocks',
-    objective: 'Navigate high-traffic industrial junctions. Obey caution yellows and holding red signals with zero SPAD violations.',
-    route: 'North Harbor → Iron Valley → Grand Central',
+    title: 'Monsoon Express',
+    tagline: 'Heavy monsoon downpour, wipers & caution signals',
+    objective: 'Navigate heavy tropical rain and slippery tracks. Use wipers, sound the horn at crossings, and obey caution signals.',
+    route: 'Howrah Junction → Burdwan Junction',
     distanceMeters: 4500,
     distanceFormatted: '4.5 km',
     speedLimitKmh: 80,
+    targetTime: '06:15 PM',
+    initialClock: '17:50',
     environment: 'industrial',
-    timeOfDay: 'night',
+    timeOfDay: 'sunset',
     weather: 'rain',
     rewardXp: 1200,
     rewardCoins: 650,
@@ -82,52 +101,52 @@ export const MISSIONS_DATA = [
       { from: 1000, to: 2900, limitKmh: 90 },
       { from: 2900, to: 4500, limitKmh: 45 }
     ],
+    trackSwitches: [
+      { position: 1400, direction: 'left', name: 'Bally Bridge Divergence' }
+    ],
     stations: [
-      { id: 'st_iron_valley', name: 'Iron Valley Works', stopPosition: 2150, platformLength: 130, mandatory: true },
-      { id: 'st_grand_central', name: 'Grand Central Terminal', stopPosition: 4280, platformLength: 160, mandatory: true }
+      { id: 'st_burdwan', name: 'BURDWAN JN', nativeBengali: 'বর্ধমান', stopPosition: 4280, platformLength: 170, mandatory: true }
     ],
     signals: [
-      { id: 'sig_1', name: 'Harbor Crossover', positionMeters: 750, aspect: 'GREEN' },
-      { id: 'sig_2', name: 'Iron Valley Warning', positionMeters: 1750, aspect: 'YELLOW' },
-      { 
-        id: 'sig_3', 
-        name: 'Interlocking Holding Signal', 
-        positionMeters: 2950, 
-        aspect: 'RED', 
-        clearDistance: 320, 
-        clearDelay: 1.5 // Clears to Green when train slows to <= 45 km/h within 320m
-      },
-      { id: 'sig_4', name: 'Grand Central Approach', positionMeters: 3950, aspect: 'YELLOW' }
+      { id: 'sig_1', name: 'Howrah Crossover', positionMeters: 750, aspect: 'GREEN' },
+      { id: 'sig_2', name: 'Burdwan Warning', positionMeters: 2200, aspect: 'YELLOW' },
+      { id: 'sig_3', name: 'Interlocking Holding Signal', positionMeters: 3300, aspect: 'RED', clearDistance: 320, clearDelay: 1.5 },
+      { id: 'sig_4', name: 'Burdwan Platform Approach', positionMeters: 3950, aspect: 'YELLOW' }
     ]
   },
   {
     id: 'mission-4',
     number: 4,
-    title: 'Precision Driver',
-    tagline: 'Mountain passenger express & precision stopping',
-    objective: 'Drive an express run through scenic alpine mountain grades. Deliver pinpoint accurate station stops under foggy weather conditions.',
-    route: 'Grand Central → Pine Valley → Alpine Summit',
+    title: 'Western Ghats Summit',
+    tagline: 'Mountain gradients, mist & precision stopping',
+    objective: 'Drive an express run through foggy Western Ghat grades. Deliver pinpoint accurate station stops under foggy conditions.',
+    route: 'Mumbai CSMT → Karjat → Lonavala Summit',
     distanceMeters: 5600,
     distanceFormatted: '5.6 km',
-    speedLimitKmh: 110,
+    speedLimitKmh: 90,
+    targetTime: '08:45 AM',
+    initialClock: '08:15',
     environment: 'alpine',
     timeOfDay: 'day',
     weather: 'fog',
     rewardXp: 1800,
     rewardCoins: 1000,
     speedLimitZones: [
-      { from: 0, to: 1200, limitKmh: 70 },
-      { from: 1200, to: 3400, limitKmh: 110 },
-      { from: 3400, to: 5600, limitKmh: 55 }
+      { from: 0, to: 1200, limitKmh: 65 },
+      { from: 1200, to: 3400, limitKmh: 90 },
+      { from: 3400, to: 5600, limitKmh: 50 }
+    ],
+    trackSwitches: [
+      { position: 1900, direction: 'right', name: 'Ghats Mountain Bypass' }
     ],
     stations: [
-      { id: 'st_pine_valley', name: 'Pine Valley Station', stopPosition: 2350, platformLength: 130, mandatory: true },
-      { id: 'st_alpine_summit', name: 'Alpine Summit High Terminal', stopPosition: 5350, platformLength: 150, mandatory: true }
+      { id: 'st_karjat', name: 'KARJAT', nativeMarathi: 'कर्जत', stopPosition: 2350, platformLength: 140, mandatory: true },
+      { id: 'st_lonavala', name: 'LONAVALA SUMMIT', nativeMarathi: 'लोonavla', stopPosition: 5350, platformLength: 160, mandatory: true }
     ],
     signals: [
-      { id: 'sig_1', name: 'Valley Outbound', positionMeters: 800, aspect: 'GREEN' },
-      { id: 'sig_2', name: 'Pine Valley Distant', positionMeters: 1950, aspect: 'YELLOW' },
-      { id: 'sig_3', name: 'Alpine Tunnel Portal Signal', positionMeters: 3300, aspect: 'GREEN' },
+      { id: 'sig_1', name: 'Ghat Outbound', positionMeters: 800, aspect: 'GREEN' },
+      { id: 'sig_2', name: 'Karjat Distant', positionMeters: 1950, aspect: 'YELLOW' },
+      { id: 'sig_3', name: 'Tunnel Portal Signal', positionMeters: 3500, aspect: 'GREEN' },
       { id: 'sig_4', name: 'Summit Approach Signal', positionMeters: 4900, aspect: 'YELLOW' }
     ]
   }
