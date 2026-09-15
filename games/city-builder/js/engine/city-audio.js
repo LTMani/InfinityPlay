@@ -222,6 +222,222 @@
       osc.start(now);
       osc.stop(now + 0.2);
     }
+
+    playCannon() {
+      if (!this.enabled) return;
+      this.init();
+      this.resume();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      // Sub punch
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.exponentialRampToValueAtTime(32, now + 0.35);
+
+      gain.gain.setValueAtTime(0.4, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.38);
+
+      // Noise blast crack
+      try {
+        const bufferSize = Math.floor(this.ctx.sampleRate * 0.25);
+        const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.2));
+        }
+        const whiteNoise = this.ctx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+        const noiseGain = this.ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.3, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        whiteNoise.connect(noiseGain);
+        noiseGain.connect(this.ctx.destination);
+        whiteNoise.start(now);
+      } catch (e) {}
+    }
+
+    playSwordClash() {
+      if (!this.enabled) return;
+      this.init();
+      this.resume();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const freqs = [1600, 2400, 3100];
+      freqs.forEach(f => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(f, now);
+        osc.frequency.exponentialRampToValueAtTime(f * 0.6, now + 0.08);
+
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      });
+    }
+
+    playBattleHorn() {
+      if (!this.enabled) return;
+      this.init();
+      this.resume();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const notes = [
+        { f: 220, t: 0, d: 0.3 },    // A3
+        { f: 277.18, t: 0.15, d: 0.4 }, // C#4
+        { f: 329.63, t: 0.35, d: 0.7 }  // E4 war blast
+      ];
+
+      notes.forEach(n => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(n.f, now + n.t);
+
+        gain.gain.setValueAtTime(0.001, now + n.t);
+        gain.gain.linearRampToValueAtTime(0.18, now + n.t + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now + n.t);
+        osc.stop(now + n.t + n.d);
+      });
+    }
+
+    playBubblePop() {
+      if (!this.enabled) return;
+      this.init();
+      this.resume();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      // Bubbly rising chirp
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(450, now);
+      osc.frequency.exponentialRampToValueAtTime(1200, now + 0.09);
+
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.1);
+
+      // Gold shimmer bell
+      const bell = this.ctx.createOscillator();
+      const bellGain = this.ctx.createGain();
+      bell.type = 'sine';
+      bell.frequency.setValueAtTime(1760, now + 0.06); // A6
+      bellGain.gain.setValueAtTime(0.15, now + 0.06);
+      bellGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      bell.connect(bellGain);
+      bellGain.connect(this.ctx.destination);
+      bell.start(now + 0.06);
+      bell.stop(now + 0.3);
+    }
+
+    playVictoryFanfare() {
+      if (!this.enabled) return;
+      this.init();
+      this.resume();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      // Triumphant Clash-style Fanfare
+      const chords = [
+        { freqs: [261.6, 329.6, 392.0], t: 0, d: 0.22 },      // C Major
+        { freqs: [349.2, 440.0, 523.2], t: 0.24, d: 0.22 },   // F Major
+        { freqs: [392.0, 493.8, 587.3], t: 0.48, d: 0.32 },   // G Major
+        { freqs: [523.2, 659.2, 783.9, 1046.5], t: 0.82, d: 0.9 } // High C Major triumphant hold
+      ];
+
+      chords.forEach(c => {
+        c.freqs.forEach(f => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, now + c.t);
+
+          gain.gain.setValueAtTime(0.001, now + c.t);
+          gain.gain.linearRampToValueAtTime(0.18, now + c.t + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + c.t + c.d);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + c.t);
+          osc.stop(now + c.t + c.d);
+        });
+      });
+    }
+
+    playDefeatSound() {
+      if (!this.enabled) return;
+      this.init();
+      this.resume();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const notes = [
+        { f: 330, t: 0, d: 0.3 },      // E4
+        { f: 311.13, t: 0.25, d: 0.35 },// Eb4
+        { f: 293.66, t: 0.55, d: 0.6 }  // D4 somber
+      ];
+
+      notes.forEach(n => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(n.f, now + n.t);
+
+        gain.gain.setValueAtTime(0.12, now + n.t);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now + n.t);
+        osc.stop(now + n.t + n.d);
+      });
+    }
+
+    playWallHit() {
+      if (!this.enabled) return;
+      this.init();
+      this.resume();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(95, now);
+      osc.frequency.exponentialRampToValueAtTime(30, now + 0.12);
+
+      gain.gain.setValueAtTime(0.28, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.12);
+    }
   }
 
   exports.CityAudio = CityAudio;

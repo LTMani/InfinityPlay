@@ -315,6 +315,20 @@
     }
 
     handleCanvasClick(screenX, screenY) {
+      // 1. Tactical Battle Unit Deployment
+      if (this.renderer.battleMode && this.renderer.battleMode.active) {
+        const grid = this.renderer.screenToGrid(screenX, screenY);
+        this.handleBattleCanvasClick(grid.x, grid.y);
+        return;
+      }
+
+      // 2. Clickable Floating Harvest Bubbles
+      const bubble = this.renderer.getClickedBubble(screenX, screenY);
+      if (bubble) {
+        this.collectFromBubble(bubble);
+        return;
+      }
+
       const grid = this.renderer.screenToGrid(screenX, screenY);
 
       // If in placement mode: attempt to place building
@@ -791,6 +805,411 @@
       if (mins < 60) return `${mins}m ${secs > 0 ? secs + 's' : ''}`;
       const hours = Math.floor(mins / 60);
       return `${hours}h ${mins % 60}m`;
+    }
+
+    // =========================================================================
+    // CLICKABLE FLOATING HARVEST BUBBLES
+    // =========================================================================
+    collectFromBubble(bubble) {
+      this.audio.playBubblePop();
+      if (!this.city.resources) this.city.resources = {};
+
+      const grid = this.renderer.screenToGrid(bubble.worldX, bubble.worldY);
+
+      if (bubble.resource === 'gold') {
+        const caps = this.city.storageCaps || { gold: 20000 };
+        this.city.resources.gold = Math.min(caps.gold || 50000, (this.city.resources.gold || 0) + bubble.amount);
+        this.renderer.addFloater(`+${bubble.amount} 🪙`, grid.x, grid.y, '#fbbf24');
+      } else {
+        const caps = this.city.storageCaps || { elixir: 20000 };
+        this.city.resources.elixir = Math.min(caps.elixir || 50000, (this.city.resources.elixir || 0) + bubble.amount);
+        this.renderer.addFloater(`+${bubble.amount} 💧`, grid.x, grid.y, '#d946ef');
+      }
+
+      this.updateHUD();
+      if (this.api && this.user) {
+        this.api.collect(this.user.id);
+      }
+    }
+
+    // =========================================================================
+    // REAL-TIME TACTICAL COMBAT (CLASH OF CLANS RAID ENGINE)
+    // =========================================================================
+    startTacticalBattle(stronghold, deployedUnits) {
+      this.closeAllDrawers();
+      this.deselectBuilding();
+
+      const uKeys = Object.keys(deployedUnits).filter(k => (deployedUnits[k] || 0) > 0);
+      const firstUnit = uKeys[0] || 'guardian';
+
+      this.renderer.battleMode = {
+        active: true,
+        stronghold,
+        selectedDeployUnit: firstUnit,
+        remainingUnits: { ...deployedUnits },
+        totalDeployable: Object.values(deployedUnits).reduce((a, b) => a + b, 0),
+        units: [],
+        defenses: this.generateStrongholdDefenses(stronghold),
+        projectiles: [],
+        stolenGold: 0,
+        stolenElixir: 0,
+        stars: 0,
+        townHallDestroyed: false,
+        destructionPct: 0
+      };
+
+      // Center camera onto battlefield center
+      this.renderer.centerOn(8, 8);
+
+      // Play War Horn
+      this.audio.playBattleHorn();
+
+      // Show Battle HUD Overlay
+      const hud = document.getElementById('battleHudOverlay');
+      if (hud) {
+        hud.classList.add('active');
+        const nodeName = document.getElementById('battleNodeName');
+        if (nodeName) nodeName.textContent = stronghold.name || 'Goblin Outpost';
+        const pctEl = document.getElementById('battleDestructionPercent');
+        if (pctEl) pctEl.textContent = '0%';
+        const fillEl = document.getElementById('battleDestructionFill');
+        if (fillEl) fillEl.style.width = '0%';
+      }
+
+      this.renderBattleDeployTray();
+
+      const retreatBtn = document.getElementById('btnBattleRetreat');
+      if (retreatBtn) {
+        retreatBtn.onclick = () => {
+          this.concludeBattle(false, 'Retreated from battle');
+        };
+      }
+    }
+
+    generateStrongholdDefenses(stronghold) {
+      const defs = [];
+      const lvl = stronghold.level || 1;
+
+      // 1. Central Goblin Town Hall
+      defs.push({ id: 'th', type: 'city_hall', x: 7, y: 7, level: lvl, hp: 800 * lvl, maxHp: 800 * lvl, isTownHall: true });
+
+      // 2. Storages (Contain large loot)
+      defs.push({ id: 'res1', type: 'treasury', x: 5, y: 7, level: lvl, hp: 450 * lvl, maxHp: 450 * lvl, lootGold: 750 * lvl });
+      defs.push({ id: 'res2', type: 'storage', x: 9, y: 7, level: lvl, hp: 450 * lvl, maxHp: 450 * lvl, lootElixir: 750 * lvl });
+
+      // 3. Defensive Cannons
+      defs.push({ id: 'c1', type: 'defense_cannon', x: 7, y: 4, level: lvl, hp: 400 * lvl, maxHp: 400 * lvl, cooldown: 10, range: 6 });
+      defs.push({ id: 'c2', type: 'defense_cannon', x: 7, y: 10, level: lvl, hp: 400 * lvl, maxHp: 400 * lvl, cooldown: 30, range: 6 });
+
+      // 4. Archer Tower (Level 2+)
+      if (lvl >= 2) {
+        defs.push({ id: 't1', type: 'watch_tower', x: 4, y: 4, level: lvl, hp: 350 * lvl, maxHp: 350 * lvl, cooldown: 20, range: 7 });
+      }
+
+      // 5. Protective Wall Ring
+      const wallGrid = [
+        [4, 6], [4, 7], [4, 8], [10, 6], [10, 7], [10, 8],
+        [6, 4], [8, 4], [6, 10], [8, 10]
+      ];
+      wallGrid.forEach(([wx, wy], idx) => {
+        defs.push({ id: `w_${idx}`, type: 'defense_wall', x: wx, y: wy, level: lvl, hp: 280 * lvl, maxHp: 280 * lvl, isWall: true });
+      });
+
+      return defs;
+    }
+
+    renderBattleDeployTray() {
+      const container = document.getElementById('battleDeployUnitsContainer');
+      if (!container || !this.renderer.battleMode) return;
+
+      const b = this.renderer.battleMode;
+      let html = '';
+
+      Object.keys(b.remainingUnits).forEach(unitType => {
+        const count = b.remainingUnits[unitType] || 0;
+        const uSpec = CityConfig.UNITS[unitType] || { name: unitType, icon: '⚔️' };
+        const isSelected = b.selectedDeployUnit === unitType;
+
+        html += `
+          <div class="battle-deploy-card ${isSelected ? 'active-unit' : ''} ${count <= 0 ? 'depleted' : ''}" data-unit="${unitType}">
+            <div class="deploy-card-icon">${uSpec.icon}</div>
+            <div class="deploy-card-name">${uSpec.name}</div>
+            <div class="deploy-card-badge">x${count}</div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+
+      container.querySelectorAll('.battle-deploy-card').forEach(card => {
+        card.onclick = () => {
+          const uType = card.getAttribute('data-unit');
+          if (b.remainingUnits[uType] > 0) {
+            b.selectedDeployUnit = uType;
+            this.audio.playClick();
+            this.renderBattleDeployTray();
+          }
+        };
+      });
+    }
+
+    handleBattleCanvasClick(gx, gy) {
+      const b = this.renderer.battleMode;
+      if (!b || !b.active) return;
+
+      const size = 16;
+      // Must deploy outside the red boundary
+      const isOutside = (gx < 0 || gx >= size || gy < 0 || gy >= size);
+      if (!isOutside) {
+        this.audio.playError();
+        if (window.CityApp && window.CityApp.showToast) {
+          window.CityApp.showToast('Deploy troops outside the red perimeter!', 'warning');
+        }
+        return;
+      }
+
+      const uType = b.selectedDeployUnit;
+      if (!uType || !b.remainingUnits[uType] || b.remainingUnits[uType] <= 0) {
+        this.audio.playError();
+        return;
+      }
+
+      // Consume unit
+      b.remainingUnits[uType]--;
+
+      // Spawn unit
+      const uSpec = CityConfig.UNITS[uType] || { name: 'Troop', icon: '⚔️', hp: 120, damage: 25, speed: 1.0 };
+      const speed = (uType === 'goblin' ? 0.055 : (uType === 'giant' ? 0.024 : 0.038));
+      const range = (uType === 'archer' ? 4.5 : 1.2);
+
+      b.units.push({
+        id: Math.random(),
+        type: uType,
+        icon: uSpec.icon,
+        gx: Math.max(-2, Math.min(18, gx)),
+        gy: Math.max(-2, Math.min(18, gy)),
+        hp: uSpec.hp || 120,
+        maxHp: uSpec.hp || 120,
+        damage: uSpec.damage || 25,
+        speed,
+        range,
+        cooldown: 0
+      });
+
+      this.audio.playPlace();
+      this.renderBattleDeployTray();
+    }
+
+    update() {
+      if (this.renderer.battleMode && this.renderer.battleMode.active) {
+        this.updateBattle();
+      }
+    }
+
+    updateBattle() {
+      const b = this.renderer.battleMode;
+      if (!b || !b.active) return;
+
+      const livingDefenses = b.defenses.filter(d => d.hp > 0);
+
+      // 1. Update Player Troops
+      for (const unit of b.units) {
+        if (unit.hp <= 0) continue;
+        if (unit.cooldown > 0) unit.cooldown--;
+
+        // Select target based on troop specialty
+        let target = null;
+        if (unit.type === 'giant') {
+          // Giants prioritize defenses
+          target = livingDefenses.find(d => ['defense_cannon', 'watch_tower', 'energy_tower'].includes(d.type)) || livingDefenses[0];
+        } else if (unit.type === 'goblin') {
+          // Goblins prioritize storages & mines
+          target = livingDefenses.find(d => ['treasury', 'storage', 'gold_mine', 'elixir_collector'].includes(d.type)) || livingDefenses[0];
+        } else {
+          // Barbarians / Archers target closest building
+          let closestDist = Infinity;
+          for (const def of livingDefenses) {
+            const dist = Math.hypot(def.x - unit.gx, def.y - unit.gy);
+            if (dist < closestDist) {
+              closestDist = dist;
+              target = def;
+            }
+          }
+        }
+
+        if (target) {
+          const dist = Math.hypot(target.x - unit.gx, target.y - unit.gy);
+          if (dist > unit.range) {
+            // March toward target
+            const angle = Math.atan2(target.y - unit.gy, target.x - unit.gx);
+            unit.gx += Math.cos(angle) * unit.speed;
+            unit.gy += Math.sin(angle) * unit.speed;
+          } else {
+            // Attack target
+            if (unit.cooldown <= 0) {
+              unit.cooldown = 45;
+              const dmg = unit.type === 'goblin' && ['treasury', 'storage'].includes(target.type) ? unit.damage * 2 : unit.damage;
+              target.hp -= dmg;
+              this.audio.playSwordClash();
+
+              this.renderer.addFloater(`-${dmg}`, target.x, target.y, '#ef4444');
+
+              if (target.hp <= 0) {
+                // Building destroyed!
+                this.audio.playWallHit();
+                if (target.isTownHall && !b.townHallDestroyed) {
+                  b.townHallDestroyed = true;
+                  b.stars = Math.max(b.stars, 1) + 1;
+                  this.renderer.addFloater('⭐ TOWN HALL DESTROYED!', target.x, target.y - 1, '#fde047');
+                }
+                if (target.lootGold) {
+                  b.stolenGold += target.lootGold;
+                  this.renderer.addFloater(`+${target.lootGold} 🪙`, target.x, target.y, '#fbbf24');
+                }
+                if (target.lootElixir) {
+                  b.stolenElixir += target.lootElixir;
+                  this.renderer.addFloater(`+${target.lootElixir} 💧`, target.x, target.y, '#d946ef');
+                }
+
+                // Recalculate destruction percentage
+                const nonWalls = b.defenses.filter(d => !d.isWall);
+                const destroyedNonWalls = nonWalls.filter(d => d.hp <= 0).length;
+                const pct = Math.floor((destroyedNonWalls / Math.max(1, nonWalls.length)) * 100);
+                b.destructionPct = pct;
+
+                const pctEl = document.getElementById('battleDestructionPercent');
+                if (pctEl) pctEl.textContent = `${pct}%`;
+                const fillEl = document.getElementById('battleDestructionFill');
+                if (fillEl) fillEl.style.width = `${pct}%`;
+
+                if (pct >= 50 && b.stars < 1) {
+                  b.stars = Math.max(b.stars, 1);
+                }
+                if (pct >= 100) {
+                  b.stars = 3;
+                  this.concludeBattle(true, '100% Total Destruction!');
+                  return;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // 2. Update Defenses (Cannons / Archer Towers)
+      for (const def of b.defenses) {
+        if (def.hp <= 0) continue;
+        if (def.cooldown > 0) def.cooldown--;
+
+        if (['defense_cannon', 'watch_tower'].includes(def.type)) {
+          const livingTroops = b.units.filter(u => u.hp > 0);
+          let closestTroop = null;
+          let closestDist = def.range || 6;
+
+          for (const troop of livingTroops) {
+            const dist = Math.hypot(troop.gx - def.x, troop.gy - def.y);
+            if (dist <= closestDist) {
+              closestDist = dist;
+              closestTroop = troop;
+            }
+          }
+
+          if (closestTroop) {
+            const isoDef = this.renderer.gridToIso(def.x + 0.5, def.y + 0.5);
+            const isoTgt = this.renderer.gridToIso(closestTroop.gx, closestTroop.gy);
+            def.angle = Math.atan2(isoTgt.y - isoDef.y, isoTgt.x - isoDef.x) + Math.PI / 2;
+
+            if (def.cooldown <= 0) {
+              def.cooldown = 55;
+              def.firingAnim = 7;
+              this.audio.playCannon();
+
+              b.projectiles.push({
+                type: def.type === 'watch_tower' ? 'arrow' : 'cannonball',
+                targetUnit: closestTroop,
+                damage: def.type === 'watch_tower' ? 24 : 45,
+                sx: isoDef.x,
+                sy: isoDef.y - 12,
+                tx: isoTgt.x,
+                ty: isoTgt.y,
+                cx: isoDef.x,
+                cy: isoDef.y - 12,
+                vx: (isoTgt.x - isoDef.x) * 0.08,
+                vy: (isoTgt.y - isoDef.y) * 0.08,
+                progress: 0
+              });
+            }
+          }
+        }
+      }
+
+      // 3. Update Projectiles
+      for (let i = b.projectiles.length - 1; i >= 0; i--) {
+        const p = b.projectiles[i];
+        p.progress += 0.09;
+        p.cx = p.sx + (p.tx - p.sx) * p.progress;
+        p.cy = p.sy + (p.ty - p.sy) * p.progress - Math.sin(p.progress * Math.PI) * 35;
+
+        if (p.progress >= 1) {
+          if (p.targetUnit && p.targetUnit.hp > 0) {
+            p.targetUnit.hp -= p.damage;
+            this.renderer.addSmoke(p.targetUnit.gx, p.targetUnit.gy, 'rgba(239, 68, 68, 0.4)');
+          }
+          b.projectiles.splice(i, 1);
+        }
+      }
+
+      // 4. Check if battle concluded (all units deployed and died)
+      const allDeployed = Object.values(b.remainingUnits).every(c => c <= 0);
+      const allLivingDead = b.units.every(u => u.hp <= 0);
+      if (allDeployed && allLivingDead && b.units.length > 0) {
+        this.concludeBattle(b.destructionPct >= 50, b.destructionPct >= 50 ? 'Victory!' : 'Defeat');
+      }
+    }
+
+    concludeBattle(victory, subtitle = '') {
+      const b = this.renderer.battleMode;
+      if (!b || !b.active) return;
+      b.active = false;
+
+      // Award Stolen Resources & Trophies to Player City
+      if (!this.city.resources) this.city.resources = {};
+      const earnedGold = Math.max(200, b.stolenGold || (victory ? 1200 : 300));
+      const earnedElixir = Math.max(200, b.stolenElixir || (victory ? 1200 : 300));
+      const earnedTrophies = victory ? (b.stars === 3 ? 30 : (b.stars === 2 ? 20 : 12)) : 0;
+
+      this.city.resources.gold = (this.city.resources.gold || 0) + earnedGold;
+      this.city.resources.elixir = (this.city.resources.elixir || 0) + earnedElixir;
+      this.city.trophies = (this.city.trophies || 0) + earnedTrophies;
+
+      if (victory) {
+        this.audio.playVictoryFanfare();
+      } else {
+        this.audio.playDefeatSound();
+      }
+
+      // Hide Battle HUD Overlay
+      const hud = document.getElementById('battleHudOverlay');
+      if (hud) hud.classList.remove('active');
+
+      this.syncWithServer();
+      this.updateHUD();
+
+      if (window.CityApp && window.CityApp.showBattleSummary) {
+        window.CityApp.showBattleSummary({
+          victory,
+          stars: Math.max(victory ? 1 : 0, b.stars),
+          destructionPct: b.destructionPct,
+          lootGold: earnedGold,
+          lootElixir: earnedElixir,
+          trophies: earnedTrophies,
+          subtitle
+        });
+      }
+
+      this.renderer.battleMode = null;
+      const ch = this.city.buildings.find(bld => bld.type === 'city_hall');
+      if (ch) this.renderer.centerOn(ch.x, ch.y);
     }
   }
 

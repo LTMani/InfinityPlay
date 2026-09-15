@@ -144,6 +144,9 @@
       // 5. Bind UI Buttons & Modals
       this.bindUI();
 
+      // 6. Check Offline Progression Rewards
+      setTimeout(() => this.checkOfflineProgression(), 800);
+
       console.log('⚡ City Builder Realm of Empires V2 booted for', this.currentUser.name);
     },
 
@@ -169,6 +172,7 @@
       const loop = () => {
         try {
           if (this.game && this.game.city) {
+            if (this.game.update) this.game.update();
             this.renderer.render(this.game.city);
           }
         } catch (err) {
@@ -930,15 +934,9 @@
               }
             });
 
-            // Run Server Battle Simulation
-            const res = await this.game.api.executeBattle(this.currentUser.id, stronghold.id, deployed);
-            if (res && res.success) {
-              this.game.city = res.city;
-              this.runTacticalBattleVisualizer(stronghold, deployed, res);
-            } else {
-              this.audio.playError();
-              this.showToast(res.error || 'Expedition failed', 'error');
-            }
+            // Close prep modal and start real-time tactical battle on the main canvas!
+            modal.classList.remove('active');
+            this.game.startTacticalBattle(stronghold, deployed);
           };
         }
 
@@ -1552,6 +1550,190 @@
         toast.style.transform = 'translateY(10px)';
         setTimeout(() => toast.remove(), 300);
       }, 3200);
+    },
+
+    // =========================================================================
+    // 3-STAR BATTLE SUMMARY & REWARDS
+    // =========================================================================
+    showBattleSummary(result) {
+      try {
+        const modal = document.getElementById('battleModal');
+        const title = document.getElementById('battleModalTitle');
+        const body = document.getElementById('battleModalBody');
+        if (!modal || !body) return;
+
+        if (title) title.innerHTML = `<span>⚔️</span><span>Battle Debriefing</span>`;
+
+        const isVictory = result.victory;
+        const stars = result.stars || 0;
+
+        let starsHtml = '';
+        for (let i = 1; i <= 3; i++) {
+          starsHtml += `<span class="victory-star ${i <= stars ? 'star-gold' : 'star-empty'}">★</span>`;
+        }
+
+        body.innerHTML = `
+          <div class="battle-result-banner ${isVictory ? 'victory' : 'defeat'}">
+            <div class="battle-result-stars" style="font-size: 2.2rem; margin-bottom: 8px; letter-spacing: 6px;">
+              ${starsHtml}
+            </div>
+            <h2 style="margin: 0 0 6px 0; font-size: 1.8rem; font-weight: 900; color: #ffffff; text-transform: uppercase;">
+              ${isVictory ? 'VICTORY!' : 'BATTLE OVER'}
+            </h2>
+            <p style="margin: 0; font-size: 0.95rem; color: #cbd5e1; font-weight: 600;">
+              Destruction: <strong style="color: #fbbf24;">${result.destructionPct || 0}%</strong>
+            </p>
+          </div>
+
+          <div style="margin-top: 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;">
+            <div style="font-size: 0.82rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 10px;">
+              Plunder Loot Secured:
+            </div>
+            <div class="plunder-loot-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="plunder-item" style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; padding: 8px 12px; font-weight: 800; color: #fbbf24;">
+                🪙 +${(result.lootGold || 0).toLocaleString()} Gold
+              </div>
+              <div class="plunder-item" style="background: rgba(217, 70, 239, 0.1); border: 1px solid rgba(217, 70, 239, 0.3); border-radius: 8px; padding: 8px 12px; font-weight: 800; color: #d946ef;">
+                💧 +${(result.lootElixir || 0).toLocaleString()} Elixir
+              </div>
+              <div class="plunder-item" style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 8px 12px; font-weight: 800; color: #38bdf8; grid-column: span 2; text-align: center;">
+                🏆 +${result.trophies || 0} Trophies Earned!
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 16px;">
+            <button class="btn btn-primary" id="btnReturnHomeFromBattle" style="width: 100%; padding: 12px; font-size: 1rem; font-weight: 800;">
+              ✓ Return Home
+            </button>
+          </div>
+        `;
+
+        const returnBtn = document.getElementById('btnReturnHomeFromBattle');
+        if (returnBtn) {
+          returnBtn.onclick = () => {
+            modal.classList.remove('active');
+            this.game.updateHUD();
+          };
+        }
+
+        modal.classList.add('active');
+      } catch (err) {
+        console.error('Error showing battle summary:', err);
+      }
+    },
+
+    // =========================================================================
+    // OFFLINE PROGRESSION REWARDS
+    // =========================================================================
+    checkOfflineProgression() {
+      try {
+        const lastSaved = localStorage.getItem('infinity_last_active_time');
+        const now = Date.now();
+        localStorage.setItem('infinity_last_active_time', now.toString());
+
+        // Update timestamp every 30s
+        setInterval(() => {
+          localStorage.setItem('infinity_last_active_time', Date.now().toString());
+        }, 30000);
+
+        if (!lastSaved) return;
+        const elapsedSecs = Math.floor((now - parseInt(lastSaved, 10)) / 1000);
+        if (elapsedSecs < 40 || !this.game.city) return;
+
+        const mines = this.game.city.buildings.filter(b => b.type === 'gold_mine');
+        const collectors = this.game.city.buildings.filter(b => b.type === 'elixir_collector');
+
+        const goldRatePerSec = Math.max(1, mines.reduce((sum, b) => sum + (b.level || 1) * 3, 0));
+        const elixirRatePerSec = Math.max(1, collectors.reduce((sum, b) => sum + (b.level || 1) * 3, 0));
+
+        const earnedGold = Math.min(18000, Math.floor(elapsedSecs * goldRatePerSec));
+        const earnedElixir = Math.min(18000, Math.floor(elapsedSecs * elixirRatePerSec));
+
+        if (earnedGold <= 0 && earnedElixir <= 0) return;
+
+        this.game.city.resources.gold = (this.game.city.resources.gold || 0) + earnedGold;
+        this.game.city.resources.elixir = (this.game.city.resources.elixir || 0) + earnedElixir;
+        this.game.updateHUD();
+
+        this.showOfflineModal(elapsedSecs, earnedGold, earnedElixir);
+      } catch (e) {}
+    },
+
+    showOfflineModal(elapsedSecs, gold, elixir) {
+      const modal = document.getElementById('offlineModal');
+      const body = document.getElementById('offlineModalBody');
+      if (!modal || !body) return;
+
+      const durationStr = this.game.formatDuration(elapsedSecs);
+      body.innerHTML = `
+        <div style="text-align: center; margin-bottom: 14px;">
+          <div style="font-size: 3rem; margin-bottom: 4px;">👑</div>
+          <h3 style="font-size: 1.4rem; color: #ffffff; margin: 0 0 6px 0;">Welcome Back, Chief!</h3>
+          <p style="color: #94a3b8; font-size: 0.88rem; margin: 0;">
+            While you were away (${durationStr}), your miners and collectors produced:
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+          <div style="background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 10px; padding: 12px; text-align: center;">
+            <div style="font-size: 1.6rem;">🪙</div>
+            <div style="font-size: 1.2rem; font-weight: 900; color: #fbbf24;">+${gold.toLocaleString()}</div>
+            <div style="font-size: 0.76rem; color: #cbd5e1;">Gold Coins</div>
+          </div>
+          <div style="background: rgba(217, 70, 239, 0.12); border: 1px solid rgba(217, 70, 239, 0.35); border-radius: 10px; padding: 12px; text-align: center;">
+            <div style="font-size: 1.6rem;">💧</div>
+            <div style="font-size: 1.2rem; font-weight: 900; color: #d946ef;">+${elixir.toLocaleString()}</div>
+            <div style="font-size: 0.76rem; color: #cbd5e1;">Elixir Drops</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="btnClaimOfflineRewards" style="width: 100%; padding: 12px; font-weight: 800; font-size: 1rem;">
+          ✨ Claim All Rewards
+        </button>
+      `;
+
+      const claimBtn = document.getElementById('btnClaimOfflineRewards');
+      if (claimBtn) {
+        claimBtn.onclick = () => {
+          this.audio.playCoin();
+          modal.classList.remove('active');
+        };
+      }
+
+      modal.classList.add('active');
+    },
+
+    // =========================================================================
+    // QUICK HARVEST ALL
+    // =========================================================================
+    collectAllResources() {
+      if (!this.game || !this.game.city) return;
+      this.audio.playBubblePop();
+      let totalGold = 0;
+      let totalElixir = 0;
+
+      this.game.city.buildings.forEach(b => {
+        if (b.type === 'gold_mine') {
+          const earned = Math.floor(180 + (b.level || 1) * 90);
+          totalGold += earned;
+          this.renderer.addFloater(`+${earned} 🪙`, b.x, b.y, '#fbbf24');
+        } else if (b.type === 'elixir_collector') {
+          const earned = Math.floor(180 + (b.level || 1) * 90);
+          totalElixir += earned;
+          this.renderer.addFloater(`+${earned} 💧`, b.x, b.y, '#d946ef');
+        }
+      });
+
+      if (totalGold > 0 || totalElixir > 0) {
+        const caps = this.game.city.storageCaps || { gold: 20000, elixir: 20000 };
+        this.game.city.resources.gold = Math.min(caps.gold || 50000, (this.game.city.resources.gold || 0) + totalGold);
+        this.game.city.resources.elixir = Math.min(caps.elixir || 50000, (this.game.city.resources.elixir || 0) + totalElixir);
+        this.game.updateHUD();
+        this.showToast(`Collected +${totalGold.toLocaleString()} Gold and +${totalElixir.toLocaleString()} Elixir!`, 'success');
+      } else {
+        this.showToast('All collectors are harvested!', 'info');
+      }
     }
   };
 

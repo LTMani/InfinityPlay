@@ -39,6 +39,9 @@
       // Battle mode
       this.battleMode = null; // Active battle instance
 
+      // Interactive Harvest Bubbles (clickable on canvas)
+      this.resourceBubbles = [];
+
       // Visual simulation state
       this.particles = [];
       this.smokeParticles = [];
@@ -50,6 +53,16 @@
 
       this.setupCanvas();
       this.initCitizens();
+    }
+
+    getClickedBubble(screenX, screenY) {
+      const worldX = (screenX - this.camera.x) / this.camera.zoom;
+      const worldY = (screenY - this.camera.y) / this.camera.zoom;
+      for (const b of this.resourceBubbles) {
+        const d = Math.hypot(worldX - b.worldX, worldY - b.worldY);
+        if (d <= b.radius) return b;
+      }
+      return null;
     }
 
     setupCanvas() {
@@ -631,6 +644,7 @@
     // =========================================================================
     renderBuildings(ctx, city) {
       if (!city || !city.buildings) return;
+      this.resourceBubbles = [];
 
       // 1. Draw green checked grid footprint underneath the currently selected building
       if (this.selectedBuildingId) {
@@ -764,11 +778,31 @@
         this.drawConstructionScaffold(ctx, bld);
       }
 
-      // 5. Floating Interactive Bubbles & Signs
+      // 5. Floating Interactive Bubbles & Signs (Recorded for click interaction)
       if (bld.type === 'gold_mine') {
+        const bob = Math.sin(this.animTick * 0.08) * 4;
         this.drawGoldBubble(ctx, 0, -56);
+        this.resourceBubbles.push({
+          buildingId: bld.id,
+          buildingType: 'gold_mine',
+          resource: 'gold',
+          amount: Math.floor(150 + (bld.level || 1) * 90),
+          worldX: iso.x,
+          worldY: iso.y - 56 + bob,
+          radius: 24
+        });
       } else if (bld.type === 'elixir_collector') {
+        const bob = Math.sin(this.animTick * 0.08 + 1) * 4;
         this.drawElixirBubble(ctx, 0, -56);
+        this.resourceBubbles.push({
+          buildingId: bld.id,
+          buildingType: 'elixir_collector',
+          resource: 'elixir',
+          amount: Math.floor(150 + (bld.level || 1) * 90),
+          worldX: iso.x,
+          worldY: iso.y - 56 + bob,
+          radius: 24
+        });
       } else if (bld.type === 'training_grounds' || bld.type === 'barracks') {
         this.drawTrainBubble(ctx, 0, -66);
       } else if (bld.type === 'builder_hut' && bld.isSleeping) {
@@ -1477,32 +1511,91 @@
     // =========================================================================
 
     drawConstructionScaffold(ctx, bld) {
-      ctx.strokeStyle = '#eab308';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(-24, -40, 48, 44);
+      ctx.save();
 
-      // Diagonal braces
+      // 1. Heavy wooden timber corner posts & cross planks
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(-26, -42, 5, 46);
+      ctx.fillRect(21, -42, 5, 46);
+      ctx.fillRect(-24, -22, 48, 4); // Mid beam
+      ctx.fillRect(-24, -42, 48, 4); // Top working deck
+
+      // Diagonal rope bracing
+      ctx.strokeStyle = '#d97706';
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(-24, -40); ctx.lineTo(24, 4);
-      ctx.moveTo(24, -40); ctx.lineTo(-24, 4);
+      ctx.moveTo(-24, -42); ctx.lineTo(24, 0);
+      ctx.moveTo(24, -42); ctx.lineTo(-24, 0);
       ctx.stroke();
 
-      // Progress bar
+      // 2. Animated Little Builder figurine hammering on the deck
+      const hammerSwing = Math.sin(this.animTick * 0.25);
+      ctx.save();
+      ctx.translate(6, -42);
+
+      // Builder body
+      ctx.fillStyle = '#2563eb'; // Blue overalls
+      ctx.fillRect(-4, -12, 8, 12);
+      ctx.fillStyle = '#fed7aa'; // Face
+      ctx.beginPath(); ctx.arc(0, -15, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#92400e'; // Brown builder helmet
+      ctx.beginPath(); ctx.arc(0, -17, 5, Math.PI, Math.PI * 2); ctx.fill();
+
+      // Arm with swinging hammer
+      ctx.save();
+      ctx.translate(3, -11);
+      ctx.rotate(hammerSwing * 0.8 - 0.4);
+      ctx.fillStyle = '#78350f'; // Hammer wooden handle
+      ctx.fillRect(0, -2, 8, 2.5);
+      ctx.fillStyle = '#94a3b8'; // Metal hammer head
+      ctx.fillRect(6, -5, 4, 8);
+      ctx.restore();
+
+      // Occasional sawdust / spark particles when hammer strikes
+      if (hammerSwing > 0.82 && Math.random() < 0.35) {
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(10 + (Math.random() - 0.5) * 6, -10 + (Math.random() - 0.5) * 6, 2.5, 2.5);
+      }
+      ctx.restore();
+
+      // 3. Authentic Clash of Clans Timer & Progress Bar
       const now = Date.now();
       const spec = this.config.BUILDINGS[bld.type];
       const levelSpec = spec && spec.levels ? spec.levels[bld.level ? bld.level - 1 : 0] : { time: 10 };
       const totalDuration = (levelSpec.time || 10) * 1000;
       const remaining = Math.max(0, (bld.finishTime || now) - now);
       const progress = Math.min(1.0, Math.max(0, 1 - remaining / totalDuration));
+      const secsLeft = Math.ceil(remaining / 1000);
 
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
-      ctx.fillRect(-25, -52, 50, 8);
-      ctx.strokeStyle = '#00f0ff';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(-25, -52, 50, 8);
+      // Dark beveled container pill
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(-32, -62, 64, 15, 6);
+      else ctx.rect(-32, -62, 64, 15);
+      ctx.fill();
+      ctx.stroke();
 
-      ctx.fillStyle = '#00f0ff';
-      ctx.fillRect(-23, -50, 46 * progress, 4);
+      // Green progress bar
+      const barGrad = ctx.createLinearGradient(-30, 0, 30, 0);
+      barGrad.addColorStop(0, '#22c55e');
+      barGrad.addColorStop(1, '#86efac');
+      ctx.fillStyle = barGrad;
+      ctx.fillRect(-30, -60, 60 * progress, 11);
+
+      // Remaining timer text
+      ctx.font = 'bold 9.5px "Arial Black", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 2.2;
+      const timeStr = secsLeft > 60 ? `${Math.floor(secsLeft / 60)}m ${secsLeft % 60}s` : `${secsLeft}s`;
+      ctx.strokeText(timeStr, 0, -54.5);
+      ctx.fillText(timeStr, 0, -54.5);
+
+      ctx.restore();
     }
 
     drawLevelBadge(ctx, level, x, y) {
@@ -1854,12 +1947,16 @@
     // =========================================================================
     // TACTICAL BATTLE RENDERING (STEP 9)
     // =========================================================================
+    // =========================================================================
+    // TACTICAL BATTLE RENDERING (STEP 9 - CLASH RAID BATTLEFIELD)
+    // =========================================================================
     renderBattleField(ctx) {
       const battle = this.battleMode;
       if (!battle) return;
 
-      // Render Red/Charred Battlefield Terrain
       const size = 16;
+
+      // 1. Red/Charred Battlefield Isometric Terrain
       for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
           const iso = this.gridToIso(x, y);
@@ -1873,71 +1970,234 @@
           ctx.lineTo(iso.x - hw, iso.y);
           ctx.closePath();
 
-          ctx.fillStyle = (x + y) % 2 === 0 ? '#381c1c' : '#291414';
+          ctx.fillStyle = (x + y) % 2 === 0 ? '#381c1c' : '#281313';
           ctx.fill();
-          ctx.strokeStyle = 'rgba(239, 68, 68, 0.15)';
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.18)';
           ctx.lineWidth = 1;
           ctx.stroke();
         }
       }
 
-      // Render Enemy Buildings / Towers
-      for (const def of battle.defenses) {
-        if (def.hp <= 0) continue;
-        const iso = this.gridToIso(def.x, def.y);
+      // 2. Red Dashed Outer Deployment Perimeter
+      ctx.save();
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([8, 6]);
+
+      const topPt = this.gridToIso(-0.5, -0.5);
+      const rightPt = this.gridToIso(size + 0.5, -0.5);
+      const botPt = this.gridToIso(size + 0.5, size + 0.5);
+      const leftPt = this.gridToIso(-0.5, size + 0.5);
+
+      ctx.beginPath();
+      ctx.moveTo(topPt.x, topPt.y);
+      ctx.lineTo(rightPt.x, rightPt.y);
+      ctx.lineTo(botPt.x, botPt.y);
+      ctx.lineTo(leftPt.x, leftPt.y);
+      ctx.closePath();
+      ctx.stroke();
+      ctx.restore();
+
+      // 3. Hover indicator for unit deployment outside the red line
+      if (this.hoverTile && battle.active) {
+        const isOutsidePerimeter = (this.hoverTile.x < 0 || this.hoverTile.x >= size || this.hoverTile.y < 0 || this.hoverTile.y >= size);
+        if (isOutsidePerimeter) {
+          this.renderTileHighlight(ctx, this.hoverTile.x, this.hoverTile.y, 'rgba(34, 197, 94, 0.35)', '#22c55e');
+        }
+      }
+
+      // 4. Render Enemy Defenses and Structures (sorted by isometric depth)
+      const sortedDefenses = [...battle.defenses].sort((a, b) => (a.x + a.y) - (b.x + b.y));
+      for (const def of sortedDefenses) {
+        const iso = this.gridToIso(def.x + 0.5, def.y + 0.5);
         ctx.save();
         ctx.translate(iso.x, iso.y);
 
-        // Building
-        if (def.type === 'watch_tower') this.drawWatchTower(ctx, def.level);
-        else if (def.type === 'defense_cannon') this.drawDefenseCannon(ctx, def.level);
-        else if (def.type === 'energy_tower') this.drawEnergyTower(ctx, def.level);
-        else if (def.type === 'defense_wall') this.drawDefenseWall(ctx, def.level);
-        else this.drawCityHall(ctx, def.level);
+        if (def.hp <= 0) {
+          // Smoking ruins / rubble
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+          ctx.beginPath(); ctx.ellipse(0, 6, 20, 10, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#475569';
+          ctx.fillRect(-12, -6, 10, 6);
+          ctx.fillRect(2, -8, 12, 8);
+          ctx.fillRect(-6, -12, 12, 5);
+          if (this.animTick % 24 === 0) {
+            this.addSmoke(def.x + 0.5, def.y + 0.5, 'rgba(80, 80, 80, 0.45)');
+          }
+          ctx.restore();
+          continue;
+        }
 
-        // Health Bar above enemy building
+        // Ground shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        ctx.beginPath();
+        ctx.ellipse(0, 8, 22, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Building render
+        if (def.type === 'watch_tower') this.drawWatchTower(ctx, def.level || 1);
+        else if (def.type === 'defense_cannon') this.drawTacticalCannon(ctx, def);
+        else if (def.type === 'energy_tower') this.drawEnergyTower(ctx, def.level || 1);
+        else if (def.type === 'gold_mine' || def.type === 'treasury') this.drawTreasury(ctx, def.level || 1);
+        else if (def.type === 'elixir_collector' || def.type === 'storage') this.drawElixirStorage(ctx, def.level || 1);
+        else if (def.type === 'defense_wall') this.drawDefenseWall(ctx, def.level || 1);
+        else this.drawCityHall(ctx, def.level || 1);
+
+        // Building Health Bar
         const pct = Math.max(0, def.hp / def.maxHp);
-        ctx.fillStyle = 'rgba(0,0,0,0.8)';
-        ctx.fillRect(-18, -60, 36, 5);
+        ctx.fillStyle = 'rgba(0,0,0,0.85)';
+        ctx.fillRect(-20, -56, 40, 6);
         ctx.fillStyle = pct > 0.5 ? '#22c55e' : (pct > 0.2 ? '#f59e0b' : '#ef4444');
-        ctx.fillRect(-17, -59, 34 * pct, 3);
+        ctx.fillRect(-19, -55, 38 * pct, 4);
 
         ctx.restore();
       }
 
-      // Render Attacking Player Units
+      // 5. Render Attacking Player Troops
       for (const unit of battle.units) {
         if (unit.hp <= 0) continue;
         const iso = this.gridToIso(unit.gx, unit.gy);
         ctx.save();
         ctx.translate(iso.x, iso.y);
-
-        ctx.font = '16px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(unit.icon, 0, -10);
-
-        // Unit Health bar
-        const hpPct = Math.max(0, unit.hp / unit.maxHp);
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        ctx.fillRect(-10, -22, 20, 3);
-        ctx.fillStyle = '#00f0ff';
-        ctx.fillRect(-9, -21, 18 * hpPct, 1.5);
-
+        this.drawTacticalUnit(ctx, unit);
         ctx.restore();
       }
 
-      // Render Projectiles (Arrows, Cannonballs, Laser Beams)
+      // 6. Render Projectiles (Cannonballs, Arrows, Laser Beams)
       for (const proj of battle.projectiles) {
         ctx.save();
-        ctx.strokeStyle = proj.color || '#fbbf24';
-        ctx.lineWidth = proj.type === 'beam' ? 3 : 2;
-        ctx.beginPath();
-        ctx.moveTo(proj.sx, proj.sy);
-        ctx.lineTo(proj.tx, proj.ty);
-        ctx.stroke();
+        if (proj.type === 'cannonball') {
+          // Arcing black iron cannonball
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(proj.cx, proj.cy, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#fbbf24';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        } else if (proj.type === 'arrow') {
+          // Flying arrow
+          ctx.strokeStyle = '#fde047';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(proj.cx, proj.cy);
+          ctx.lineTo(proj.cx - (proj.vx || 2) * 2.5, proj.cy - (proj.vy || 2) * 2.5);
+          ctx.stroke();
+        } else {
+          ctx.strokeStyle = proj.color || '#fbbf24';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(proj.sx, proj.sy);
+          ctx.lineTo(proj.tx, proj.ty);
+          ctx.stroke();
+        }
         ctx.restore();
       }
+
+      // 7. Render Smoke & Floating Damage/Loot Particles
+      this.renderParticles(ctx);
+      this.renderSmoke(ctx);
+    }
+
+    drawTacticalUnit(ctx, unit) {
+      const walkCycle = Math.sin(this.animTick * 0.35 + (unit.id || 0));
+
+      // Ground shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+      ctx.beginPath();
+      ctx.ellipse(0, 2, 8, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Unit appearance by type
+      if (unit.type === 'giant') {
+        // Massive Giant
+        ctx.fillStyle = '#b45309'; // Brown leather tunic
+        ctx.fillRect(-6, -22, 12, 18);
+        ctx.fillStyle = '#fde047'; // Giant beard
+        ctx.fillRect(-4, -14, 8, 6);
+        ctx.fillStyle = '#fed7aa'; // Head
+        ctx.beginPath(); ctx.arc(0, -25, 6, 0, Math.PI * 2); ctx.fill();
+        // Fists swinging
+        ctx.fillStyle = '#fed7aa';
+        ctx.fillRect(-9 + walkCycle * 2, -18, 5, 5);
+        ctx.fillRect(5 - walkCycle * 2, -18, 5, 5);
+      } else if (unit.type === 'goblin') {
+        // Fast green goblin
+        ctx.fillStyle = '#15803d'; // Green skin
+        ctx.beginPath(); ctx.arc(0, -12, 4.5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#a16207'; // Burlap sack of stolen gold
+        ctx.beginPath(); ctx.arc(4, -10, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#78350f'; // Clothes
+        ctx.fillRect(-3, -8, 6, 8);
+      } else if (unit.type === 'archer') {
+        // Archer in green hooded cloak
+        ctx.fillStyle = '#166534'; // Cape
+        ctx.beginPath(); ctx.moveTo(0, -18); ctx.lineTo(-6, -2); ctx.lineTo(6, -2); ctx.fill();
+        ctx.fillStyle = '#fbcfe8'; // Face
+        ctx.beginPath(); ctx.arc(0, -14, 3.5, 0, Math.PI * 2); ctx.fill();
+        // Bow
+        ctx.strokeStyle = '#92400e';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.arc(4, -12, 6, -Math.PI / 3, Math.PI / 3); ctx.stroke();
+      } else {
+        // Barbarian (Yellow hair, sword)
+        ctx.fillStyle = '#92400e'; // Kilt
+        ctx.fillRect(-4, -12, 8, 10);
+        ctx.fillStyle = '#fed7aa'; // Muscular torso
+        ctx.fillRect(-4, -16, 8, 5);
+        ctx.fillStyle = '#eab308'; // Spiky blonde hair
+        ctx.beginPath(); ctx.arc(0, -19, 4.5, 0, Math.PI * 2); ctx.fill();
+        // Sword swing
+        ctx.save();
+        ctx.translate(4, -14);
+        ctx.rotate(walkCycle * 0.6);
+        ctx.fillStyle = '#e2e8f0'; // Blade
+        ctx.fillRect(0, -8, 2.5, 10);
+        ctx.fillStyle = '#78350f'; // Guard
+        ctx.fillRect(-2, 0, 6.5, 2);
+        ctx.restore();
+      }
+
+      // Unit Health bar
+      const hpPct = Math.max(0, unit.hp / unit.maxHp);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+      ctx.fillRect(-10, -32, 20, 3.5);
+      ctx.fillStyle = '#00f0ff';
+      ctx.fillRect(-9, -31, 18 * hpPct, 2);
+    }
+
+    drawTacticalCannon(ctx, def) {
+      // 4-legged wooden swivel turntable
+      ctx.fillStyle = '#5c2b09';
+      ctx.fillRect(-14, -8, 28, 6);
+      ctx.fillStyle = '#3e1b04';
+      ctx.fillRect(-10, -4, 20, 6);
+
+      // Rotating barrel toward target
+      const angle = def.angle || 0;
+      ctx.save();
+      ctx.translate(0, -12);
+      ctx.rotate(angle);
+
+      // Cast iron cannon barrel
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-5, -16, 10, 22);
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath(); ctx.ellipse(0, -16, 5, 2.5, 0, 0, Math.PI * 2); ctx.fill();
+
+      // Muzzle flash when firing
+      if (def.firingAnim && def.firingAnim > 0) {
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(0, -22, 7 + Math.random() * 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, -22, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        def.firingAnim--;
+      }
+      ctx.restore();
     }
   }
 
