@@ -1,0 +1,118 @@
+<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="tableRadial" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#1e2230"/>
+      <stop offset="60%" stop-color="#0e111a"/>
+      <stop offset="100%" stop-color="#07080d"/>
+    </radialGradient>
+
+    <!-- Board Plate Gradient -->
+    <linearGradient id="boardPlateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#282f42"/>
+      <stop offset="40%" stop-color="#161a26"/>
+      <stop offset="100%" stop-color="#0d1017"/>
+    </linearGradient>
+
+    <!-- Cell Inset Gradient -->
+    <linearGradient id="cellInset" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#080a0f"/>
+      <stop offset="100%" stop-color="#141824"/>
+    </linearGradient>
+
+    <!-- Metallic X Gradient (Cyan Titanium) -->
+    <linearGradient id="metalXGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a5f3fc"/>
+      <stop offset="35%" stop-color="#06b6d4"/>
+      <stop offset="70%" stop-color="#0891b2"/>
+      <stop offset="100%" stop-color="#164e63"/>
+    </linearGradient>
+
+    <!-- Metallic O Gradient (Rose Gold / Radiant Amber) -->
+    <linearGradient id="metalOGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fed7aa"/>
+      <stop offset="35%" stop-color="#f59e0b"/>
+      <stop offset="70%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+
+    <!-- Drop Shadows & Glow -->
+    <filter id="pieceShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.8"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#00f0ff" flood-opacity="0.3"/>
+    </filter>
+
+    <filter id="oShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.8"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#f59e0b" flood-opacity="0.35"/>
+    </filter>
+
+    <filter id="boardShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.9"/>
+    </filter>
+  </defs>
+
+  <!-- Tabletop Background -->
+  <rect width="320" height="180" fill="url(#tableRadial)"/>
+
+  <!-- Ambient Light Reflection -->
+  <ellipse cx="160" cy="50" rx="140" ry="60" fill="#00f0ff" opacity="0.04"/>
+
+  <!-- 3D Beveled Board Plinth -->
+  <g filter="url(#boardShadow)" transform="translate(90, 15)">
+    <!-- Base Plate Outline / Bevel -->
+    <rect x="0" y="0" width="140" height="140" rx="12" fill="url(#boardPlateGrad)" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+    <rect x="4" y="4" width="132" height="132" rx="9" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="1"/>
+
+    <!-- Grid Cells (9 cells) -->
+    <!-- Row 1 -->
+    <rect x="10" y="10" width="36" height="36" rx="6" fill="url(#cellInset)" stroke="rgba(255,255,255,0.05)"/>
+    <rect x="52" y="10" width="36" height="36" rx="6" fill="url(#cellInset)" stroke="rgba(255,255,255,0.05)"/>
+    <rect x="94" y="10" width="36" height="36" rx="6" fill="url(#cellInset)" stroke="rgba(255,255,255,0.05)"/>
+    <!-- Row 2 -->
+    <rect x="10" y="52" width="36" height="36" rx="6" fill="url(#cellInset)" stroke="rgba(255,255,255,0.05)"/>
+    <rect x="52" y="52" width="36" height="36" rx="6" fill="url(#cellInset)" stroke="rgba(255,255,255,0.05)"/>
+    <rect x="94" y="52" width="36" height="36" rx="6" fill="url(#cellInset)" stroke="rgba(255,255,255,0.05)"/>
+    <!-- Row 3 -->
+    <rect x="10" y="94" width="36" height="36" rx="6" fill="url(#cellInset)" stroke="rgba(255,255,255,0.05)"/>
+    <rect x="52" y="94" width="36" height="36" rx="6" fill="url(#cellInset)" stroke="rgba(255,255,255,0.05)"/>
+    <rect x="94" y="94" width="36" height="36" rx="6" fill="url(#cellInset)" stroke="rgba(255,255,255,0.05)"/>
+
+    <!-- Piece: X at (0,0) [10,10] -->
+    <g filter="url(#pieceShadow)" transform="translate(14, 14)">
+      <line x1="6" y1="6" x2="22" y2="22" stroke="url(#metalXGrad)" stroke-width="5" stroke-linecap="round"/>
+      <line x1="22" y1="6" x2="6" y2="22" stroke="url(#metalXGrad)" stroke-width="5" stroke-linecap="round"/>
+      <line x1="7" y1="7" x2="21" y2="21" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" opacity="0.75"/>
+    </g>
+
+    <!-- Piece: O at (1,1) [52,52] -->
+    <g filter="url(#oShadow)" transform="translate(56, 56)">
+      <circle cx="14" cy="14" r="10" fill="none" stroke="url(#metalOGrad)" stroke-width="5"/>
+      <circle cx="14" cy="14" r="11.5" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.6"/>
+    </g>
+
+    <!-- Piece: X at (2,0) [94,10] -->
+    <g filter="url(#pieceShadow)" transform="translate(98, 14)">
+      <line x1="6" y1="6" x2="22" y2="22" stroke="url(#metalXGrad)" stroke-width="5" stroke-linecap="round"/>
+      <line x1="22" y1="6" x2="6" y2="22" stroke="url(#metalXGrad)" stroke-width="5" stroke-linecap="round"/>
+    </g>
+
+    <!-- Piece: X at (2,2) [94,94] -->
+    <g filter="url(#pieceShadow)" transform="translate(98, 98)">
+      <line x1="6" y1="6" x2="22" y2="22" stroke="url(#metalXGrad)" stroke-width="5" stroke-linecap="round"/>
+      <line x1="22" y1="6" x2="6" y2="22" stroke="url(#metalXGrad)" stroke-width="5" stroke-linecap="round"/>
+    </g>
+
+    <!-- Piece: O at (0,2) [10,94] -->
+    <g filter="url(#oShadow)" transform="translate(14, 98)">
+      <circle cx="14" cy="14" r="10" fill="none" stroke="url(#metalOGrad)" stroke-width="5"/>
+    </g>
+
+    <!-- Subtle Laser Winning Vector Line across col 2 (right) -->
+    <line x1="112" y1="18" x2="112" y2="122" stroke="#00f0ff" stroke-width="2.5" stroke-linecap="round" opacity="0.85" filter="url(#pieceShadow)"/>
+  </g>
+
+  <!-- Game Title & Badge -->
+  <text x="160" y="168" font-family="'Inter', -apple-system, sans-serif" font-size="11" font-weight="800" fill="#94a3b8" text-anchor="middle" letter-spacing="0.12em">TIC-TAC-TOE : ULTIMATE ARENA</text>
+</svg>
+

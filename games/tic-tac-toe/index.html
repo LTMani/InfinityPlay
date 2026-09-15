@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tic-Tac-Toe: Ultimate Arena — InfinityPlay</title>
+  <meta name="description" content="A premium tactical Tic-Tac-Toe arena featuring realistic presentation, progressive AI difficulty, competitive scoring, achievements, and 10 challenging levels on InfinityPlay.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="../../assets/games/thumb_tic_tac_toe.svg">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body data-theme="dark">
+
+  <!-- Ambient Backdrop -->
+  <div class="arena-environment">
+    <div class="arena-table-grain"></div>
+  </div>
+
+  <!-- Particle Effects Canvas -->
+  <canvas id="effectsCanvas"></canvas>
+
+  <!-- Screen Reader Announcements -->
+  <div id="srAnnouncements" class="sr-only" role="status" aria-live="polite"></div>
+
+  <div class="arena-wrapper">
+
+    <!-- Top Header -->
+    <header class="arena-header">
+      <a href="#" class="brand-area" onclick="window.TTTApp?.showScreen('menu'); return false;">
+        <span class="brand-badge">PRO ARENA</span>
+        <div>
+          <h1 class="brand-title">TIC-TAC-TOE</h1>
+          <p class="brand-subtitle">ULTIMATE ARENA</p>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <button class="header-btn" id="btnGlobalMute" title="Mute Audio" aria-label="Toggle Sound">🔊</button>
+        <a href="../../index.html" class="header-btn" title="Exit to InfinityPlay Portal" id="btnExitPortal">✕ Exit</a>
+      </div>
+    </header>
+
+    <!-- MAIN MENU SCREEN -->
+    <main class="arena-screen active" id="screenMenu">
+      <div class="menu-hero">
+        <span class="menu-pre-title">Tactical Board Game</span>
+        <h2 class="menu-title">ULTIMATE ARENA</h2>
+        <p class="menu-subtitle">Master the grid against grandmaster AI or local rivals</p>
+      </div>
+
+      <nav class="menu-options" aria-label="Game Modes">
+        <button class="menu-btn menu-btn-primary" id="btnMenuPlayAI">
+          <span>⚔️ &nbsp;PLAY VS AI</span>
+          <span class="menu-btn-icon">▶</span>
+        </button>
+
+        <button class="menu-btn" id="btnMenuPVP">
+          <span>👥 &nbsp;LOCAL 2 PLAYER</span>
+          <span class="menu-btn-icon">▶</span>
+        </button>
+
+        <button class="menu-btn" id="btnMenuWatchAI">
+          <span>🤖 &nbsp;WATCH AI (DEMO)</span>
+          <span class="menu-btn-icon">▶</span>
+        </button>
+
+        <button class="menu-btn" id="btnMenuLevels">
+          <span>🏆 &nbsp;LEVEL SELECT (10 LVLS)</span>
+          <span class="menu-btn-icon">▶</span>
+        </button>
+
+        <button class="menu-btn" id="btnMenuAchievements">
+          <span>🏅 &nbsp;ACHIEVEMENTS</span>
+          <span class="menu-btn-icon">★</span>
+        </button>
+
+        <button class="menu-btn" id="btnMenuSettings">
+          <span>⚙️ &nbsp;SETTINGS</span>
+          <span class="menu-btn-icon">⚙</span>
+        </button>
+      </nav>
+    </main>
+
+    <!-- MATCH SETUP SCREEN -->
+    <section class="arena-screen" id="screenSetup" aria-labelledby="setupTitle">
+      <div class="setup-card">
+        <h2 class="setup-title" id="setupTitle">Match Setup</h2>
+
+        <!-- Choose Symbol -->
+        <div class="setup-group">
+          <label class="setup-label">Choose Symbol</label>
+          <div class="setup-pill-group">
+            <button type="button" class="setup-btn setup-symbol-btn active" data-symbol="X">
+              <span style="color: var(--piece-x-bright); font-size: 1.2rem; font-weight: 900; margin-right: 8px;">✕</span> Piece X
+            </button>
+            <button type="button" class="setup-btn setup-symbol-btn" data-symbol="O">
+              <span style="color: var(--piece-o-bright); font-size: 1.2rem; font-weight: 900; margin-right: 8px;">◯</span> Piece O
+            </button>
+          </div>
+        </div>
+
+        <!-- AI Difficulty -->
+        <div class="setup-group">
+          <label class="setup-label">AI Difficulty</label>
+          <div class="setup-pill-group col-4">
+            <button type="button" class="setup-btn setup-diff-btn" data-diff="easy">Easy</button>
+            <button type="button" class="setup-btn setup-diff-btn active" data-diff="medium">Medium</button>
+            <button type="button" class="setup-btn setup-diff-btn" data-diff="hard">Hard</button>
+            <button type="button" class="setup-btn setup-diff-btn" data-diff="grandmaster">Grandmaster</button>
+          </div>
+        </div>
+
+        <!-- First Move -->
+        <div class="setup-group">
+          <label class="setup-label">First Move</label>
+          <div class="setup-pill-group" style="grid-template-columns: repeat(3, 1fr);">
+            <button type="button" class="setup-btn setup-first-btn active" data-first="PLAYER">Player</button>
+            <button type="button" class="setup-btn setup-first-btn" data-first="AI">AI</button>
+            <button type="button" class="setup-btn setup-first-btn" data-first="RANDOM">Random</button>
+          </div>
+        </div>
+
+        <div class="setup-actions">
+          <button type="button" class="btn-cta secondary" id="btnSetupBack">Back</button>
+          <button type="button" class="btn-cta primary" id="btnStartMatch">Start Match</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAMPAIGN LEVEL SELECT SCREEN -->
+    <section class="arena-screen" id="screenLevels" aria-labelledby="levelsHeading">
+      <div class="levels-container">
+        <div class="levels-header">
+          <h2 class="levels-title" id="levelsHeading">Campaign Levels</h2>
+          <button type="button" class="header-btn" id="btnLevelsBack">← Main Menu</button>
+        </div>
+        <div class="levels-grid" id="levelsGrid">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- GAMEPLAY SCREEN -->
+    <section class="arena-screen" id="screenGame">
+      <div class="game-container">
+        
+        <!-- HUD -->
+        <div class="game-hud">
+          <div class="hud-top-row">
+            <span class="hud-round-pill" id="hudRound">ROUND 01</span>
+            <div class="hud-badges-group">
+              <span class="hud-diff-tag diff-grandmaster" id="hudDifficulty">GRANDMASTER</span>
+              <span class="hud-streak-tag" id="hudStreak" style="display: none;">STREAK x1</span>
+            </div>
+          </div>
+
+          <div class="hud-matchup-row">
+            <div class="hud-player-card">
+              <span class="hud-player-name" id="hudPlayerLabel">PLAYER (X)</span>
+              <span class="hud-player-score" id="hudPlayerScore">0</span>
+            </div>
+
+            <div class="hud-vs-center">
+              <span class="hud-vs-label">VS</span>
+              <span class="hud-draws-label">DRAWS: <strong id="hudDraws" style="color: #ffffff;">0</strong></span>
+            </div>
+
+            <div class="hud-player-card right">
+              <span class="hud-player-name" id="hudOpponentLabel">GRANDMASTER AI (O)</span>
+              <span class="hud-player-score" id="hudOpponentScore">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Turn Status & Quick Controls -->
+        <div class="turn-status-bar">
+          <div class="turn-indicator-pill" id="turnIndicator">
+            <span class="turn-dot player-turn"></span> YOUR MOVE
+          </div>
+
+          <div class="game-controls-row">
+            <button type="button" class="hud-action-btn" id="btnHudRestart" title="Restart Round (R)">↺ Restart</button>
+            <button type="button" class="hud-action-btn" id="btnHudPause" title="Pause Game (Esc)">⏸ Pause</button>
+          </div>
+        </div>
+
+        <!-- 3D Realistic Tabletop Board -->
+        <div class="ttt-board-container" id="boardPlinth">
+          <div class="ttt-board" id="tttBoard" role="grid" aria-label="Tic-Tac-Toe Grid">
+            <!-- 9 cells generated dynamically -->
+          </div>
+
+          <!-- Animated Winning Laser Line -->
+          <svg class="winning-line-svg" id="winningLineSvg">
+            <line id="winningLine" class="winning-line-stroke" x1="0" y1="0" x2="0" y2="0" />
+          </svg>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- PAUSE MODAL -->
+  <div class="arena-modal" id="modalPause" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="pauseTitle">Game Paused</h3>
+      </div>
+      <div class="menu-options" style="max-width: 100%;">
+        <button class="menu-btn menu-btn-primary" id="btnPauseResume">
+          <span>Resume Match</span>
+          <span>▶</span>
+        </button>
+        <button class="menu-btn" id="btnPauseRestart">
+          <span>Restart Round</span>
+          <span>↺</span>
+        </button>
+        <button class="menu-btn" id="btnPauseSettings">
+          <span>Settings</span>
+          <span>⚙</span>
+        </button>
+        <button class="menu-btn" id="btnPauseQuit" style="color: #f87171;">
+          <span>Quit to Menu</span>
+          <span>✕</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATCH RESULT MODAL -->
+  <div class="arena-modal" id="modalResult" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+    <div class="modal-dialog result-dialog">
+      <h3 class="result-title win" id="resultTitle">VICTORY</h3>
+      <p class="result-subtitle" id="resultSubtitle">Exquisite strategic performance!</p>
+
+      <div class="result-stars" id="resultStarsRow">
+        <span class="result-star earned">★</span>
+        <span class="result-star earned">★</span>
+        <span class="result-star empty">★</span>
+      </div>
+
+      <div class="result-stats-row">
+        <div class="result-stat-item">
+          <span class="result-stat-label">Score</span>
+          <span class="result-stat-val" id="resultScoreVal">+250</span>
+        </div>
+        <div class="result-stat-item">
+          <span class="result-stat-label">XP Gained</span>
+          <span class="result-stat-val" id="resultXpVal">+65 XP</span>
+        </div>
+        <div class="result-stat-item">
+          <span class="result-stat-label">Streak</span>
+          <span class="result-stat-val" id="resultStreakVal">x3</span>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn-cta primary" id="btnResultNextRound">NEXT ROUND</button>
+        <button class="btn-cta secondary" id="btnResultReplay">REPLAY ROUND</button>
+        <button class="btn-cta secondary" id="btnResultMenu">MAIN MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="arena-modal" id="modalSettings" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="settingsTitle">Settings</h3>
+        <button class="modal-close-btn" id="btnCloseSettings" aria-label="Close Settings">✕</button>
+      </div>
+
+      <div class="settings-list">
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-title">Sound Effects</span>
+            <span class="setting-desc">Tactile piece placement & UI sounds</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="settingSound" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-title">Ambient Music</span>
+            <span class="setting-desc">Procedural game-room synth pad</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="settingMusic" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-title">Animations</span>
+            <span class="setting-desc">Full 3D physics or reduced motion</span>
+          </div>
+          <select class="setting-select" id="settingAnim">
+            <option value="full">Full (60 FPS)</option>
+            <option value="reduced">Reduced Motion</option>
+          </select>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-title">Theme</span>
+            <span class="setting-desc">Board material styling</span>
+          </div>
+          <select class="setting-select" id="settingTheme">
+            <option value="dark">Midnight Obsidian</option>
+            <option value="premium">Royal Titanium</option>
+          </select>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-title">Confirm Restart</span>
+            <span class="setting-desc">Prompt before resetting active match</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="settingConfirmRestart" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border-subtle); text-align: center;">
+          <span style="font-size: 0.72rem; color: var(--text-muted);">Tic-Tac-Toe: Ultimate Arena • Built for InfinityPlay</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACHIEVEMENTS MODAL -->
+  <div class="arena-modal" id="modalAchievements" role="dialog" aria-modal="true" aria-labelledby="achTitle">
+    <div class="modal-dialog" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="achTitle">Achievements</h3>
+        <button class="modal-close-btn" id="btnCloseAchievements" aria-label="Close Achievements">✕</button>
+      </div>
+
+      <div class="achievements-grid" id="achievementsList">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM RESTART MODAL -->
+  <div class="arena-modal" id="modalConfirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal-dialog" style="max-width: 380px; text-align: center;">
+      <h3 class="modal-title" id="confirmTitle" style="margin-bottom: 10px;">Restart Match?</h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 24px;">Your current in-progress round will be reset.</p>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn-cta secondary" id="btnConfirmNo">Cancel</button>
+        <button class="btn-cta primary" id="btnConfirmYes">Restart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT MODULES -->
+  <script src="js/save.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
+

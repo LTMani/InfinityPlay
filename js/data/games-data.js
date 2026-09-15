@@ -5,6 +5,7 @@
 
 const gamesData = [
   {
+<<<<<<< HEAD
     id: 'highway-tycoon',
     name: 'Highway Oasis Tycoon',
     category: 'Simulation',
@@ -21,6 +22,24 @@ const gamesData = [
     releaseDate: '2026-09-15',
     developer: 'InfinityPlay Studios',
     gameUrl: 'games/highway-tycoon/index.html',
+=======
+    id: 'tic-tac-toe',
+    name: 'Tic-Tac-Toe: Ultimate Arena',
+    category: 'Puzzle',
+    rating: 5.0,
+    plays: 18200,
+    playsFormatted: '18.2K',
+    rank: 1,
+    badge: 'NEW',
+    isTop: true,
+    thumbnail: 'assets/games/thumb_tic_tac_toe.svg',
+    topThumbnail: 'assets/games/top_tic_tac_toe.svg',
+    description: 'A premium tactical Tic-Tac-Toe arena featuring realistic presentation, progressive AI difficulty, competitive scoring, achievements, and 10 challenging levels.',
+    tags: ['Puzzle', 'Strategy', 'AI', 'Board Game', 'Tactical'],
+    releaseDate: '2026-09-15',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/tic-tac-toe/index.html',
+>>>>>>> 5cd442b (tic-tac-toe)
     playMode: 'embed'
   },
   {
