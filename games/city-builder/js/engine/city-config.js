@@ -948,6 +948,39 @@
     };
   }
 
+  function calculateCityPower(city) {
+    if (!city) return 500;
+    let power = 200;
+
+    // Building levels power
+    if (city.buildings && Array.isArray(city.buildings)) {
+      city.buildings.forEach(b => {
+        const spec = BUILDINGS[b.type];
+        const multiplier = b.type === 'city_hall' ? 120 : (spec && spec.category === 'Defense' ? 80 : 45);
+        power += (b.level || 1) * multiplier;
+      });
+    }
+
+    // Army units power
+    if (city.army && typeof city.army === 'object') {
+      Object.entries(city.army).forEach(([unitId, count]) => {
+        const spec = UNITS[unitId];
+        const unitPwr = spec ? (spec.power || (spec.hp * 0.5 + (spec.damage || 20) * 2)) : 10;
+        power += Math.floor((count || 0) * unitPwr);
+      });
+    }
+
+    // Tech tree bonuses
+    if (city.unlockedTechs && Array.isArray(city.unlockedTechs)) {
+      power += city.unlockedTechs.length * 75;
+    }
+
+    // Level bonus
+    power += (city.level || 1) * 80;
+
+    return Math.max(250, Math.floor(power));
+  }
+
   // Exports
   exports.GRID_SIZE = GRID_SIZE;
   exports.RESOURCES = RESOURCES;
@@ -958,6 +991,7 @@
   exports.DAILY_MISSIONS = DAILY_MISSIONS;
   exports.TECH_TREE = TECH_TREE;
   exports.createStarterCity = createStarterCity;
+  exports.calculateCityPower = calculateCityPower;
 
 })(typeof module !== 'undefined' && module.exports ? module.exports : (window.CityConfig = {}));
 
