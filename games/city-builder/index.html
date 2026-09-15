@@ -13,7 +13,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Luckiest+Guy&family=Paytone+One&display=swap" rel="stylesheet">
 
   <!-- InfinityPlay Design Tokens & Base CSS -->
   <link rel="stylesheet" href="../../css/variables.css">
@@ -28,108 +28,118 @@
   <div class="city-app-container">
     
     <!-- ======================================================================
-         1. TOP HUD RESOURCE & PROGRESSION BAR
+         1. CLASH OF CLANS AUTHENTIC TOP HUD
          ====================================================================== -->
-    <header class="city-top-hud">
-      <!-- Left: Exit, City Profile, Level, XP & Power -->
-      <div class="hud-group">
-        <div class="hud-brand-pill">
-          <a href="../../index.html" class="btn-hud-exit" id="btnExitGame" title="Exit to InfinityPlay Platform">
-            <span>⮌</span>
-            <span>InfinityPlay</span>
-          </a>
+    <header class="city-top-hud coc-top-hud">
+      <!-- TOP LEFT: Level Badge, Player Name, Blue XP Bar, Trophies & Shield -->
+      <div class="coc-hud-left">
+        <a href="../../index.html" class="coc-btn-exit" id="btnExitGame" title="Exit to InfinityPlay Platform">
+          <span>⮌</span>
+        </a>
 
-          <div class="hud-city-info">
-            <div class="hud-city-top-row">
-              <span class="hud-city-name" id="hudCityName">Metropolis</span>
-              <span class="hud-player-level" id="hudPlayerLevel">Lv. 1</span>
+        <!-- Player Card with Star Level Badge -->
+        <div class="coc-player-card">
+          <div class="coc-level-star" title="Experience Level">
+            <span class="star-shape">⭐</span>
+            <span class="coc-level-text" id="hudPlayerLevel">1</span>
+          </div>
+
+          <div class="coc-player-details">
+            <div class="coc-player-name" id="hudCityName">HULKSDEN</div>
+            <div class="coc-xp-bar-container" title="Level Experience">
+              <div class="coc-xp-bar-fill" id="hudXpFill" style="width: 35%;"></div>
             </div>
-            <div class="hud-city-stats-row">
-              <span class="hud-city-pop" id="hudPopulation">Pop: 50</span>
-              <span class="hud-city-power">⚔️ <strong id="hudCityPower">450</strong></span>
-            </div>
-            <div class="hud-xp-track" title="Experience to next Mayor Level">
-              <div class="hud-xp-fill" id="hudXpFill" style="width: 20%;"></div>
-            </div>
+          </div>
+        </div>
+
+        <!-- Trophies and Shield Row -->
+        <div class="coc-stat-badges">
+          <div class="coc-trophy-badge" title="Trophies">
+            <span class="badge-icon">🏆</span>
+            <span class="badge-val" id="hudTrophies">0</span>
+          </div>
+
+          <div class="coc-shield-badge" title="Shield Status">
+            <span class="badge-icon">🛡️</span>
+            <span class="badge-val" id="hudShieldTimer">None</span>
           </div>
         </div>
       </div>
 
-      <!-- Center: Persistent Resources (Gold, Wood, Stone, Food) -->
-      <div class="hud-group">
-        <div class="hud-resources-pill">
-          <!-- Gold -->
-          <div class="hud-res-item" title="Gold Coins: Used for construction, training and trade">
-            <span class="hud-res-icon">🪙</span>
-            <div class="hud-res-data">
-              <div class="hud-res-num-row">
-                <span class="hud-res-val" id="res_gold_val">1,000</span>
-                <span class="hud-res-rate" id="res_gold_rate">+16/m</span>
-              </div>
-              <div class="hud-res-progress">
-                <div class="hud-res-progress-fill fill-gold" id="res_gold_bar" style="width: 20%;"></div>
-              </div>
-            </div>
+      <!-- TOP CENTER: Builders Capsule & Shield Protection Capsule -->
+      <div class="coc-hud-center">
+        <!-- Builder Capsule -->
+        <div class="coc-top-capsule coc-builder-capsule" title="Builders: Free / Total">
+          <div class="capsule-avatar">
+            <span class="avatar-emoji">👷</span>
           </div>
+          <div class="capsule-info">
+            <span class="capsule-val" id="hudBuildersVal">2/2</span>
+          </div>
+          <button class="coc-btn-plus" id="btnAddBuilder" title="Get More Builders">+</button>
+        </div>
 
-          <!-- Wood -->
-          <div class="hud-res-item" title="Timber: Core material for buildings and archers">
-            <span class="hud-res-icon">🪵</span>
-            <div class="hud-res-data">
-              <div class="hud-res-num-row">
-                <span class="hud-res-val" id="res_wood_val">800</span>
-                <span class="hud-res-rate" id="res_wood_rate">+20/m</span>
-              </div>
-              <div class="hud-res-progress">
-                <div class="hud-res-progress-fill fill-wood" id="res_wood_bar" style="width: 20%;"></div>
-              </div>
-            </div>
+        <!-- Shield / Guard Capsule -->
+        <div class="coc-top-capsule coc-guard-capsule" title="Village Shield Protection">
+          <div class="capsule-avatar shield-avatar">
+            <span class="avatar-emoji">🛡️</span>
           </div>
-
-          <!-- Stone -->
-          <div class="hud-res-item" title="Quarried Stone: Essential for defenses, walls and heavy armor">
-            <span class="hud-res-icon">🪨</span>
-            <div class="hud-res-data">
-              <div class="hud-res-num-row">
-                <span class="hud-res-val" id="res_stone_val">600</span>
-                <span class="hud-res-rate" id="res_stone_rate">+18/m</span>
-              </div>
-              <div class="hud-res-progress">
-                <div class="hud-res-progress-fill fill-stone" id="res_stone_bar" style="width: 15%;"></div>
-              </div>
-            </div>
+          <div class="capsule-info">
+            <span class="capsule-val" id="hudShieldStatusVal">None</span>
           </div>
-
-          <!-- Food -->
-          <div class="hud-res-item" title="Provisions: Nourishes citizens and recruits infantry">
-            <span class="hud-res-icon">🌾</span>
-            <div class="hud-res-data">
-              <div class="hud-res-num-row">
-                <span class="hud-res-val" id="res_food_val">500</span>
-                <span class="hud-res-rate" id="res_food_rate">+24/m</span>
-              </div>
-              <div class="hud-res-progress">
-                <div class="hud-res-progress-fill fill-food" id="res_food_bar" style="width: 12%;"></div>
-              </div>
-            </div>
-          </div>
+          <button class="coc-btn-plus" id="btnAddShield" title="Buy Shield Protection">+</button>
         </div>
       </div>
 
-      <!-- Right: Premium Gems & Quick Controls -->
-      <div class="hud-group">
-        <div class="hud-gems-pill" title="Gems: Instant build/train speedups">
-          <span>💎</span>
-          <span id="resGemsVal">50</span>
+      <!-- TOP RIGHT: Gold Bar, Elixir Bar, Gems Pill & Quick Controls -->
+      <div class="coc-hud-right">
+        <!-- Gold Capsule Bar -->
+        <div class="coc-resource-bar coc-gold-bar" title="Gold Coins: Used for defenses and buildings">
+          <div class="res-bar-track">
+            <div class="res-bar-fill fill-gold" id="res_gold_bar" style="width: 48%;"></div>
+            <div class="res-bar-num">
+              <span class="res-cur-val" id="res_gold_val">2 400</span>
+            </div>
+          </div>
+          <div class="res-badge-icon gold-icon">🪙</div>
+          <button class="coc-btn-plus" id="btnAddGold" title="Buy Gold">+</button>
         </div>
 
-        <button class="btn-hud-icon" id="btnCenterMap" title="Center on Command Center">
-          <span>🎯</span>
-        </button>
+        <!-- Elixir Capsule Bar -->
+        <div class="coc-resource-bar coc-elixir-bar" title="Elixir: Used for troops and laboratory">
+          <div class="res-bar-track">
+            <div class="res-bar-fill fill-elixir" id="res_elixir_bar" style="width: 48%;"></div>
+            <div class="res-bar-num">
+              <span class="res-cur-val" id="res_elixir_val">2 400</span>
+            </div>
+          </div>
+          <div class="res-badge-icon elixir-icon">💧</div>
+          <button class="coc-btn-plus" id="btnAddElixir" title="Buy Elixir">+</button>
+        </div>
 
-        <button class="btn-hud-icon" id="btnToggleAudio" title="Toggle Sound">
-          <span>🔊</span>
-        </button>
+        <!-- Gems Pill -->
+        <div class="coc-gems-bar" title="Gems: Instant speedups">
+          <div class="gems-track">
+            <span class="gem-icon">💎</span>
+            <span class="gem-val" id="resGemsVal">243</span>
+          </div>
+          <button class="coc-btn-plus gem-plus" id="btnAddGems" title="Buy Gems">+</button>
+        </div>
+
+        <!-- Utility controls -->
+        <div class="coc-hud-quick-btns">
+          <button class="coc-circle-btn" id="btnCenterMap" title="Center on Town Hall">🎯</button>
+          <button class="coc-circle-btn" id="btnToggleAudio" title="Toggle Sound">🔊</button>
+        </div>
+      </div>
+
+      <!-- Hidden fallbacks for legacy resource keys to ensure zero errors -->
+      <div style="display:none;" id="legacyResourceBackwardsCompat">
+        <span id="res_wood_val">800</span><div id="res_wood_bar"></div><span id="res_wood_rate"></span>
+        <span id="res_stone_val">600</span><div id="res_stone_bar"></div><span id="res_stone_rate"></span>
+        <span id="res_food_val">500</span><div id="res_food_bar"></div><span id="res_food_rate"></span>
+        <span id="res_gold_rate"></span><span id="res_elixir_rate"></span>
+        <span id="hudPopulation">50</span><span id="hudCityPower">450</span>
       </div>
     </header>
 
@@ -225,39 +235,102 @@
     </aside>
 
     <!-- ======================================================================
-         6. BOTTOM ACTION DOCK
+         6. CLASH OF CLANS SELECTED BUILDING ACTION DECK (BOTTOM CENTER)
          ====================================================================== -->
-    <footer class="city-bottom-dock">
-      <button class="dock-btn primary-dock" id="btnDockBuild" title="Open Architectural Catalog">
-        <span class="dock-btn-icon">🏗️</span>
-        <span class="dock-btn-label">BUILD</span>
+    <div class="coc-action-deck" id="cocActionDeck">
+      <div class="coc-deck-title-banner">
+        <span class="coc-deck-title" id="cocDeckTitle">Town Hall (Level 2)</span>
+      </div>
+      <div class="coc-deck-cards">
+        <!-- 1. Info Card -->
+        <button class="coc-card-btn" id="cocCardInfo" title="Building Information">
+          <div class="coc-card-icon info-icon">ℹ️</div>
+          <span class="coc-card-label">Info</span>
+        </button>
+
+        <!-- 2. Upgrade Card -->
+        <button class="coc-card-btn primary-upgrade" id="cocCardUpgrade" title="Upgrade Building">
+          <div class="coc-card-icon upgrade-icon">🔨</div>
+          <span class="coc-card-label">Upgrade</span>
+          <div class="coc-card-cost" id="cocCardUpgradeCost">
+            <span class="cost-icon" id="cocCardCostIcon">🪙</span>
+            <span class="cost-num" id="cocCardCostVal">4 000</span>
+          </div>
+        </button>
+
+        <!-- 3. Contextual Action (Magic Items / Train / Collect) -->
+        <button class="coc-card-btn" id="cocCardContext" title="Special Action">
+          <div class="coc-card-icon" id="cocCardContextIcon">✨</div>
+          <span class="coc-card-label" id="cocCardContextLabel">Magic Items</span>
+        </button>
+
+        <!-- 4. Move Structure -->
+        <button class="coc-card-btn" id="cocCardMove" title="Move Building Position">
+          <div class="coc-card-icon">✥</div>
+          <span class="coc-card-label">Move</span>
+        </button>
+
+        <!-- 5. Instant Gem Speedup (shows only during construction/upgrade) -->
+        <button class="coc-card-btn speedup-card" id="cocCardSpeedup" style="display: none;" title="Instant Finish">
+          <div class="coc-card-icon">💎</div>
+          <span class="coc-card-label">Finish</span>
+          <div class="coc-card-cost gem-cost">
+            <span class="cost-icon">💎</span>
+            <span class="cost-num" id="cocCardSpeedupCost">5</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         7. CLASH OF CLANS CORNER CONTROLS (Attack! & Shop)
+         ====================================================================== -->
+    <!-- Bottom-Left: Giant Attack! Button & Quick Army -->
+    <div class="coc-bottom-left-panel">
+      <button class="coc-btn-attack" id="btnCocAttack" title="Assault Goblin Camps & Enemy Strongholds">
+        <div class="coc-attack-icon-circle">
+          <span class="coc-attack-sword">⚔️</span>
+        </div>
+        <div class="coc-attack-text">Attack!</div>
       </button>
 
-      <button class="dock-btn" id="btnDockArmy" title="Troop Recruitment & Training Queue">
-        <span class="dock-btn-icon">⚔️</span>
-        <span class="dock-btn-label">ARMY</span>
+      <button class="coc-btn-army-quick" id="btnCocArmy" title="Army Overview & Training Grounds">
+        <span class="quick-icon">🛡️</span>
       </button>
+    </div>
 
-      <button class="dock-btn" id="btnDockWorld" title="Campaign Map & Stronghold Battles">
-        <span class="dock-btn-icon">🗺️</span>
-        <span class="dock-btn-label">WORLD</span>
-      </button>
+    <!-- Bottom-Right: Shop Button, Settings & Quests -->
+    <div class="coc-bottom-right-panel">
+      <div class="coc-sub-buttons">
+        <button class="coc-mini-btn" id="btnCocSettings" title="Settings & Audio Options">
+          <span>⚙️</span>
+        </button>
+        <button class="coc-mini-btn" id="btnCocQuests" title="Missions, Achievements & Quests">
+          <span>📜</span>
+          <span class="coc-badge-dot" id="cocQuestsBadge">3</span>
+        </button>
+      </div>
 
-      <button class="dock-btn" id="btnDockResearch" title="Academy of Science Tech Tree">
-        <span class="dock-btn-icon">🔬</span>
-        <span class="dock-btn-label">TECH</span>
+      <button class="coc-btn-shop" id="btnCocShop" title="Open Architectural Shop">
+        <div class="coc-shop-art">
+          <span class="shop-hammer">🔨</span>
+          <span class="shop-gold">🪙</span>
+        </div>
+        <span class="coc-shop-label">Shop</span>
+        <div class="coc-shop-badge" id="cocShopBadge">29</div>
       </button>
+    </div>
 
-      <button class="dock-btn" id="btnDockMarket" title="Grand Bazaar Resource Exchange">
-        <span class="dock-btn-icon">⚖️</span>
-        <span class="dock-btn-label">MARKET</span>
-      </button>
-
-      <button class="dock-btn" id="btnDockQuests" title="Daily Missions, Achievements & Leaderboards">
-        <span class="dock-btn-icon">🏆</span>
-        <span class="dock-btn-label">MISSIONS</span>
-      </button>
-    </footer>
+    <!-- Legacy hidden dock buttons for script triggers -->
+    <div style="display: none;">
+      <button id="btnDockBuild"></button>
+      <button id="btnDockArmy"></button>
+      <button id="btnDockWorld"></button>
+      <button id="btnDockResearch"></button>
+      <button id="btnDockMarket"></button>
+      <button id="btnDockQuests"></button>
+      <button id="btnDockRankings"></button>
+    </div>
 
     <!-- ======================================================================
          7. GAME MODALS

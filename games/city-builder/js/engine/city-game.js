@@ -291,10 +291,10 @@
         this.selectBuilding(clicked);
 
         // Interactive harvest collection on clicking production structures
-        if (['gold_mine', 'lumber_yard', 'stone_quarry', 'farm', 'energy_tower'].includes(clicked.type)) {
+        if (['gold_mine', 'elixir_collector', 'lumber_yard', 'stone_quarry', 'farm', 'energy_tower'].includes(clicked.type)) {
           this.syncWithServer();
           this.audio.playCoin();
-          const icons = { gold_mine: '🪙 Gold', lumber_yard: '🪵 Wood', stone_quarry: '🪨 Stone', farm: '🌾 Food', energy_tower: '⚡ Energy' };
+          const icons = { gold_mine: '🪙 Gold', elixir_collector: '💧 Elixir', lumber_yard: '🪵 Wood', stone_quarry: '🪨 Stone', farm: '🌾 Food', energy_tower: '⚡ Energy' };
           this.renderer.addFloater(`+Harvest ${icons[clicked.type] || ''}`, clicked.x, clicked.y, '#22c55e');
         }
       } else {
@@ -466,18 +466,49 @@
 
       // Resource Values & Meters
       this.setResourceMeter('gold', res.gold, caps.gold, rates.gold);
+      this.setResourceMeter('elixir', res.elixir, caps.elixir, rates.elixir);
       this.setResourceMeter('wood', res.wood, caps.wood, rates.wood);
       this.setResourceMeter('stone', res.stone, caps.stone, rates.stone);
       this.setResourceMeter('food', res.food, caps.food, rates.food);
 
       // Gems
       const gemEl = document.getElementById('resGemsVal');
-      if (gemEl) gemEl.textContent = Math.floor(res.gems || 0).toLocaleString();
+      if (gemEl) gemEl.textContent = Math.floor(res.gems || 0).toLocaleString().replace(/,/g, ' ');
 
-      // City Name, Population & Power
+      // Player Name / City Name
       const nameEl = document.getElementById('hudCityName');
-      if (nameEl) nameEl.textContent = this.city.cityName || 'Metropolis';
+      if (nameEl) nameEl.textContent = this.city.userName || this.city.cityName || 'HULKSDEN';
 
+      // Experience Level & XP Bar
+      const levelEl = document.getElementById('hudPlayerLevel');
+      if (levelEl) levelEl.textContent = this.city.level || 1;
+
+      const xpFillEl = document.getElementById('hudXpFill');
+      if (xpFillEl) {
+        const xpPct = Math.min(100, Math.max(12, ((this.city.xp || 35) % 100)));
+        xpFillEl.style.width = `${xpPct}%`;
+      }
+
+      // Builders
+      const buildersEl = document.getElementById('hudBuildersVal');
+      if (buildersEl) {
+        const free = this.city.builders ? this.city.builders.free : 2;
+        const total = this.city.builders ? this.city.builders.total : 2;
+        buildersEl.textContent = `${free}/${total}`;
+      }
+
+      // Trophies
+      const tropEl = document.getElementById('hudTrophies');
+      if (tropEl) tropEl.textContent = this.city.trophies !== undefined ? this.city.trophies : 0;
+
+      // Shield Status
+      const shieldTimerEl = document.getElementById('hudShieldTimer');
+      if (shieldTimerEl) shieldTimerEl.textContent = this.city.shield || 'None';
+
+      const shieldStatusEl = document.getElementById('hudShieldStatusVal');
+      if (shieldStatusEl) shieldStatusEl.textContent = this.city.shield || 'None';
+
+      // Population & Power (for backwards compatibility)
       const popEl = document.getElementById('hudPopulation');
       if (popEl) popEl.textContent = `Pop: ${(this.city.population || 50).toLocaleString()}`;
 
@@ -491,7 +522,7 @@
       const percent = Math.min(100, Math.max(0, (current / max) * 100));
 
       const valEl = document.getElementById(`res_${resId}_val`);
-      if (valEl) valEl.textContent = current.toLocaleString();
+      if (valEl) valEl.textContent = current.toLocaleString().replace(/,/g, ' ');
 
       const barEl = document.getElementById(`res_${resId}_bar`);
       if (barEl) barEl.style.width = `${percent}%`;
@@ -502,13 +533,13 @@
       }
     }
 
-    // Building Inspector Drawer
+    // Building Inspector Drawer & Clash of Clans Action Deck
     openInspector(bld) {
-      const drawer = document.getElementById('buildingInspectorDrawer');
-      if (!drawer) return;
-
       this.updateInspector(bld);
-      drawer.classList.add('active');
+
+      // Open Clash of Clans Bottom-Center Action Deck
+      const actionDeck = document.getElementById('cocActionDeck');
+      if (actionDeck) actionDeck.classList.add('active');
     }
 
     updateInspector(bld) {
@@ -516,85 +547,132 @@
       const spec = this.config.BUILDINGS[bld.type];
       if (!spec) return;
 
-      document.getElementById('inspIcon').textContent = spec.icon;
-      document.getElementById('inspName').textContent = spec.name;
-      document.getElementById('inspCategory').textContent = spec.category;
-      document.getElementById('inspLevel').textContent = `Level ${bld.level || 1}`;
-      document.getElementById('inspDesc').textContent = spec.description;
-
       const currentSpec = spec.levels[Math.min(bld.level - 1, spec.levels.length - 1)];
       const nextSpec = spec.levels[bld.level] || null;
-
-      // Stats Section
-      const statsContainer = document.getElementById('inspStats');
-      let statsHtml = '';
-      if (currentSpec.rate) statsHtml += `<div class="stat-pill">⚡ Current Rate: <strong>+${currentSpec.rate}/min</strong></div>`;
-      if (currentSpec.goldCap) statsHtml += `<div class="stat-pill">🏦 Storage Cap: <strong>+${currentSpec.goldCap.toLocaleString()} Gold</strong></div>`;
-      if (currentSpec.resourceCap) statsHtml += `<div class="stat-pill">📦 Storage Cap: <strong>+${currentSpec.resourceCap.toLocaleString()} All</strong></div>`;
-      if (currentSpec.tradeFee) statsHtml += `<div class="stat-pill">⚖️ Tariff: <strong>${Math.round(currentSpec.tradeFee * 100)}%</strong></div>`;
-      statsContainer.innerHTML = statsHtml;
-
-      // Upgrade Action Area
-      const upgradeArea = document.getElementById('inspUpgradeArea');
       const isMaxLevel = bld.level >= spec.maxLevel;
       const isBusy = bld.status && bld.status !== 'idle';
+
+      // 1. Update Detailed Drawer (accessible via Info card)
+      const inspIcon = document.getElementById('inspIcon');
+      if (inspIcon) inspIcon.textContent = spec.icon;
+      const inspName = document.getElementById('inspName');
+      if (inspName) inspName.textContent = spec.name;
+      const inspCat = document.getElementById('inspCategory');
+      if (inspCat) inspCat.textContent = spec.category;
+      const inspLvl = document.getElementById('inspLevel');
+      if (inspLvl) inspLvl.textContent = `Level ${bld.level || 1}`;
+      const inspDesc = document.getElementById('inspDesc');
+      if (inspDesc) inspDesc.textContent = spec.description;
+
+      const statsContainer = document.getElementById('inspStats');
+      if (statsContainer) {
+        let statsHtml = '';
+        if (currentSpec.rate) statsHtml += `<div class="stat-pill">⚡ Rate: <strong>+${currentSpec.rate}/min</strong></div>`;
+        if (currentSpec.goldCap) statsHtml += `<div class="stat-pill">🏦 Storage: <strong>+${currentSpec.goldCap.toLocaleString()} Gold</strong></div>`;
+        if (currentSpec.resourceCap) statsHtml += `<div class="stat-pill">📦 Capacity: <strong>+${currentSpec.resourceCap.toLocaleString()}</strong></div>`;
+        if (currentSpec.dps) statsHtml += `<div class="stat-pill">⚔️ DPS: <strong>${currentSpec.dps}</strong></div>`;
+        statsContainer.innerHTML = statsHtml;
+      }
+
+      // 2. Update Clash of Clans Bottom-Center Action Deck
+      const deckTitle = document.getElementById('cocDeckTitle');
+      if (deckTitle) deckTitle.textContent = `${spec.name} (Level ${bld.level || 1})`;
+
+      // Info Card
+      const cardInfo = document.getElementById('cocCardInfo');
+      if (cardInfo) {
+        cardInfo.onclick = () => {
+          const drawer = document.getElementById('buildingInspectorDrawer');
+          if (drawer) drawer.classList.toggle('active');
+        };
+      }
+
+      // Upgrade / Speedup Card
+      const cardUpgrade = document.getElementById('cocCardUpgrade');
+      const cardSpeedup = document.getElementById('cocCardSpeedup');
+      const costIcon = document.getElementById('cocCardCostIcon');
+      const costVal = document.getElementById('cocCardCostVal');
 
       if (isBusy) {
         const remainingSec = Math.max(0, Math.ceil(((bld.finishTime || Date.now()) - Date.now()) / 1000));
         const gemCost = Math.max(1, Math.ceil(remainingSec / 60));
-        upgradeArea.innerHTML = `
-          <div class="timer-card">
-            <div class="timer-title">⏳ ${bld.status === 'constructing' ? 'Under Construction' : 'Upgrading'}</div>
-            <div class="timer-time" id="inspTimerCountdown">${this.formatDuration(remainingSec)} remaining</div>
-            <button class="btn btn-gem-speedup" id="btnInspSpeedup">
-              ⚡ Finish Instantly for ${gemCost} 💎
-            </button>
-          </div>
-        `;
-        document.getElementById('btnInspSpeedup').onclick = () => this.speedupBuilding(bld.id);
-      } else if (isMaxLevel) {
-        upgradeArea.innerHTML = `
-          <div class="max-level-card">
-            ⭐ Maximum Architecture Level Reached
-          </div>
-        `;
-      } else if (nextSpec) {
-        // Show upgrade requirements and cost
-        const ch = this.city.buildings.find(b => b.type === 'city_hall');
-        const chLevel = ch ? ch.level : 1;
-        const reqMet = !nextSpec.reqCityHall || chLevel >= nextSpec.reqCityHall;
 
-        const hasGold = (this.city.resources.gold || 0) >= (nextSpec.cost.gold || 0);
-        const hasWood = (this.city.resources.wood || 0) >= (nextSpec.cost.wood || 0);
-        const hasStone = (this.city.resources.stone || 0) >= (nextSpec.cost.stone || 0);
-        const hasFood = (this.city.resources.food || 0) >= (nextSpec.cost.food || 0);
-        const canAfford = hasGold && hasWood && hasStone && hasFood;
-
-        upgradeArea.innerHTML = `
-          <div class="upgrade-card">
-            <div class="upgrade-header">
-              <span>Upgrade to Level ${bld.level + 1}</span>
-              <span style="font-size: 0.8rem; color: var(--color-cyan);">⏱ ${this.formatDuration(nextSpec.time)}</span>
-            </div>
-            ${!reqMet ? `<div class="req-warning">⚠️ Requires City Hall Level ${nextSpec.reqCityHall}</div>` : ''}
-            <div class="cost-pills">
-              ${nextSpec.cost.gold ? `<span class="cost-pill ${hasGold ? '' : 'insufficient'}">🪙 ${nextSpec.cost.gold}</span>` : ''}
-              ${nextSpec.cost.wood ? `<span class="cost-pill ${hasWood ? '' : 'insufficient'}">🪵 ${nextSpec.cost.wood}</span>` : ''}
-              ${nextSpec.cost.stone ? `<span class="cost-pill ${hasStone ? '' : 'insufficient'}">🪨 ${nextSpec.cost.stone}</span>` : ''}
-              ${nextSpec.cost.food ? `<span class="cost-pill ${hasFood ? '' : 'insufficient'}">🌾 ${nextSpec.cost.food}</span>` : ''}
-            </div>
-            <button class="btn btn-primary btn-upgrade-submit" id="btnInspUpgrade" ${(!reqMet || !canAfford) ? 'disabled' : ''}>
-              ▲ Initiate Upgrade
-            </button>
-          </div>
-        `;
-        const btn = document.getElementById('btnInspUpgrade');
-        if (btn && reqMet && canAfford) {
-          btn.onclick = () => this.upgradeBuilding(bld.id);
+        if (cardUpgrade) cardUpgrade.style.display = 'none';
+        if (cardSpeedup) {
+          cardSpeedup.style.display = 'flex';
+          const speedupCostEl = document.getElementById('cocCardSpeedupCost');
+          if (speedupCostEl) speedupCostEl.textContent = gemCost;
+          cardSpeedup.onclick = () => this.speedupBuilding(bld.id);
+        }
+      } else {
+        if (cardSpeedup) cardSpeedup.style.display = 'none';
+        if (cardUpgrade) {
+          cardUpgrade.style.display = 'flex';
+          if (isMaxLevel) {
+            if (costVal) costVal.textContent = 'MAX';
+            cardUpgrade.disabled = true;
+          } else if (nextSpec) {
+            cardUpgrade.disabled = false;
+            let primaryCost = nextSpec.cost ? (nextSpec.cost.gold || nextSpec.cost.elixir || nextSpec.cost.wood || 0) : 0;
+            let icon = nextSpec.cost && nextSpec.cost.elixir ? '💧' : '🪙';
+            if (costIcon) costIcon.textContent = icon;
+            if (costVal) costVal.textContent = primaryCost.toLocaleString().replace(/,/g, ' ');
+            cardUpgrade.onclick = () => this.upgradeBuilding(bld.id);
+          }
         }
       }
 
-      // Move Building Button
+      // Contextual Card (Train, Collect, Magic Items, Army)
+      const cardContext = document.getElementById('cocCardContext');
+      const contextIcon = document.getElementById('cocCardContextIcon');
+      const contextLabel = document.getElementById('cocCardContextLabel');
+
+      if (cardContext && contextIcon && contextLabel) {
+        if (['training_grounds', 'barracks'].includes(bld.type)) {
+          contextIcon.textContent = '⚔️';
+          contextLabel.textContent = 'Train';
+          cardContext.onclick = () => window.CityApp.openArmyModal();
+        } else if (bld.type === 'gold_mine') {
+          contextIcon.textContent = '🪙';
+          contextLabel.textContent = 'Collect';
+          cardContext.onclick = () => {
+            this.syncWithServer();
+            this.audio.playCoin();
+            this.renderer.addFloater('+Harvest Gold', bld.x, bld.y, '#fbbf24');
+          };
+        } else if (bld.type === 'elixir_collector') {
+          contextIcon.textContent = '💧';
+          contextLabel.textContent = 'Collect';
+          cardContext.onclick = () => {
+            this.syncWithServer();
+            this.audio.playCoin();
+            this.renderer.addFloater('+Harvest Elixir', bld.x, bld.y, '#ec4899');
+          };
+        } else if (bld.type === 'army_camp') {
+          contextIcon.textContent = '🏕️';
+          contextLabel.textContent = 'Army';
+          cardContext.onclick = () => window.CityApp.openArmyModal();
+        } else if (bld.type === 'city_hall') {
+          contextIcon.textContent = '✨';
+          contextLabel.textContent = 'Magic Items';
+          cardContext.onclick = () => window.CityApp.showToast('Magic Items vault is ready!', 'info');
+        } else {
+          contextIcon.textContent = '✨';
+          contextLabel.textContent = 'Special';
+          cardContext.onclick = () => {
+            const drawer = document.getElementById('buildingInspectorDrawer');
+            if (drawer) drawer.classList.toggle('active');
+          };
+        }
+      }
+
+      // Move Card
+      const cardMove = document.getElementById('cocCardMove');
+      if (cardMove) {
+        cardMove.onclick = () => this.startMove(bld.id);
+      }
+
+      // Drawer move button
       const moveBtn = document.getElementById('btnInspMove');
       if (moveBtn) {
         moveBtn.onclick = () => this.startMove(bld.id);
@@ -604,6 +682,9 @@
     closeInspector() {
       const drawer = document.getElementById('buildingInspectorDrawer');
       if (drawer) drawer.classList.remove('active');
+
+      const actionDeck = document.getElementById('cocActionDeck');
+      if (actionDeck) actionDeck.classList.remove('active');
     }
 
     closeAllDrawers() {

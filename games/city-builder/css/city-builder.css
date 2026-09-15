@@ -1583,3 +1583,711 @@ body.city-body {
   background: rgba(0, 240, 255, 0.08);
   font-weight: 800;
 }
+
+/* ==========================================================================
+   CLASH OF CLANS VISUAL OVERHAUL - TOP HUD, DECK & ACTION CONTROLS
+   ========================================================================== */
+
+/* Clash of Clans Typography & Resets */
+.coc-top-hud, .coc-action-deck, .coc-bottom-left-panel, .coc-bottom-right-panel {
+  font-family: 'Luckiest Guy', 'Paytone One', 'Inter', -apple-system, sans-serif;
+  user-select: none;
+}
+
+/* Top HUD Container */
+.coc-top-hud {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  z-index: 120;
+  pointer-events: none;
+}
+
+.coc-hud-left, .coc-hud-center, .coc-hud-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+/* 1. TOP LEFT: Level Badge, Player Name, Blue XP Bar, Trophies & Shield */
+.coc-hud-left {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.coc-btn-exit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(180deg, #64748b 0%, #334155 100%);
+  border: 2px solid #94a3b8;
+  border-bottom: 3px solid #1e293b;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 900;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+  margin-bottom: 2px;
+}
+
+.coc-btn-exit:hover {
+  background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+  border-color: #fca5a5;
+  transform: scale(1.08);
+}
+
+.coc-player-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.82);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 3px 14px 3px 4px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.coc-level-star {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coc-level-star .star-shape {
+  font-size: 2.2rem;
+  color: #3b82f6;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
+}
+
+.coc-level-text {
+  position: absolute;
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 1px 3px #000, 0 0 4px #000;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.coc-player-details {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.coc-player-name {
+  font-size: 0.95rem;
+  color: #ffffff;
+  letter-spacing: 0.8px;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.9);
+}
+
+.coc-xp-bar-container {
+  width: 110px;
+  height: 9px;
+  background: #0f172a;
+  border: 1.5px solid #1e3a8a;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.coc-xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(180deg, #60a5fa 0%, #2563eb 60%, #1d4ed8 100%);
+  border-radius: 4px;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.8);
+}
+
+.coc-stat-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 6px;
+}
+
+.coc-trophy-badge, .coc-shield-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid #475569;
+  border-radius: 999px;
+  padding: 3px 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  font-size: 0.8rem;
+  color: #ffffff;
+  text-shadow: 0 1px 2px #000;
+}
+
+.coc-trophy-badge {
+  border-color: #d97706;
+}
+
+.coc-shield-badge {
+  border-color: #64748b;
+}
+
+/* 2. TOP CENTER: Builder & Shield Badges */
+.coc-hud-center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.coc-top-capsule {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 2px solid #334155;
+  border-radius: 999px;
+  padding: 3px 6px 3px 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.capsule-avatar {
+  font-size: 1.25rem;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.6));
+}
+
+.capsule-val {
+  font-size: 0.95rem;
+  color: #ffffff;
+  font-weight: 800;
+  text-shadow: 0 2px 3px #000;
+  min-width: 32px;
+  text-align: center;
+}
+
+/* Clash of Clans Signature Bright Green Plus Button */
+.coc-btn-plus {
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(180deg, #86efac 0%, #22c55e 45%, #15803d 100%);
+  border: 1.5px solid #14532d;
+  border-bottom: 2.5px solid #052e16;
+  border-radius: 5px;
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 900;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.coc-btn-plus:hover {
+  filter: brightness(1.15);
+  transform: scale(1.08);
+}
+
+.coc-btn-plus:active {
+  transform: translateY(1px);
+  border-bottom-width: 1.5px;
+}
+
+/* 3. TOP RIGHT: Gold Bar, Elixir Bar, Gems Pill & Quick Buttons */
+.coc-hud-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.coc-resource-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 2px solid #334155;
+  border-radius: 999px;
+  padding: 3px 6px 3px 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+}
+
+.coc-gold-bar {
+  border-color: #78350f;
+}
+
+.coc-elixir-bar {
+  border-color: #581c87;
+}
+
+.res-bar-track {
+  position: relative;
+  width: 115px;
+  height: 18px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.res-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.res-bar-fill.fill-gold {
+  background: linear-gradient(180deg, #fef08a 0%, #f59e0b 50%, #b45309 100%);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.7);
+}
+
+.res-bar-fill.fill-elixir {
+  background: linear-gradient(180deg, #f472b6 0%, #d946ef 50%, #9333ea 100%);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.7);
+}
+
+.res-bar-num {
+  position: relative;
+  z-index: 2;
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 1px 3px #000, 0 0 3px #000;
+  letter-spacing: 0.5px;
+}
+
+.res-badge-icon {
+  font-size: 1.35rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+/* Gems Pill */
+.coc-gems-bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 2px solid #065f46;
+  border-radius: 999px;
+  padding: 3px 6px 3px 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65);
+}
+
+.gems-track {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gem-icon {
+  font-size: 1.15rem;
+}
+
+.gem-val {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 1px 3px #000;
+}
+
+.coc-hud-quick-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.coc-circle-btn {
+  width: 32px;
+  height: 32px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid #475569;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.15s ease;
+}
+
+.coc-circle-btn:hover {
+  transform: scale(1.1);
+  border-color: #94a3b8;
+}
+
+/* ==========================================================================
+   SELECTED BUILDING ACTION DECK (Clash of Clans Bottom Center)
+   ========================================================================== */
+.coc-action-deck {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%) translateY(160px);
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 130;
+  transition: transform 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.25), opacity 0.25s ease;
+}
+
+.coc-action-deck.active {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Arched bold building title banner */
+.coc-deck-title-banner {
+  background: rgba(15, 23, 42, 0.82);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  padding: 4px 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.coc-deck-title {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.6px;
+  text-shadow: 0 2px 4px #000, 0 0 6px rgba(0, 0, 0, 0.8);
+}
+
+/* Stone Action Cards Row */
+.coc-deck-cards {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.coc-card-btn {
+  width: 80px;
+  height: 82px;
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 45%, #cbd5e1 100%);
+  border: 2.5px solid #64748b;
+  border-bottom: 5px solid #334155;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.65);
+  transition: transform 0.12s ease, filter 0.12s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.coc-card-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-3px);
+}
+
+.coc-card-btn:active {
+  transform: translateY(2px);
+  border-bottom-width: 2.5px;
+}
+
+.coc-card-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+
+.coc-card-icon.info-icon {
+  color: #0284c7;
+}
+
+.coc-card-label {
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: #1e293b;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Primary Upgrade Card Styling */
+.coc-card-btn.primary-upgrade {
+  background: linear-gradient(180deg, #fef9c3 0%, #fde047 30%, #e2e8f0 31%, #cbd5e1 100%);
+  border-color: #b45309;
+  border-bottom-color: #78350f;
+}
+
+.coc-card-cost {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid #d97706;
+  border-radius: 999px;
+  padding: 1px 6px;
+  margin-top: 2px;
+}
+
+.coc-card-cost .cost-icon {
+  font-size: 0.75rem;
+}
+
+.coc-card-cost .cost-num {
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #fef08a;
+}
+
+.coc-card-cost.gem-cost {
+  border-color: #059669;
+}
+
+.coc-card-cost.gem-cost .cost-num {
+  color: #6ee7b7;
+}
+
+/* ==========================================================================
+   CLASH OF CLANS CORNER CONTROLS (Attack! & Shop)
+   ========================================================================== */
+
+/* Bottom-Left Panel: Giant Attack! Button & Quick Army */
+.coc-bottom-left-panel {
+  position: absolute;
+  bottom: 18px;
+  left: 18px;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  z-index: 120;
+}
+
+.coc-btn-attack {
+  height: 72px;
+  padding: 0 24px 0 14px;
+  background: linear-gradient(180deg, #fef08a 0%, #f59e0b 35%, #d97706 75%, #b45309 100%);
+  border: 3.5px solid #78350f;
+  border-bottom: 6.5px solid #451a03;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.6);
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.coc-btn-attack:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.coc-btn-attack:active {
+  transform: translateY(3px);
+  border-bottom-width: 3.5px;
+}
+
+.coc-attack-icon-circle {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+  border: 2px solid #fee2e2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+}
+
+.coc-attack-text {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  text-shadow: 0 3px 0 #78350f, 0 4px 6px #000000;
+  -webkit-text-stroke: 1.5px #78350f;
+}
+
+.coc-btn-army-quick {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(180deg, #64748b 0%, #475569 50%, #334155 100%);
+  border: 2.5px solid #94a3b8;
+  border-bottom: 4.5px solid #1e293b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+  transition: transform 0.12s ease;
+}
+
+.coc-btn-army-quick:hover {
+  transform: scale(1.08);
+}
+
+/* Bottom-Right Panel: Shop Button, Settings & Quests */
+.coc-bottom-right-panel {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  z-index: 120;
+}
+
+.coc-sub-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coc-mini-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(180deg, #94a3b8 0%, #64748b 50%, #475569 100%);
+  border: 2.5px solid #cbd5e1;
+  border-bottom: 4px solid #1e293b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+  transition: transform 0.12s ease;
+}
+
+.coc-mini-btn:hover {
+  transform: scale(1.1);
+}
+
+.coc-badge-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 1px 5px;
+  line-height: 1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+/* Giant Clash of Clans Shop Button */
+.coc-btn-shop {
+  position: relative;
+  width: 96px;
+  height: 88px;
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 40%, #cbd5e1 100%);
+  border: 3.5px solid #64748b;
+  border-bottom: 7px solid #334155;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.7);
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.coc-btn-shop:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+}
+
+.coc-btn-shop:active {
+  transform: translateY(3px);
+  border-bottom-width: 3.5px;
+}
+
+.coc-shop-art {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 1.85rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+}
+
+.coc-shop-label {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #334155;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 0 #ffffff;
+}
+
+.coc-shop-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ef4444;
+  color: #ffffff;
+  border: 2.5px solid #ffffff;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 900;
+  padding: 2px 7px;
+  line-height: 1;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .coc-top-hud {
+    gap: 6px;
+  }
+  .res-bar-track {
+    width: 80px;
+  }
+  .coc-xp-bar-container {
+    width: 70px;
+  }
+  .coc-btn-attack {
+    height: 60px;
+    padding: 0 16px 0 10px;
+  }
+  .coc-attack-text {
+    font-size: 1.4rem;
+  }
+  .coc-btn-shop {
+    width: 80px;
+    height: 74px;
+  }
+}
+

@@ -11,11 +11,12 @@
 
   // Resource types & display metadata
   const RESOURCES = {
-    gold: { id: 'gold', name: 'Gold', icon: '🪙', color: '#fbbf24', baseStorage: 2000 },
-    wood: { id: 'wood', name: 'Wood', icon: '🪵', color: '#a16207', baseStorage: 1500 },
-    stone: { id: 'stone', name: 'Stone', icon: '🪨', color: '#94a3b8', baseStorage: 1200 },
-    food: { id: 'food', name: 'Food', icon: '🌾', color: '#22c55e', baseStorage: 1500 },
-    gems: { id: 'gems', name: 'Gems', icon: '💎', color: '#06b6d4', baseStorage: 999999 } // Premium/Earnable
+    gold: { id: 'gold', name: 'Gold', icon: '🪙', color: '#fbbf24', baseStorage: 5000 },
+    elixir: { id: 'elixir', name: 'Elixir', icon: '🧪', color: '#ec4899', baseStorage: 5000 },
+    wood: { id: 'wood', name: 'Wood', icon: '🪵', color: '#a16207', baseStorage: 4000 },
+    stone: { id: 'stone', name: 'Stone', icon: '🪨', color: '#94a3b8', baseStorage: 4000 },
+    food: { id: 'food', name: 'Food', icon: '🌾', color: '#22c55e', baseStorage: 4000 },
+    gems: { id: 'gems', name: 'Gems', icon: '💎', color: '#10b981', baseStorage: 999999 } // Premium/Earnable
   };
 
   // Building Categories
@@ -32,30 +33,109 @@
   const BUILDINGS = {
     city_hall: {
       type: 'city_hall',
-      name: 'City Hall',
+      name: 'Town Hall',
       category: CATEGORIES.CORE,
       icon: '🏛️',
-      description: 'The administrative heart of your city. Upgrading City Hall unlocks advanced buildings and higher upgrade tiers for all structures.',
+      description: 'The administrative heart of your village. Upgrading Town Hall unlocks advanced buildings, defensive structures, and higher upgrade tiers.',
       size: { w: 2, h: 2 },
       maxLevel: 10,
       unique: true, // Only 1 can exist
       levels: [
-        { level: 1, cost: { gold: 0, wood: 0, stone: 0, food: 0 }, time: 0, reqCityHall: 1, popCap: 50, desc: 'City administration center. Max building level: 1.' },
-        { level: 2, cost: { gold: 400, wood: 500, stone: 300, food: 200 }, time: 20, reqCityHall: 1, popCap: 120, desc: 'Unlocks Level 2 upgrades, Marketplace, and Stone Quarry.' },
-        { level: 3, cost: { gold: 1200, wood: 1500, stone: 1000, food: 800 }, time: 60, reqCityHall: 2, popCap: 250, desc: 'Unlocks Level 3 upgrades and Research Center.' },
-        { level: 4, cost: { gold: 3000, wood: 3500, stone: 2800, food: 2000 }, time: 150, reqCityHall: 3, popCap: 500, desc: 'Unlocks Level 4 upgrades and +15% regional productivity.' },
-        { level: 5, cost: { gold: 7000, wood: 8000, stone: 6500, food: 5000 }, time: 300, reqCityHall: 4, popCap: 1000, desc: 'Metropolitan status. Unlocks Level 5 upgrades.' },
-        { level: 6, cost: { gold: 15000, wood: 18000, stone: 14000, food: 11000 }, time: 600, reqCityHall: 5, popCap: 2000, desc: 'Grand Empire Capitol. Unlocks Level 6 upgrades.' },
-        { level: 7, cost: { gold: 30000, wood: 35000, stone: 28000, food: 22000 }, time: 1200, reqCityHall: 6, popCap: 3800, desc: 'Majestic Metropolis. Unlocks Level 7 upgrades.' },
-        { level: 8, cost: { gold: 60000, wood: 70000, stone: 55000, food: 45000 }, time: 2400, reqCityHall: 7, popCap: 7000, desc: 'Sovereign Citadel. Unlocks Level 8 upgrades.' },
-        { level: 9, cost: { gold: 120000, wood: 140000, stone: 110000, food: 90000 }, time: 4800, reqCityHall: 8, popCap: 12000, desc: 'Imperial Domain. Unlocks Level 9 upgrades.' },
-        { level: 10, cost: { gold: 250000, wood: 280000, stone: 220000, food: 180000 }, time: 9600, reqCityHall: 9, popCap: 25000, desc: 'Apex Wonder Capitol. Maximum prosperity.' }
+        { level: 1, cost: { gold: 0, elixir: 0, wood: 0, stone: 0, food: 0 }, time: 0, reqCityHall: 1, popCap: 50, desc: 'Village Town Hall center. Max building level: 1.' },
+        { level: 2, cost: { gold: 1000, elixir: 1000, wood: 400, stone: 300, food: 200 }, time: 20, reqCityHall: 1, popCap: 120, desc: 'Unlocks Level 2 upgrades, Barracks, and Gold Storage.' },
+        { level: 3, cost: { gold: 4000, elixir: 4000, wood: 1200, stone: 1000, food: 800 }, time: 60, reqCityHall: 2, popCap: 250, desc: 'Unlocks Level 3 upgrades and Academy Research.' },
+        { level: 4, cost: { gold: 10000, elixir: 10000, wood: 3000, stone: 2800, food: 2000 }, time: 150, reqCityHall: 3, popCap: 500, desc: 'Unlocks Level 4 upgrades and Cannons.' },
+        { level: 5, cost: { gold: 25000, elixir: 25000, wood: 7000, stone: 6500, food: 5000 }, time: 300, reqCityHall: 4, popCap: 1000, desc: 'Village fortress status. Unlocks Level 5 upgrades.' },
+        { level: 6, cost: { gold: 60000, elixir: 60000, wood: 15000, stone: 14000, food: 11000 }, time: 600, reqCityHall: 5, popCap: 2000, desc: 'Grand Fortress. Unlocks Level 6 upgrades.' },
+        { level: 7, cost: { gold: 120000, elixir: 120000, wood: 30000, stone: 28000, food: 22000 }, time: 1200, reqCityHall: 6, popCap: 3800, desc: 'Majestic Castle. Unlocks Level 7 upgrades.' },
+        { level: 8, cost: { gold: 250000, elixir: 250000, wood: 60000, stone: 55000, food: 45000 }, time: 2400, reqCityHall: 7, popCap: 7000, desc: 'Sovereign Citadel. Unlocks Level 8 upgrades.' },
+        { level: 9, cost: { gold: 500000, elixir: 500000, wood: 120000, stone: 110000, food: 90000 }, time: 4800, reqCityHall: 8, popCap: 12000, desc: 'Imperial Domain. Unlocks Level 9 upgrades.' },
+        { level: 10, cost: { gold: 1000000, elixir: 1000000, wood: 250000, stone: 220000, food: 180000 }, time: 9600, reqCityHall: 9, popCap: 25000, desc: 'Apex Wonder Capitol. Maximum prosperity.' }
+      ]
+    },
+
+    builder_hut: {
+      type: 'builder_hut',
+      name: "Builder's Hut",
+      category: CATEGORIES.CORE,
+      icon: '🔨',
+      description: 'Houses a dedicated builder who constructs and upgrades structures in your village.',
+      size: { w: 1, h: 1 },
+      maxLevel: 1,
+      levels: [
+        { level: 1, cost: { gold: 500, elixir: 0, wood: 0, stone: 0, food: 0 }, time: 0, reqCityHall: 1, desc: '+1 Builder. Increases active building queue limit.' }
       ]
     },
 
     treasury: {
       type: 'treasury',
-      name: 'Treasury Vault',
+      name: 'Gold Storage',
+      category: CATEGORIES.CORE,
+      icon: '🪙',
+      description: 'Heavily fortified vaults securing your village gold. Significantly expands total Gold storage limit.',
+      size: { w: 2, h: 2 },
+      maxLevel: 10,
+      levels: [
+        { level: 1, cost: { gold: 200, elixir: 200, wood: 300, stone: 150, food: 0 }, time: 15, reqCityHall: 1, goldCap: 5000, desc: 'Stores up to 5,000 Gold.' },
+        { level: 2, cost: { gold: 600, elixir: 600, wood: 800, stone: 500, food: 0 }, time: 45, reqCityHall: 2, goldCap: 12000, desc: 'Stores up to 12,000 Gold.' },
+        { level: 3, cost: { gold: 1500, elixir: 1500, wood: 2000, stone: 1400, food: 0 }, time: 120, reqCityHall: 3, goldCap: 28000, desc: 'Stores up to 28,000 Gold.' },
+        { level: 4, cost: { gold: 3500, elixir: 3500, wood: 4500, stone: 3200, food: 0 }, time: 240, reqCityHall: 4, goldCap: 60000, desc: 'Stores up to 60,000 Gold.' },
+        { level: 5, cost: { gold: 8000, elixir: 8000, wood: 10000, stone: 7500, food: 0 }, time: 480, reqCityHall: 5, goldCap: 140000, desc: 'Stores up to 140,000 Gold.' },
+        { level: 6, cost: { gold: 18000, elixir: 18000, wood: 22000, stone: 16000, food: 0 }, time: 900, reqCityHall: 6, goldCap: 300000, desc: 'Stores up to 300,000 Gold.' },
+        { level: 7, cost: { gold: 38000, elixir: 38000, wood: 45000, stone: 34000, food: 0 }, time: 1800, reqCityHall: 7, goldCap: 650000, desc: 'Stores up to 650,000 Gold.' },
+        { level: 8, cost: { gold: 80000, elixir: 80000, wood: 95000, stone: 72000, food: 0 }, time: 3600, reqCityHall: 8, goldCap: 1400000, desc: 'Stores up to 1,400,000 Gold.' },
+        { level: 9, cost: { gold: 160000, elixir: 160000, wood: 190000, stone: 145000, food: 0 }, time: 7200, reqCityHall: 9, goldCap: 3000000, desc: 'Stores up to 3,000,000 Gold.' },
+        { level: 10, cost: { gold: 320000, elixir: 320000, wood: 380000, stone: 290000, food: 0 }, time: 14400, reqCityHall: 10, goldCap: 7000000, desc: 'Stores up to 7,000,000 Gold.' }
+      ]
+    },
+
+    elixir_storage: {
+      type: 'elixir_storage',
+      name: 'Elixir Storage',
+      category: CATEGORIES.RESOURCES,
+      icon: '🟣',
+      description: 'Spherical vats safely containing your precious purple elixir for troop training and research.',
+      size: { w: 2, h: 2 },
+      maxLevel: 10,
+      levels: [
+        { level: 1, cost: { gold: 300, elixir: 0, wood: 200, stone: 200, food: 0 }, time: 15, reqCityHall: 1, elixirCap: 5000, desc: 'Stores up to 5,000 Elixir.' },
+        { level: 2, cost: { gold: 750, elixir: 0, wood: 500, stone: 500, food: 0 }, time: 45, reqCityHall: 2, elixirCap: 12000, desc: 'Stores up to 12,000 Elixir.' },
+        { level: 3, cost: { gold: 1800, elixir: 0, wood: 1200, stone: 1200, food: 0 }, time: 120, reqCityHall: 3, elixirCap: 28000, desc: 'Stores up to 28,000 Elixir.' },
+        { level: 4, cost: { gold: 4000, elixir: 0, wood: 2800, stone: 2800, food: 0 }, time: 240, reqCityHall: 4, elixirCap: 60000, desc: 'Stores up to 60,000 Elixir.' },
+        { level: 5, cost: { gold: 9000, elixir: 0, wood: 6500, stone: 6500, food: 0 }, time: 480, reqCityHall: 5, elixirCap: 140000, desc: 'Stores up to 140,000 Elixir.' },
+        { level: 6, cost: { gold: 20000, elixir: 0, wood: 15000, stone: 15000, food: 0 }, time: 900, reqCityHall: 6, elixirCap: 300000, desc: 'Stores up to 300,000 Elixir.' },
+        { level: 7, cost: { gold: 42000, elixir: 0, wood: 32000, stone: 32000, food: 0 }, time: 1800, reqCityHall: 7, elixirCap: 650000, desc: 'Stores up to 650,000 Elixir.' },
+        { level: 8, cost: { gold: 90000, elixir: 0, wood: 68000, stone: 68000, food: 0 }, time: 3600, reqCityHall: 8, elixirCap: 1400000, desc: 'Stores up to 1,400,000 Elixir.' },
+        { level: 9, cost: { gold: 180000, elixir: 0, wood: 135000, stone: 135000, food: 0 }, time: 7200, reqCityHall: 9, elixirCap: 3000000, desc: 'Stores up to 3,000,000 Elixir.' },
+        { level: 10, cost: { gold: 360000, elixir: 0, wood: 270000, stone: 270000, food: 0 }, time: 14400, reqCityHall: 10, elixirCap: 7000000, desc: 'Stores up to 7,000,000 Elixir.' }
+      ]
+    },
+
+    elixir_collector: {
+      type: 'elixir_collector',
+      name: 'Elixir Collector',
+      category: CATEGORIES.RESOURCES,
+      icon: '🧪',
+      description: 'Pumps magical purple elixir from deep underground leylines to train troops and build army facilities.',
+      size: { w: 1, h: 1 },
+      maxLevel: 10,
+      levels: [
+        { level: 1, cost: { gold: 150, elixir: 0, wood: 100, stone: 50, food: 0 }, time: 10, reqCityHall: 1, rate: 16, desc: '+16 Elixir / minute' },
+        { level: 2, cost: { gold: 350, elixir: 0, wood: 250, stone: 150, food: 0 }, time: 30, reqCityHall: 1, rate: 40, desc: '+40 Elixir / minute' },
+        { level: 3, cost: { gold: 900, elixir: 0, wood: 600, stone: 350, food: 0 }, time: 75, reqCityHall: 2, rate: 90, desc: '+90 Elixir / minute' },
+        { level: 4, cost: { gold: 2200, elixir: 0, wood: 1500, stone: 900, food: 0 }, time: 160, reqCityHall: 3, rate: 190, desc: '+190 Elixir / minute' },
+        { level: 5, cost: { gold: 5200, elixir: 0, wood: 3500, stone: 2100, food: 0 }, time: 320, reqCityHall: 4, rate: 400, desc: '+400 Elixir / minute' },
+        { level: 6, cost: { gold: 12000, elixir: 0, wood: 8000, stone: 4800, food: 0 }, time: 640, reqCityHall: 5, rate: 850, desc: '+850 Elixir / minute' },
+        { level: 7, cost: { gold: 26000, elixir: 0, wood: 18000, stone: 10500, food: 0 }, time: 1200, reqCityHall: 6, rate: 1750, desc: '+1,750 Elixir / minute' },
+        { level: 8, cost: { gold: 55000, elixir: 0, wood: 38000, stone: 22000, food: 0 }, time: 2400, reqCityHall: 7, rate: 3600, desc: '+3,600 Elixir / minute' },
+        { level: 9, cost: { gold: 115000, elixir: 0, wood: 78000, stone: 46000, food: 0 }, time: 4800, reqCityHall: 8, rate: 7400, desc: '+7,400 Elixir / minute' },
+        { level: 10, cost: { gold: 240000, elixir: 0, wood: 160000, stone: 95000, food: 0 }, time: 9600, reqCityHall: 9, rate: 15000, desc: '+15,000 Elixir / minute' }
+      ]
+    },
+
+    treasury: {
+      type: 'treasury',
+      name: 'Gold Storage',
       category: CATEGORIES.CORE,
       icon: '🏦',
       description: 'Heavily fortified vaults securing your empire’s wealth. Significantly expands total Gold storage limit.',
@@ -226,18 +306,40 @@
     // =========================================================================
     training_grounds: {
       type: 'training_grounds',
-      name: 'Training Grounds',
+      name: 'Barracks',
       category: CATEGORIES.MILITARY,
       icon: '⚔️',
-      description: 'Drills and equips recruits into steadfast Guardians, sharpshooter Rangers, and swift Vanguard raiders.',
+      description: 'Trains fierce warriors: steadfast Barbarians/Guardians, sharpshooter Archers/Rangers, and swift cavalry.',
       size: { w: 2, h: 2 },
       maxLevel: 5,
       levels: [
-        { level: 1, cost: { gold: 400, wood: 500, stone: 300, food: 350 }, time: 25, reqCityHall: 1, troopCap: 20, desc: 'Unlocks Guardians. +20 Troop Capacity.' },
-        { level: 2, cost: { gold: 1200, wood: 1500, stone: 900, food: 800 }, time: 70, reqCityHall: 2, troopCap: 45, desc: 'Unlocks Rangers. +45 Troop Capacity.' },
-        { level: 3, cost: { gold: 3200, wood: 4000, stone: 2400, food: 2200 }, time: 180, reqCityHall: 3, troopCap: 80, desc: 'Unlocks Vanguard Raiders. +80 Troop Capacity.' },
-        { level: 4, cost: { gold: 8000, wood: 10000, stone: 6000, food: 5500 }, time: 420, reqCityHall: 4, troopCap: 130, desc: 'Veteran Barracks. +130 Troop Capacity.' },
-        { level: 5, cost: { gold: 20000, wood: 24000, stone: 15000, food: 14000 }, time: 900, reqCityHall: 5, troopCap: 200, desc: 'Grand War College. +200 Troop Capacity.' }
+        { level: 1, cost: { gold: 0, elixir: 250, wood: 400, stone: 200, food: 200 }, time: 25, reqCityHall: 1, troopCap: 20, desc: 'Unlocks Guardians. +20 Troop Capacity.' },
+        { level: 2, cost: { gold: 0, elixir: 750, wood: 1000, stone: 600, food: 500 }, time: 70, reqCityHall: 2, troopCap: 45, desc: 'Unlocks Rangers. +45 Troop Capacity.' },
+        { level: 3, cost: { gold: 0, elixir: 2000, wood: 2500, stone: 1500, food: 1200 }, time: 180, reqCityHall: 3, troopCap: 80, desc: 'Unlocks Vanguard Raiders. +80 Troop Capacity.' },
+        { level: 4, cost: { gold: 0, elixir: 5000, wood: 6000, stone: 3500, food: 3000 }, time: 420, reqCityHall: 4, troopCap: 130, desc: 'Veteran Barracks. +130 Troop Capacity.' },
+        { level: 5, cost: { gold: 0, elixir: 12000, wood: 15000, stone: 9000, food: 8000 }, time: 900, reqCityHall: 5, troopCap: 200, desc: 'Grand War Barracks. +200 Troop Capacity.' }
+      ]
+    },
+
+    army_camp: {
+      type: 'army_camp',
+      name: 'Army Camp',
+      category: CATEGORIES.MILITARY,
+      icon: '⛺',
+      description: 'Campfire gathering ground where trained troops assemble and wait for battle.',
+      size: { w: 2, h: 2 },
+      maxLevel: 10,
+      levels: [
+        { level: 1, cost: { gold: 0, elixir: 250, wood: 200, stone: 100, food: 0 }, time: 15, reqCityHall: 1, troopCap: 20, desc: '+20 Troop Capacity.' },
+        { level: 2, cost: { gold: 0, elixir: 600, wood: 450, stone: 250, food: 0 }, time: 40, reqCityHall: 2, troopCap: 35, desc: '+35 Troop Capacity.' },
+        { level: 3, cost: { gold: 0, elixir: 1500, wood: 1100, stone: 600, food: 0 }, time: 100, reqCityHall: 3, troopCap: 50, desc: '+50 Troop Capacity.' },
+        { level: 4, cost: { gold: 0, elixir: 3500, wood: 2500, stone: 1400, food: 0 }, time: 220, reqCityHall: 4, troopCap: 70, desc: '+70 Troop Capacity.' },
+        { level: 5, cost: { gold: 0, elixir: 8000, wood: 5800, stone: 3200, food: 0 }, time: 450, reqCityHall: 5, troopCap: 95, desc: '+95 Troop Capacity.' },
+        { level: 6, cost: { gold: 0, elixir: 18000, wood: 13000, stone: 7200, food: 0 }, time: 900, reqCityHall: 6, troopCap: 125, desc: '+125 Troop Capacity.' },
+        { level: 7, cost: { gold: 0, elixir: 38000, wood: 27000, stone: 15000, food: 0 }, time: 1800, reqCityHall: 7, troopCap: 160, desc: '+160 Troop Capacity.' },
+        { level: 8, cost: { gold: 0, elixir: 80000, wood: 58000, stone: 32000, food: 0 }, time: 3600, reqCityHall: 8, troopCap: 200, desc: '+200 Troop Capacity.' },
+        { level: 9, cost: { gold: 0, elixir: 160000, wood: 115000, stone: 64000, food: 0 }, time: 7200, reqCityHall: 9, troopCap: 245, desc: '+245 Troop Capacity.' },
+        { level: 10, cost: { gold: 0, elixir: 320000, wood: 230000, stone: 130000, food: 0 }, time: 14400, reqCityHall: 10, troopCap: 300, desc: 'Apex Camp: +300 Troop Capacity.' }
       ]
     },
 
@@ -250,28 +352,28 @@
       size: { w: 2, h: 2 },
       maxLevel: 5,
       levels: [
-        { level: 1, cost: { gold: 1500, wood: 1200, stone: 1800, food: 1000 }, time: 90, reqCityHall: 3, troopCap: 30, desc: 'Unlocks Heavy Defenders.' },
-        { level: 2, cost: { gold: 4000, wood: 3200, stone: 4800, food: 2600 }, time: 240, reqCityHall: 4, troopCap: 60, desc: 'Unlocks Energy Mages.' },
-        { level: 3, cost: { gold: 9500, wood: 7500, stone: 11000, food: 6000 }, time: 540, reqCityHall: 5, troopCap: 100, desc: 'Master Tactics: +10% all troop attack power.' },
-        { level: 4, cost: { gold: 22000, wood: 18000, stone: 26000, food: 14000 }, time: 1100, reqCityHall: 6, troopCap: 150, desc: 'Fortified Doctrine: +15% all troop health.' },
-        { level: 5, cost: { gold: 50000, wood: 42000, stone: 58000, food: 32000 }, time: 2200, reqCityHall: 7, troopCap: 220, desc: 'Apex Academy: Champions of the Empire.' }
+        { level: 1, cost: { gold: 1500, elixir: 1500, wood: 1200, stone: 1800, food: 1000 }, time: 90, reqCityHall: 3, troopCap: 30, desc: 'Unlocks Heavy Defenders.' },
+        { level: 2, cost: { gold: 4000, elixir: 4000, wood: 3200, stone: 4800, food: 2600 }, time: 240, reqCityHall: 4, troopCap: 60, desc: 'Unlocks Energy Mages.' },
+        { level: 3, cost: { gold: 9500, elixir: 9500, wood: 7500, stone: 11000, food: 6000 }, time: 540, reqCityHall: 5, troopCap: 100, desc: 'Master Tactics: +10% all troop attack power.' },
+        { level: 4, cost: { gold: 22000, elixir: 22000, wood: 18000, stone: 26000, food: 14000 }, time: 1100, reqCityHall: 6, troopCap: 150, desc: 'Fortified Doctrine: +15% all troop health.' },
+        { level: 5, cost: { gold: 50000, elixir: 50000, wood: 42000, stone: 58000, food: 32000 }, time: 2200, reqCityHall: 7, troopCap: 220, desc: 'Apex Academy: Champions of the Empire.' }
       ]
     },
 
     unit_workshop: {
       type: 'unit_workshop',
-      name: 'Unit Workshop',
+      name: 'Siege Workshop',
       category: CATEGORIES.MILITARY,
       icon: '⚙️',
       description: 'Industrial foundry manufacturing heavy Siege Rams engineered to demolish defensive walls and towers.',
       size: { w: 2, h: 2 },
       maxLevel: 5,
       levels: [
-        { level: 1, cost: { gold: 2500, wood: 3500, stone: 2800, food: 1200 }, time: 140, reqCityHall: 4, desc: 'Unlocks Siege Rams. +20 Siege Capacity.' },
-        { level: 2, cost: { gold: 6000, wood: 8500, stone: 6800, food: 3000 }, time: 340, reqCityHall: 5, desc: 'Reinforced Iron Plating: +20% Siege Ram HP.' },
-        { level: 3, cost: { gold: 14000, wood: 19000, stone: 15000, food: 7000 }, time: 750, reqCityHall: 6, desc: 'High-Velocity Piston: +25% Siege Ram Wall Damage.' },
-        { level: 4, cost: { gold: 32000, wood: 42000, stone: 34000, food: 16000 }, time: 1600, reqCityHall: 7, desc: 'Steam Traction Engine: +20% Siege Ram Speed.' },
-        { level: 5, cost: { gold: 75000, wood: 95000, stone: 78000, food: 36000 }, time: 3200, reqCityHall: 8, desc: 'Legendary Siege Manufactory: +40% Destruction Power.' }
+        { level: 1, cost: { gold: 2500, elixir: 2500, wood: 3500, stone: 2800, food: 1200 }, time: 140, reqCityHall: 4, desc: 'Unlocks Siege Rams. +20 Siege Capacity.' },
+        { level: 2, cost: { gold: 6000, elixir: 6000, wood: 8500, stone: 6800, food: 3000 }, time: 340, reqCityHall: 5, desc: 'Reinforced Iron Plating: +20% Siege Ram HP.' },
+        { level: 3, cost: { gold: 14000, elixir: 14000, wood: 19000, stone: 15000, food: 7000 }, time: 750, reqCityHall: 6, desc: 'High-Velocity Piston: +25% Siege Ram Wall Damage.' },
+        { level: 4, cost: { gold: 32000, elixir: 32000, wood: 42000, stone: 34000, food: 16000 }, time: 1600, reqCityHall: 7, desc: 'Steam Traction Engine: +20% Siege Ram Speed.' },
+        { level: 5, cost: { gold: 75000, elixir: 75000, wood: 95000, stone: 78000, food: 36000 }, time: 3200, reqCityHall: 8, desc: 'Legendary Siege Manufactory: +40% Destruction Power.' }
       ]
     },
 
@@ -280,45 +382,45 @@
     // =========================================================================
     watch_tower: {
       type: 'watch_tower',
-      name: 'Watch Tower',
+      name: 'Archer Tower',
       category: CATEGORIES.DEFENSE,
       icon: '🏹',
-      description: 'Elevated stone battlement stationing marksmen that fire continuous piercing arrows at hostile invaders.',
+      description: 'Elevated wooden and stone tower stationing archers that shoot down enemy ground and air attackers.',
       size: { w: 1, h: 1 },
       maxLevel: 10,
       levels: [
-        { level: 1, cost: { gold: 150, wood: 200, stone: 150, food: 0 }, time: 12, reqCityHall: 1, range: 4.8, damage: 28, rate: 1.0, hp: 350, desc: 'Range: 4.8 | Damage: 28/s | HP: 350' },
-        { level: 2, cost: { gold: 400, wood: 500, stone: 400, food: 0 }, time: 35, reqCityHall: 2, range: 5.0, damage: 45, rate: 1.0, hp: 550, desc: 'Range: 5.0 | Damage: 45/s | HP: 550' },
-        { level: 3, cost: { gold: 950, wood: 1200, stone: 950, food: 0 }, time: 80, reqCityHall: 3, range: 5.2, damage: 70, rate: 1.1, hp: 850, desc: 'Range: 5.2 | Damage: 70/s | HP: 850' },
-        { level: 4, cost: { gold: 2200, wood: 2800, stone: 2200, food: 0 }, time: 170, reqCityHall: 4, range: 5.5, damage: 110, rate: 1.1, hp: 1300, desc: 'Range: 5.5 | Damage: 110/s | HP: 1,300' },
-        { level: 5, cost: { gold: 5000, wood: 6200, stone: 5000, food: 0 }, time: 350, reqCityHall: 5, range: 5.8, damage: 165, rate: 1.2, hp: 2000, desc: 'Range: 5.8 | Damage: 165/s | HP: 2,000' },
-        { level: 6, cost: { gold: 11000, wood: 13500, stone: 11000, food: 0 }, time: 700, reqCityHall: 6, range: 6.0, damage: 240, rate: 1.2, hp: 3000, desc: 'Range: 6.0 | Damage: 240/s | HP: 3,000' },
-        { level: 7, cost: { gold: 24000, wood: 29000, stone: 24000, food: 0 }, time: 1400, reqCityHall: 7, range: 6.2, damage: 350, rate: 1.3, hp: 4400, desc: 'Range: 6.2 | Damage: 350/s | HP: 4,400' },
-        { level: 8, cost: { gold: 50000, wood: 60000, stone: 50000, food: 0 }, time: 2700, reqCityHall: 8, range: 6.5, damage: 500, rate: 1.3, hp: 6500, desc: 'Range: 6.5 | Damage: 500/s | HP: 6,500' },
-        { level: 9, cost: { gold: 105000, wood: 125000, stone: 105000, food: 0 }, time: 5200, reqCityHall: 9, range: 6.8, damage: 720, rate: 1.4, hp: 9500, desc: 'Range: 6.8 | Damage: 720/s | HP: 9,500' },
-        { level: 10, cost: { gold: 220000, wood: 260000, stone: 220000, food: 0 }, time: 10000, reqCityHall: 10, range: 7.2, damage: 1050, rate: 1.5, hp: 14000, desc: 'Apex Sniper Citadel: 1,050 Dmg/s' }
+        { level: 1, cost: { gold: 250, elixir: 0, wood: 200, stone: 150, food: 0 }, time: 12, reqCityHall: 1, range: 4.8, damage: 28, rate: 1.0, hp: 350, desc: 'Range: 4.8 | Damage: 28/s | HP: 350' },
+        { level: 2, cost: { gold: 600, elixir: 0, wood: 500, stone: 400, food: 0 }, time: 35, reqCityHall: 2, range: 5.0, damage: 45, rate: 1.0, hp: 550, desc: 'Range: 5.0 | Damage: 45/s | HP: 550' },
+        { level: 3, cost: { gold: 1400, elixir: 0, wood: 1200, stone: 950, food: 0 }, time: 80, reqCityHall: 3, range: 5.2, damage: 70, rate: 1.1, hp: 850, desc: 'Range: 5.2 | Damage: 70/s | HP: 850' },
+        { level: 4, cost: { gold: 3200, elixir: 0, wood: 2800, stone: 2200, food: 0 }, time: 170, reqCityHall: 4, range: 5.5, damage: 110, rate: 1.1, hp: 1300, desc: 'Range: 5.5 | Damage: 110/s | HP: 1,300' },
+        { level: 5, cost: { gold: 7500, elixir: 0, wood: 6200, stone: 5000, food: 0 }, time: 350, reqCityHall: 5, range: 5.8, damage: 165, rate: 1.2, hp: 2000, desc: 'Range: 5.8 | Damage: 165/s | HP: 2,000' },
+        { level: 6, cost: { gold: 16000, elixir: 0, wood: 13500, stone: 11000, food: 0 }, time: 700, reqCityHall: 6, range: 6.0, damage: 240, rate: 1.2, hp: 3000, desc: 'Range: 6.0 | Damage: 240/s | HP: 3,000' },
+        { level: 7, cost: { gold: 35000, elixir: 0, wood: 29000, stone: 24000, food: 0 }, time: 1400, reqCityHall: 7, range: 6.2, damage: 350, rate: 1.3, hp: 4400, desc: 'Range: 6.2 | Damage: 350/s | HP: 4,400' },
+        { level: 8, cost: { gold: 75000, elixir: 0, wood: 60000, stone: 50000, food: 0 }, time: 2700, reqCityHall: 8, range: 6.5, damage: 500, rate: 1.3, hp: 6500, desc: 'Range: 6.5 | Damage: 500/s | HP: 6,500' },
+        { level: 9, cost: { gold: 150000, elixir: 0, wood: 125000, stone: 105000, food: 0 }, time: 5200, reqCityHall: 9, range: 6.8, damage: 720, rate: 1.4, hp: 9500, desc: 'Range: 6.8 | Damage: 720/s | HP: 9,500' },
+        { level: 10, cost: { gold: 320000, elixir: 0, wood: 260000, stone: 220000, food: 0 }, time: 10000, reqCityHall: 10, range: 7.2, damage: 1050, rate: 1.5, hp: 14000, desc: 'Apex Archer Citadel: 1,050 Dmg/s' }
       ]
     },
 
     defense_cannon: {
       type: 'defense_cannon',
-      name: 'Defense Cannon',
+      name: 'Cannon',
       category: CATEGORIES.DEFENSE,
       icon: '💣',
-      description: 'Fires heavy explosive cannonballs that detonate on impact, decimating advancing enemy clusters.',
+      description: 'Point-defense heavy cannon mounted on a rotating swivel turntable. Great for perimeter defense.',
       size: { w: 1, h: 1 },
       maxLevel: 10,
       levels: [
-        { level: 1, cost: { gold: 250, wood: 150, stone: 300, food: 0 }, time: 20, reqCityHall: 2, range: 4.2, damage: 65, rate: 0.6, splash: 1.2, hp: 450, desc: 'Range: 4.2 | Area Dmg: 65 | HP: 450' },
-        { level: 2, cost: { gold: 650, wood: 400, stone: 800, food: 0 }, time: 50, reqCityHall: 2, range: 4.4, damage: 105, rate: 0.6, splash: 1.2, hp: 700, desc: 'Range: 4.4 | Area Dmg: 105 | HP: 700' },
-        { level: 3, cost: { gold: 1500, wood: 900, stone: 1800, food: 0 }, time: 110, reqCityHall: 3, range: 4.6, damage: 165, rate: 0.65, splash: 1.3, hp: 1100, desc: 'Range: 4.6 | Area Dmg: 165 | HP: 1,100' },
-        { level: 4, cost: { gold: 3400, wood: 2100, stone: 4200, food: 0 }, time: 220, reqCityHall: 4, range: 4.8, damage: 255, rate: 0.65, splash: 1.3, hp: 1700, desc: 'Range: 4.8 | Area Dmg: 255 | HP: 1,700' },
-        { level: 5, cost: { gold: 7800, wood: 4800, stone: 9500, food: 0 }, time: 440, reqCityHall: 5, range: 5.0, damage: 380, rate: 0.7, splash: 1.4, hp: 2600, desc: 'Range: 5.0 | Area Dmg: 380 | HP: 2,600' },
-        { level: 6, cost: { gold: 17000, wood: 10500, stone: 21000, food: 0 }, time: 850, reqCityHall: 6, range: 5.2, damage: 550, rate: 0.7, splash: 1.4, hp: 3900, desc: 'Range: 5.2 | Area Dmg: 550 | HP: 3,900' },
-        { level: 7, cost: { gold: 36000, wood: 22000, stone: 44000, food: 0 }, time: 1650, reqCityHall: 7, range: 5.4, damage: 780, rate: 0.75, splash: 1.5, hp: 5800, desc: 'Range: 5.4 | Area Dmg: 780 | HP: 5,800' },
-        { level: 8, cost: { gold: 75000, wood: 45000, stone: 90000, food: 0 }, time: 3200, reqCityHall: 8, range: 5.6, damage: 1100, rate: 0.75, splash: 1.5, hp: 8400, desc: 'Range: 5.6 | Area Dmg: 1,100 | HP: 8,400' },
-        { level: 9, cost: { gold: 155000, wood: 92000, stone: 185000, food: 0 }, time: 6200, reqCityHall: 9, range: 5.8, damage: 1550, rate: 0.8, splash: 1.6, hp: 12000, desc: 'Range: 5.8 | Area Dmg: 1,550 | HP: 12,000' },
-        { level: 10, cost: { gold: 310000, wood: 185000, stone: 370000, food: 0 }, time: 12000, reqCityHall: 10, range: 6.2, damage: 2200, rate: 0.85, splash: 1.8, hp: 17500, desc: 'Apex Howitzer: 2,200 Blast Dmg' }
+        { level: 1, cost: { gold: 250, elixir: 0, wood: 150, stone: 300, food: 0 }, time: 20, reqCityHall: 1, range: 4.2, damage: 65, rate: 0.6, splash: 1.2, hp: 450, desc: 'Range: 4.2 | Area Dmg: 65 | HP: 450' },
+        { level: 2, cost: { gold: 650, elixir: 0, wood: 400, stone: 800, food: 0 }, time: 50, reqCityHall: 2, range: 4.4, damage: 105, rate: 0.6, splash: 1.2, hp: 700, desc: 'Range: 4.4 | Area Dmg: 105 | HP: 700' },
+        { level: 3, cost: { gold: 1500, elixir: 0, wood: 900, stone: 1800, food: 0 }, time: 110, reqCityHall: 3, range: 4.6, damage: 165, rate: 0.65, splash: 1.3, hp: 1100, desc: 'Range: 4.6 | Area Dmg: 165 | HP: 1,100' },
+        { level: 4, cost: { gold: 3400, elixir: 0, wood: 2100, stone: 4200, food: 0 }, time: 220, reqCityHall: 4, range: 4.8, damage: 255, rate: 0.65, splash: 1.3, hp: 1700, desc: 'Range: 4.8 | Area Dmg: 255 | HP: 1,700' },
+        { level: 5, cost: { gold: 7800, elixir: 0, wood: 4800, stone: 9500, food: 0 }, time: 440, reqCityHall: 5, range: 5.0, damage: 380, rate: 0.7, splash: 1.4, hp: 2600, desc: 'Range: 5.0 | Area Dmg: 380 | HP: 2,600' },
+        { level: 6, cost: { gold: 17000, elixir: 0, wood: 10500, stone: 21000, food: 0 }, time: 850, reqCityHall: 6, range: 5.2, damage: 550, rate: 0.7, splash: 1.4, hp: 3900, desc: 'Range: 5.2 | Area Dmg: 550 | HP: 3,900' },
+        { level: 7, cost: { gold: 36000, elixir: 0, wood: 22000, stone: 44000, food: 0 }, time: 1650, reqCityHall: 7, range: 5.4, damage: 780, rate: 0.75, splash: 1.5, hp: 5800, desc: 'Range: 5.4 | Area Dmg: 780 | HP: 5,800' },
+        { level: 8, cost: { gold: 75000, elixir: 0, wood: 45000, stone: 90000, food: 0 }, time: 3200, reqCityHall: 8, range: 5.6, damage: 1100, rate: 0.75, splash: 1.5, hp: 8400, desc: 'Range: 5.6 | Area Dmg: 1,100 | HP: 8,400' },
+        { level: 9, cost: { gold: 155000, elixir: 0, wood: 92000, stone: 185000, food: 0 }, time: 6200, reqCityHall: 9, range: 5.8, damage: 1550, rate: 0.8, splash: 1.6, hp: 12000, desc: 'Range: 5.8 | Area Dmg: 1,550 | HP: 12,000' },
+        { level: 10, cost: { gold: 310000, elixir: 0, wood: 185000, stone: 370000, food: 0 }, time: 12000, reqCityHall: 10, range: 6.2, damage: 2200, rate: 0.85, splash: 1.8, hp: 17500, desc: 'Apex Cannon: 2,200 Blast Dmg' }
       ]
     },
 
@@ -690,34 +792,46 @@
   ];
 
   // Default initial city state for a new player
-  function createStarterCity(userId = 'default_user', userName = 'Mayor') {
+  function createStarterCity(userId = 'default_user', userName = 'HULKSDEN') {
     return {
       version: 2,
       userId,
-      cityName: `${userName}'s Metropolis`,
+      cityName: userName || 'HULKSDEN',
       level: 1,
-      xp: 0,
-      power: 280, // City Power Rating
+      xp: 45,
+      trophies: 0,
+      shield: 'None',
+      builders: { total: 2, free: 2 },
+      power: 450, // Village Power Rating
       population: 50,
-      troopCapacity: 25,
-      happiness: 95, // 0 - 100%
+      troopCapacity: 30,
+      happiness: 100, // 0 - 100%
       resources: {
-        gold: 1000,
-        wood: 800,
-        stone: 600,
-        food: 500,
-        gems: 50 // Starter gems for speedups
+        gold: 2400,
+        elixir: 2400,
+        wood: 2400,
+        stone: 2000,
+        food: 2000,
+        gems: 243 // Matches screenshot 243 Gems!
       },
       storageCaps: {
         gold: 5000,
-        wood: 4000,
-        stone: 4000,
-        food: 4000,
+        elixir: 5000,
+        wood: 5000,
+        stone: 5000,
+        food: 5000,
         gems: 999999
       },
+      productionRates: {
+        gold: 60,
+        elixir: 60,
+        wood: 40,
+        stone: 40,
+        food: 40
+      },
       army: {
-        guardian: 4,
-        ranger: 2,
+        guardian: 8,
+        ranger: 4,
         vanguard: 0,
         heavy_defender: 0,
         energy_mage: 0,
@@ -728,66 +842,104 @@
       dailyMissions: JSON.parse(JSON.stringify(DAILY_MISSIONS)),
       lastTickTime: Date.now(),
       buildings: [
-        // City Hall at center
+        // 1. Town Hall (Level 2) at center
         {
-          id: 'bld_city_hall_1',
+          id: 'bld_th_1',
           type: 'city_hall',
-          level: 1,
+          level: 2,
           x: 9,
           y: 9,
-          status: 'idle', // 'idle' | 'constructing' | 'upgrading'
+          status: 'idle',
           finishTime: null
         },
-        // Starter Lumber Yard
+        // 2. Builder's Hut 1 (behind TH)
         {
-          id: 'bld_lumber_1',
-          type: 'lumber_yard',
+          id: 'bld_bh_1',
+          type: 'builder_hut',
           level: 1,
-          x: 6,
-          y: 8,
+          x: 8,
+          y: 7,
+          status: 'idle',
+          finishTime: null
+        },
+        // 3. Builder's Hut 2 (sleeping Z)
+        {
+          id: 'bld_bh_2',
+          type: 'builder_hut',
+          level: 1,
+          x: 10,
+          y: 6,
           status: 'idle',
           finishTime: null,
-          uncollected: 0
+          isSleeping: true
         },
-        // Starter Gold Mine
+        // 4. Elixir Collector (top left with purple elixir bubble)
+        {
+          id: 'bld_elixir_1',
+          type: 'elixir_collector',
+          level: 1,
+          x: 7,
+          y: 5,
+          status: 'idle',
+          finishTime: null,
+          uncollected: 400
+        },
+        // 5. Gold Mine (top right with golden coin bubble)
         {
           id: 'bld_gold_1',
           type: 'gold_mine',
           level: 1,
-          x: 12,
-          y: 8,
+          x: 11,
+          y: 7,
           status: 'idle',
           finishTime: null,
-          uncollected: 0
+          uncollected: 400
         },
-        // Starter Farm
+        // 6. Barracks (top right with crossed swords sign)
         {
-          id: 'bld_farm_1',
-          type: 'farm',
-          level: 1,
-          x: 6,
-          y: 11,
-          status: 'idle',
-          finishTime: null,
-          uncollected: 0
-        },
-        // Starter Stone Quarry
-        {
-          id: 'bld_stone_1',
-          type: 'stone_quarry',
+          id: 'bld_barracks_1',
+          type: 'training_grounds',
           level: 1,
           x: 12,
-          y: 11,
+          y: 5,
           status: 'idle',
-          finishTime: null,
-          uncollected: 0
+          finishTime: null
+        },
+        // 7. Gold Storage (east of Town Hall, overflowing with gold coins)
+        {
+          id: 'bld_gold_store_1',
+          type: 'treasury',
+          level: 1,
+          x: 12,
+          y: 9,
+          status: 'idle',
+          finishTime: null
+        },
+        // 8. Cannon (west of Town Hall on wooden turntable mount)
+        {
+          id: 'bld_cannon_1',
+          type: 'defense_cannon',
+          level: 1,
+          x: 7,
+          y: 9,
+          status: 'idle',
+          finishTime: null
+        },
+        // 9. Army Camp (south of Town Hall with lit campfire)
+        {
+          id: 'bld_camp_1',
+          type: 'army_camp',
+          level: 1,
+          x: 12,
+          y: 12,
+          status: 'idle',
+          finishTime: null
         }
       ],
       unlockedTechs: [],
       stats: {
         totalGoldProduced: 0,
-        totalWoodProduced: 0,
-        totalStoneProduced: 0,
+        totalElixirProduced: 0,
         totalFoodProduced: 0,
         buildingsConstructed: 5,
         upgradesCompleted: 0,
