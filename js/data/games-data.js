@@ -5,24 +5,6 @@
 
 const gamesData = [
   {
-<<<<<<< HEAD
-    id: 'highway-tycoon',
-    name: 'Highway Oasis Tycoon',
-    category: 'Simulation',
-    rating: 5.0,
-    plays: 21500,
-    playsFormatted: '21.5K',
-    rank: 1,
-    badge: 'NEW 3D',
-    isTop: true,
-    thumbnail: 'assets/games/thumb_highway_tycoon.svg',
-    topThumbnail: 'assets/games/top_highway_tycoon.svg',
-    description: 'Build and manage the ultimate transcontinental Interstate 66 travel oasis. Expand 100 levels of high-flow fuel dispensers, 24/7 QuickMart, Route 66 Diner, and luxury motel suites with realistic 3D traffic and pedestrian life.',
-    tags: ['Simulation', 'Tycoon', '3D WebGL', 'Management', 'Strategy'],
-    releaseDate: '2026-09-15',
-    developer: 'InfinityPlay Studios',
-    gameUrl: 'games/highway-tycoon/index.html',
-=======
     id: 'tic-tac-toe',
     name: 'Tic-Tac-Toe: Ultimate Arena',
     category: 'Puzzle',
@@ -39,7 +21,25 @@ const gamesData = [
     releaseDate: '2026-09-15',
     developer: 'InfinityPlay Studios',
     gameUrl: 'games/tic-tac-toe/index.html',
->>>>>>> 5cd442b (tic-tac-toe)
+    playMode: 'embed'
+  },
+  {
+    id: 'highway-tycoon',
+    name: 'Highway Oasis Tycoon',
+    category: 'Simulation',
+    rating: 5.0,
+    plays: 21500,
+    playsFormatted: '21.5K',
+    rank: 1,
+    badge: 'NEW 3D',
+    isTop: true,
+    thumbnail: 'assets/games/thumb_highway_tycoon.svg',
+    topThumbnail: 'assets/games/top_highway_tycoon.svg',
+    description: 'Build and manage the ultimate transcontinental Interstate 66 travel oasis. Expand 100 levels of high-flow fuel dispensers, 24/7 QuickMart, Route 66 Diner, and luxury motel suites with realistic 3D traffic and pedestrian life.',
+    tags: ['Simulation', 'Tycoon', '3D WebGL', 'Management', 'Strategy'],
+    releaseDate: '2026-09-15',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/highway-tycoon/index.html',
     playMode: 'embed'
   },
   {

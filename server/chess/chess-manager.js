@@ -840,8 +840,8 @@ class ChessManager {
           connected: room.players.b.connected
         } : null
       },
-      spectatorCount: room.spectators.length,
-      chatMessages: room.chatMessages.slice(-50),
+      spectatorCount: (room.spectators && room.spectators.length) !== undefined ? room.spectators.length : (room.spectatorCount || 0),
+      chatMessages: Array.isArray(room.chatMessages) ? room.chatMessages.slice(-50) : (room.chatMessages || []),
       result: room.result,
       drawOffer: room.drawOffer
     };
