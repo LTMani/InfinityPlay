@@ -51,11 +51,6 @@
         if (data.player) {
           const player = Player.deserialize(data.player);
 
-          // Restore bus state
-          if (player.garage && data.buses) {
-            // Buses are already in player.garage from Player.deserialize
-          }
-
           // Load subsystem states
           // Store for later restoration — systems may not be initialized yet
           // (loadPlayer runs during GameInitSystem.init, before GarageSystem.init).
@@ -185,7 +180,7 @@
 
       for (const name of systemsToRestore) {
         const system = this.modules[name];
-        if (system && typeof system.deserialize === 'function' && data[name]) {
+        if (system && typeof system.deserialize === 'function' && data[name] && typeof data[name] === 'object') {
           try {
             system.deserialize(data[name]);
           } catch (e) {
@@ -215,7 +210,10 @@
         version: GameConfig ? GameConfig._version || '1.0.0' : '1.0.0',
         exportedAt: Date.now(),
         player: player.serialize(),
-        systems: this._collectSystemData()
+        systems: this._collectSystemData(),
+        garageConfig: (GarageConfig && typeof GarageConfig.serialize === 'function')
+          ? GarageConfig.serialize()
+          : null
       };
 
       return JSON.stringify(exportData, null, 2);
@@ -227,10 +225,24 @@
         if (!data.player) throw new Error('Invalid save format');
 
         const player = Player.deserialize(data.player);
-        this.modules.GameInitSystem._player = player;
 
+        // Set the canonical player reference (not _player, which getPlayer ignores)
+        const gameInit = this.modules && this.modules.GameInitSystem;
+        if (gameInit) {
+          gameInit.player = player;
+        }
+
+        // Phase 8: restore garage configuration
+        if (data.garageConfig && GarageConfig && typeof GarageConfig.deserialize === 'function') {
+          GarageConfig.deserialize(data.garageConfig);
+        }
+
+        // Restore system-specific saved state (e.g., GarageSystem)
         if (data.systems) {
           this._restoreSystemData(data.systems);
+        } else {
+          // No system data — sync GarageSystem to the imported Player
+          this._syncGarageSystemToPlayer();
         }
 
         EventManager.emit('saveImported', { success: true });
@@ -240,6 +252,24 @@
         EventManager.emit('saveImported', { success: false, error: e.message });
         return { success: false, error: e.message };
       }
+    },
+
+    /**
+     * Ensures GarageSystem references the current Player's garage.
+     * Called when no explicit system save data is available.
+     */
+    _syncGarageSystemToPlayer() {
+      const gameInit = this.modules && this.modules.GameInitSystem;
+      const garageSystem = this.modules && this.modules.GarageSystem;
+      if (!gameInit || !garageSystem) return;
+
+      const player = gameInit.getPlayer();
+      if (!player) return;
+
+      garageSystem._garage = player.garage;
+      garageSystem._activeBusId = player.activeBusId ||
+        (player.garage[0] ? player.garage[0].id : null);
+      garageSystem._garageSlots = player.garageSlots || 5;
     },
 
     destroy() {

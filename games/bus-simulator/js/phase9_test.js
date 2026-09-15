@@ -390,9 +390,10 @@ savePlayer.garageSlots = 8;
 
 // Set up GarageSystem with the player for init
 const mockGameInitSave = {
-  getPlayer: () => savePlayer,
+  player: savePlayer,
+  getPlayer: function () { return this.player; },
   getActiveBus: function () {
-    return savePlayer ? savePlayer.getActiveBus() : null;
+    return this.player ? this.player.getActiveBus() : null;
   }
 };
 
@@ -413,7 +414,7 @@ assertEqual(GarageSystem._activeBusId, saveBusB.id, 'GarageSystem active bus is 
 // Serialize GarageSystem state (simulating saveGame)
 const garageSaveData = GarageSystem.serialize();
 assertEqual(garageSaveData.activeBusId, saveBusB.id, 'Serialized GarageSystem has Bus B as active');
-assertEqual(garageSaveData.garage.length, 2, 'Serialized GarageSystem has 2 buses');
+assertTrue(!('garage' in garageSaveData), 'Serialized GarageSystem does NOT duplicate garage data');
 
 // Create save data structure
 const saveData = {
@@ -443,6 +444,9 @@ const loadedPlayer = SaveLoadSystem.loadPlayer();
 assertTruthy(loadedPlayer, 'loadPlayer returns a player from save');
 assertEqual(loadedPlayer.activeBusId, saveBusB.id, 'Loaded player has Bus B as active (from save)');
 
+// Simulate GameInitSystem.init() setting this.player = loadPlayer()
+mockGameInitSave.player = loadedPlayer;
+
 // 7.2 Verify pending system data is stored
 assertTruthy(SaveLoadSystem._pendingSystemData, 'Pending system data stored after loadPlayer');
 assertTruthy(SaveLoadSystem._pendingSystemData.GarageSystem, 'Pending data contains GarageSystem');
@@ -462,8 +466,8 @@ assertEqual(GarageSystem.getGarage().length, 2, 'GarageSystem has 2 buses after 
 // 7.5 Verify Player.garage and GarageSystem._garage are synchronized
 // In the real flow, GameInitSystem.getPlayer() returns the loaded player.
 // GarageSystem.deserialize() syncs to Player via modules.GameInitSystem.getPlayer()
-assertTrue(GarageSystem.getGarage() === savePlayer.garage, 'GarageSystem._garage same reference as Player.garage');
-assertEqual(savePlayer.activeBusId, saveBusB.id, 'Player.activeBusId matches restored GarageSystem');
+assertTrue(GarageSystem.getGarage() === loadedPlayer.garage, 'GarageSystem._garage same reference as Player.garage');
+assertEqual(loadedPlayer.activeBusId, saveBusB.id, 'Player.activeBusId matches restored GarageSystem');
 
 // ============================================
 // TEST 8: Garage synchronization after load
@@ -594,23 +598,539 @@ assertEqual(GarageSystem.getGarage().length, 2, 'GarageSystem init populated fro
 assertEqual(GarageSystem._activeBusId, busK.id, 'GarageSystem init set active bus from Player');
 
 // Now simulate restoreSystemData (simulates post-registration restoration)
-// Set up fake saved data
+// Set up fake saved data (only activeBusId is restored; garage comes from Player)
 const savedGarageData = {
-  garage: [{ id: busL.id, busTypeId: 'express' }], // Only busL saved
-  activeBusId: busL.id
+  garage: [{ id: busL.id, busTypeId: 'express' }],
+  activeBusId: busL.id,
+  garageSlots: 8
 };
 
 // Manually call _restoreSystemData with saved data
 SaveLoadSystem.modules = { EventManager, GameInitSystem: mockGameInit12, GarageSystem: GarageSystem };
 SaveLoadSystem._restoreSystemData({ GarageSystem: savedGarageData });
 
-// Verify restore overwrote the init state (restore happens AFTER init)
+// Verify restore happened AFTER init — activeBusId restored from save
 assertEqual(GarageSystem._activeBusId, busL.id, 'GarageSystem._activeBusId restored to Bus L after init');
-assertEqual(GarageSystem.getGarage().length, 1, 'GarageSystem._garage restored to saved data');
 
-// Verify Player was synced (from deserialize sync)
+// GarageSystem._garage references Player.garage (canonical source, not data.garage)
+assertEqual(player12.garage.length, 2, 'Player.garage still has its buses');
+assertTrue(GarageSystem.getGarage() === player12.garage, 'GarageSystem._garage references Player.garage');
+
+// Verify Player was synced (activeBusId from deserialized data)
 assertEqual(player12.activeBusId, busL.id, 'Player.activeBusId synced after restore');
-assertEqual(player12.garage.length, 1, 'Player.garage synced after restore');
+assertEqual(player12.garage.length, 2, 'Player.garage length preserved');
+assertEqual(GarageSystem._garageSlots, 8, 'GarageSystem._garageSlots restored from save');
+
+// ============================================
+// TEST 13: importSave updates canonical GameInitSystem.player
+// ============================================
+console.log('\n--- TEST 13: importSave updates canonical player ---');
+
+// Set up GameInitSystem with an initial player
+const initialPlayer = new Player();
+initialPlayer.money = 1000000;
+const initialBus = new Bus(0, 0, 'pallevelugu');
+initialPlayer.garage = [initialBus];
+initialPlayer.activeBusId = initialBus.id;
+GameInitSystem.player = initialPlayer;
+
+// Mock GameInitSystem that uses 'this.player' (same pattern as real GameInitSystem.getPlayer)
+const mockGameInitForImport = {
+  player: initialPlayer,
+  getPlayer: function () { return this.player; },
+  getActiveBus: function () { return this.player ? this.player.getActiveBus() : null; }
+};
+
+// Create an import save with a different player and garage
+const importPlayer = new Player();
+importPlayer.money = 999999;
+const importBusA = new Bus(0, 0, 'pallevelugu');
+const importBusB = new Bus(100, 0, 'express');
+importPlayer.garage = [importBusA, importBusB];
+importPlayer.activeBusId = importBusB.id;
+importPlayer.garageSlots = 10;
+const importBusBSerialized = importBusB.serialize ? importBusB.serialize() : importBusB;
+
+// Ensure GarageSystem serialized state matches import player (no conflict)
+GarageSystem._garage = importPlayer.garage;
+GarageSystem._activeBusId = importBusB.id;
+
+const importSaveData = {
+  version: '1.0.0',
+  player: importPlayer.serialize(),
+  systems: { GarageSystem: GarageSystem.serialize() },
+  garageConfig: GarageConfig.serialize()
+};
+const importSaveString = JSON.stringify(importSaveData);
+
+// Set up SaveLoadSystem modules
+SaveLoadSystem.modules = {
+  EventManager,
+  GameInitSystem: mockGameInitForImport,
+  GarageSystem: GarageSystem
+};
+GarageSystem.modules = { EventManager, GameInitSystem: mockGameInitForImport };
+
+// Import the save
+const importResult = SaveLoadSystem.importSave(importSaveString);
+assertTrue(importResult.success, 'importSave returns success');
+
+// 13.1 Verify canonical player was updated (via the mock's player property, not _player)
+assertEqual(mockGameInitForImport.player.money, 999999, 'Canonical player updated to imported player');
+assertTrue(mockGameInitForImport.player !== initialPlayer, 'Canonical player is NOT the old initial player');
+
+// 13.2 Verify getPlayer() returns the imported Player
+const getPlayerResult = mockGameInitForImport.getPlayer();
+assertEqual(getPlayerResult.money, 999999, 'getPlayer() returns imported player with correct money');
+assertTrue(getPlayerResult !== initialPlayer, 'getPlayer() does NOT return the old initial player');
+
+// 13.3 Verify getActiveBus() returns the imported active bus
+const activeAfterImport = mockGameInitForImport.getActiveBus();
+assertTruthy(activeAfterImport, 'Active bus exists after import');
+assertEqual(activeAfterImport.id, importBusB.id, 'getActiveBus() returns imported active bus (Bus B)');
+
+// 13.4 Verify imported activeBusId is preserved
+assertEqual(getPlayerResult.activeBusId, importBusB.id, 'Imported activeBusId preserved (Bus B)');
+
+// 13.5 Verify GarageSystem synchronizes with imported player.garage
+assertEqual(GarageSystem.getGarage().length, 2, 'GarageSystem has 2 buses after import');
+assertEqual(GarageSystem._activeBusId, importBusB.id, 'GarageSystem._activeBusId synced to imported Bus B');
+
+// 13.6 Verify no conflicting player references
+assertTrue(getPlayerResult.garage === GarageSystem.getGarage(), 'Player.garage and GarageSystem._garage share reference after import');
+assertTrue(getPlayerResult.garage[0] instanceof Bus, 'Imported bus[0] is a real Bus instance');
+assertTrue(getPlayerResult.garage[1] instanceof Bus, 'Imported bus[1] is a real Bus instance');
+
+// ============================================
+// TEST 14: Import with missing system data
+// ============================================
+console.log('\n--- TEST 14: Import with missing system data ---');
+
+// Reset state
+mockGameInitForImport.player = initialPlayer;
+GarageSystem._garage = initialPlayer.garage;
+GarageSystem._activeBusId = initialBus.id;
+
+// Save without systems section
+const importSaveNoSystems = {
+  version: '0.9.0',
+  player: importPlayer.serialize()
+  // No systems, no garageConfig
+};
+const importStringNoSystems = JSON.stringify(importSaveNoSystems);
+
+let noSystemsCrashed = false;
+let noSystemsResult = null;
+try {
+  noSystemsResult = SaveLoadSystem.importSave(importStringNoSystems);
+} catch (e) {
+  noSystemsCrashed = true;
+}
+assertFalse(noSystemsCrashed, 'Import without systems does not crash');
+assertTrue(noSystemsResult.success, 'Import without systems returns success');
+
+// Verify GarageSystem was synced despite no system data
+assertEqual(GarageSystem.getGarage().length, 2, 'GarageSystem synced to player.garage without system data');
+assertEqual(GarageSystem._activeBusId, importBusB.id, 'GarageSystem active bus synced without system data');
+assertEqual(mockGameInitForImport.getPlayer().garage.length, 2, 'Player.garage has correct buses after import without systems');
+
+// ============================================
+// TEST 15: Corrupted optional system data
+// ============================================
+console.log('\n--- TEST 15: Corrupted optional system data ---');
+
+// Reset state
+mockGameInitForImport.player = initialPlayer;
+GarageSystem._garage = initialPlayer.garage;
+GarageSystem._activeBusId = initialBus.id;
+
+// Save with corrupted systems data
+const corruptedSaveData = {
+  version: '1.0.0',
+  player: importPlayer.serialize(),
+  systems: { GarageSystem: 'corrupted-string-data' }
+};
+const corruptedSaveString = JSON.stringify(corruptedSaveData);
+
+let corruptedCrashed = false;
+let corruptedResult = null;
+try {
+  corruptedResult = SaveLoadSystem.importSave(corruptedSaveString);
+} catch (e) {
+  corruptedCrashed = true;
+}
+assertFalse(corruptedCrashed, 'Import with corrupted system data does not crash');
+
+// Player should still be set correctly (corrupted systems are skipped)
+assertTrue(mockGameInitForImport.getPlayer().money === 999999, 'Player set correctly despite corrupted systems');
+assertEqual(mockGameInitForImport.getPlayer().activeBusId, importBusB.id, 'Player activeBusId correct despite corrupted systems');
+
+// ============================================
+// TEST 16: Normal startup load behavior (still works)
+// ============================================
+console.log('\n--- TEST 16: Normal startup load behavior ---');
+
+// Clear and set up a fresh save
+localStorage.clear();
+
+const startupPlayer = new Player();
+const startupBus1 = new Bus(0, 0, 'pallevelugu');
+const startupBus2 = new Bus(100, 0, 'ultra-deluxe');
+startupPlayer.garage = [startupBus1, startupBus2];
+startupPlayer.activeBusId = startupBus2.id;
+startupPlayer.money = 750000;
+
+const startupSave = {
+  version: '1.0.0',
+  savedAt: Date.now(),
+  player: startupPlayer.serialize(),
+  systems: { GarageSystem: { activeBusId: startupBus2.id, garageSlots: 5 } },
+  garageConfig: GarageConfig.serialize()
+};
+localStorage.setItem('bus_simulator_save_data', JSON.stringify(startupSave));
+
+// Set up SaveLoadSystem for loadPlayer test
+SaveLoadSystem._saveKey = 'bus_simulator_save_data';
+SaveLoadSystem._pendingSystemData = null;
+
+// Set up a fresh mock GameInitSystem
+const mockGameInit16 = {
+  player: null,
+  getPlayer: function () { return this.player; },
+  getActiveBus: function () { return this.player ? this.player.getActiveBus() : null; }
+};
+
+// Simulate GameInitSystem.init() calling loadPlayer()
+SaveLoadSystem.modules = { EventManager, GameInitSystem: mockGameInit16, GarageSystem: GarageSystem };
+mockGameInit16.player = SaveLoadSystem.loadPlayer();
+assertTrue(mockGameInit16.player !== null, 'loadPlayer returns a player from save');
+assertEqual(mockGameInit16.player.activeBusId, startupBus2.id, 'Loaded player has correct activeBusId');
+assertTrue(SaveLoadSystem._pendingSystemData !== null, 'Pending system data stored during loadPlayer');
+
+// Simulate main.js restoreSystemData call (after all systems registered)
+SaveLoadSystem.restoreSystemData();
+assertFalsy(SaveLoadSystem._pendingSystemData, 'Pending data cleared after restoreSystemData');
+
+// Verify loaded buses are real Bus instances
+assertTrue(mockGameInit16.getPlayer().garage[0] instanceof Bus, 'Startup loaded garage[0] is Bus instance');
+assertTrue(mockGameInit16.getPlayer().garage[1] instanceof Bus, 'Startup loaded garage[1] is Bus instance');
+assertTrue(mockGameInit16.getActiveBus() instanceof Bus, 'getActiveBus returns Bus instance after startup load');
+
+// ============================================
+// TEST 17: Bus.deserialize preserves all fields
+// ============================================
+console.log('\n--- TEST 17: Bus.deserialize preserves all fields ---');
+
+const fullBus = new Bus(50, 60, 'pallevelugu');
+fullBus.fuelLevel = 30;
+fullBus.damage = 40;
+fullBus.condition = 60;
+fullBus.passengersOnBoard = 15;
+fullBus.tripsCompleted = 7;
+fullBus.tripDistance = 3200;
+fullBus.maxSpeed = 85;
+fullBus.busNumber = 'B-123';
+fullBus.destinationBoard = 'AIRPORT';
+fullBus.customization = { exterior: { paintColor: '#00ff00', livery: 'sport', lights: 'led', wheels: 'alloy', accessories: [], fleetNumber: 'F-1' }, interior: { seatStyle: 'leather', interiorColor: 'black', lighting: 'led', decorations: [], comfort: 9, theme: 'luxury' }, performance: { engineTuning: 'turbo', transmission: 'manual-6', brakes: 'disc', suspension: 'coil' } };
+fullBus.reverseMode = true;
+fullBus.reverseSpeed = 10;
+
+// Serialize manually (Bus has no serialize method, use properties)
+const fullBusData = {
+  id: fullBus.id,
+  x: fullBus.x, y: fullBus.y,
+  vx: fullBus.vx, vy: fullBus.vy,
+  speed: fullBus.speed, targetSpeed: fullBus.targetSpeed,
+  steering: fullBus.steering, angle: fullBus.angle,
+  busTypeId: fullBus.busTypeId,
+  operatorId: fullBus.operatorId,
+  serviceType: fullBus.serviceType,
+  fuelLevel: fullBus.fuelLevel,
+  fuelCapacity: fullBus.fuelCapacity,
+  fuelEfficiency: fullBus.fuelEfficiency,
+  isLowFuel: fullBus.isLowFuel,
+  condition: fullBus.condition,
+  damage: fullBus.damage,
+  isDamaged: fullBus.isDamaged,
+  passengersOnBoard: fullBus.passengersOnBoard,
+  passengersWaiting: fullBus.passengersWaiting,
+  boardedPassengers: fullBus.boardedPassengers,
+  passengerCapacity: fullBus.passengerCapacity,
+  baseStandingCapacity: fullBus.baseStandingCapacity,
+  maxStanding: fullBus.maxStanding,
+  standingPassengers: fullBus.standingPassengers,
+  allowStanding: fullBus.allowStanding,
+  boardingTimePerPassenger: fullBus.boardingTimePerPassenger,
+  alightTimePerPassenger: fullBus.alightTimePerPassenger,
+  serviceFareMultiplier: fullBus.serviceFareMultiplier,
+  maxSpeed: fullBus.maxSpeed,
+  baseMaxSpeed: fullBus.baseMaxSpeed,
+  maintenanceCondition: fullBus.maintenanceCondition,
+  lastMaintenance: fullBus.lastMaintenance,
+  maintenanceInterval: fullBus.maintenanceInterval,
+  value: fullBus.value,
+  purchasePrice: fullBus.purchasePrice,
+  color: fullBus.color,
+  tintColor: fullBus.tintColor,
+  fleetNumber: fullBus.fleetNumber,
+  busNumber: fullBus.busNumber,
+  destinationBoard: fullBus.destinationBoard,
+  tripsCompleted: fullBus.tripsCompleted,
+  tripDistance: fullBus.tripDistance,
+  tripRevenue: fullBus.tripRevenue,
+  tripStartTime: fullBus.tripStartTime,
+  reverseMode: fullBus.reverseMode,
+  reverseSpeed: fullBus.reverseSpeed,
+  active: fullBus.active,
+  width: fullBus.width,
+  height: fullBus.height,
+  rotation: fullBus.rotation,
+  collisionRadius: fullBus.collisionRadius,
+  tags: fullBus.tags
+};
+
+const restoredFullBus = Bus.deserialize(fullBusData);
+assertTrue(restoredFullBus instanceof Bus, 'Restored full bus is Bus instance');
+assertEqual(restoredFullBus.id, fullBus.id, 'Bus id preserved');
+assertEqual(restoredFullBus.fuelLevel, 30, 'Bus fuelLevel restored');
+assertEqual(restoredFullBus.damage, 40, 'Bus damage restored');
+assertEqual(restoredFullBus.passengersOnBoard, 15, 'Bus passengersOnBoard restored');
+assertEqual(restoredFullBus.tripsCompleted, 7, 'Bus tripsCompleted restored');
+assertEqual(restoredFullBus.maxSpeed, 85, 'Bus maxSpeed restored');
+assertEqual(restoredFullBus.busNumber, 'B-123', 'Bus busNumber restored');
+assertEqual(restoredFullBus.destinationBoard, 'AIRPORT', 'Bus destinationBoard restored');
+assertTrue(typeof restoredFullBus.draw === 'function', 'Restored bus has draw method');
+assertTrue(typeof restoredFullBus.update === 'function', 'Restored bus has update method');
+assertTrue(typeof restoredFullBus.refuel === 'function', 'Restored bus has refuel method');
+assertTrue(typeof restoredFullBus.sellBus === 'undefined', 'Bus does not have sellBus (sanity check)');
+
+// ============================================
+// TEST 18: Bus.deserialize from Player.serialize round-trip
+// ============================================
+console.log('\n--- TEST 18: Bus deserialize from Player.serialize round-trip ---');
+
+const roundTripPlayer = new Player();
+roundTripPlayer.garage = [new Bus(0, 0, 'pallevelugu'), new Bus(100, 0, 'express')];
+roundTripPlayer.activeBusId = roundTripPlayer.garage[1].id;
+roundTripPlayer.money = 250000;
+
+// Serialize via Player.serialize (Bus has no serialize, so instances are returned)
+const rtData = roundTripPlayer.serialize();
+// JSON round-trip simulates save/load
+const rtString = JSON.stringify(rtData);
+const rtParsed = JSON.parse(rtString);
+
+const rtPlayer = Player.deserialize(rtParsed);
+assertTrue(rtPlayer instanceof Player, 'Round-trip player is Player instance');
+assertTrue(rtPlayer.garage[0] instanceof Bus, 'Round-trip bus[0] is Bus instance');
+assertTrue(rtPlayer.garage[1] instanceof Bus, 'Round-trip bus[1] is Bus instance');
+assertEqual(rtPlayer.activeBusId, roundTripPlayer.garage[1].id, 'Round-trip activeBusId preserved');
+assertEqual(rtPlayer.garage[0].id, roundTripPlayer.garage[0].id, 'Round-trip bus[0] id preserved');
+assertEqual(rtPlayer.garage[1].id, roundTripPlayer.garage[1].id, 'Round-trip bus[1] id preserved');
+assertEqual(rtPlayer.garage[0].busTypeId, 'pallevelugu', 'Round-trip bus[0] type preserved');
+assertEqual(rtPlayer.garage[1].busTypeId, 'express', 'Round-trip bus[1] type preserved');
+
+// ============================================
+// TEST 19: GarageSystem.serialize does not duplicate garage
+// ============================================
+console.log('\n--- TEST 19: GarageSystem.serialize does not duplicate garage ---');
+
+// Reset GarageSystem to clean state
+GarageSystem.destroy();
+
+const gsPlayer = new Player();
+gsPlayer.garage = [new Bus(0, 0, 'pallevelugu')];
+gsPlayer.activeBusId = gsPlayer.garage[0].id;
+const mockGameInitGS = {
+  getPlayer: () => gsPlayer,
+  getActiveBus: function () { return gsPlayer ? gsPlayer.getActiveBus() : null; }
+};
+GarageSystem.modules = { EventManager, GameInitSystem: mockGameInitGS };
+GarageSystem._garage = gsPlayer.garage;
+GarageSystem._activeBusId = gsPlayer.activeBusId;
+GarageSystem._garageSlots = 5;
+
+const serializedGS = GarageSystem.serialize();
+assertTrue(!('garage' in serializedGS), 'serialize() does NOT include garage field');
+assertTrue('activeBusId' in serializedGS, 'serialize() includes activeBusId');
+assertTrue('garageSlots' in serializedGS, 'serialize() includes garageSlots');
+
+// ============================================
+// TEST 20: Player remains canonical garage owner
+// ============================================
+console.log('\n--- TEST 20: Player remains canonical garage owner ---');
+
+assertTrue(GarageSystem._garage === gsPlayer.garage, 'GarageSystem._garage === Player.garage');
+assertTrue(GarageSystem.getGarage() === gsPlayer.garage, 'GarageSystem.getGarage() === Player.garage');
+
+// ============================================
+// TEST 21: Old saves with GarageSystem.garage still load safely
+// ============================================
+console.log('\n--- TEST 21: Old saves with GarageSystem.garage still load safely ---');
+
+const oldGsPlayer = new Player();
+oldGsPlayer.garage = [new Bus(0, 0, 'pallevelugu')];
+oldGsPlayer.activeBusId = oldGsPlayer.garage[0].id;
+
+const mockGameInitOld = {
+  getPlayer: () => oldGsPlayer,
+  getActiveBus: function () { return oldGsPlayer ? oldGsPlayer.getActiveBus() : null; }
+};
+GarageSystem.modules = { EventManager, GameConfig: mockGameInitOld, GameInitSystem: mockGameInitOld };
+GarageSystem._garage = oldGsPlayer.garage;
+GarageSystem._activeBusId = oldGsPlayer.activeBusId;
+
+// Old save format: GarageSystem.garage has saved bus data
+const oldGarageData = {
+  garage: [{ id: oldGsPlayer.garage[0].id, busTypeId: 'pallevelugu', x: 0, y: 0, fuelLevel: 100 }],
+  activeBusId: oldGsPlayer.garage[0].id,
+  garageSlots: 3
+};
+
+let oldGsCrash = false;
+try {
+  GarageSystem.deserialize(oldGarageData);
+} catch (e) {
+  oldGsCrash = true;
+}
+assertFalse(oldGsCrash, 'Old GarageSystem.garage data does not crash on deserialize');
+// GarageSystem.deserialize uses player.garage as canonical, not data.garage
+assertTrue(GarageSystem._garage === oldGsPlayer.garage, 'GarageSystem references Player.garage even for old saves');
+assertEqual(GarageSystem._activeBusId, oldGsPlayer.garage[0].id, 'activeBusId restored from old save');
+assertEqual(GarageSystem._garageSlots, 3, 'garageSlots restored from old save');
+
+// ============================================
+// TEST 22: exportSave includes GarageConfig
+// ============================================
+console.log('\n--- TEST 22: exportSave includes GarageConfig ---');
+
+const exportPlayer = new Player();
+exportPlayer.garage = [new Bus(0, 0, 'pallevelugu')];
+exportPlayer.activeBusId = exportPlayer.garage[0].id;
+exportPlayer.money = 500000;
+
+const mockGameInitExport = {
+  getPlayer: () => exportPlayer,
+  getActiveBus: function () { return exportPlayer ? exportPlayer.getActiveBus() : null; }
+};
+SaveLoadSystem.modules = { EventManager, GameInitSystem: mockGameInitExport, GameLoopSystem: null, GarageSystem: GarageSystem };
+GarageSystem.modules = { EventManager, GameInitSystem: mockGameInitExport };
+GarageSystem._garage = exportPlayer.garage;
+GarageSystem._activeBusId = exportPlayer.activeBusId;
+GarageSystem._garageSlots = 5;
+
+const exported = SaveLoadSystem.exportSave();
+assertTruthy(exported, 'exportSave returns data');
+const exportParsed = JSON.parse(exported);
+assertTrue('garageConfig' in exportParsed, 'exportSave includes garageConfig field');
+assertTruthy(exportParsed.garageConfig, 'garageConfig is non-null in export');
+assertTrue('player' in exportParsed, 'exportSave includes player field');
+assertTrue('systems' in exportParsed, 'exportSave includes systems field');
+assertTrue('version' in exportParsed, 'exportSave includes version');
+
+// ============================================
+// TEST 23: exportSave → importSave round-trip
+// ============================================
+console.log('\n--- TEST 23: exportSave → importSave round-trip ---');
+
+// Set up GarageSystem for the export player
+GarageSystem.modules = { EventManager, GameInitSystem: mockGameInitExport };
+GarageSystem._garage = exportPlayer.garage;
+GarageSystem._activeBusId = exportPlayer.activeBusId;
+GarageSystem._garageSlots = 5;
+
+// Re-export with GarageSystem registered
+const exportedRoundTrip = SaveLoadSystem.exportSave();
+assertTruthy(exportedRoundTrip, 'exportSave produces output');
+
+// Import into a different GameInitSystem
+const importTargetPlayer = new Player();
+const mockGameInitImportTarget = {
+  player: importTargetPlayer,
+  getPlayer: function () { return this.player; },
+  getActiveBus: function () { return this.player ? this.player.getActiveBus() : null; }
+};
+
+SaveLoadSystem.modules = {
+  EventManager,
+  GameInitSystem: mockGameInitImportTarget,
+  GarageSystem: GarageSystem
+};
+GarageSystem.modules = { EventManager, GameInitSystem: mockGameInitImportTarget };
+
+const importResult23 = SaveLoadSystem.importSave(exportedRoundTrip);
+assertTrue(importResult23.success, 'importSave succeeds from exportSave output');
+
+// Verify player restored
+const rtPlayer23 = mockGameInitImportTarget.getPlayer();
+assertEqual(rtPlayer23.money, 500000, 'Player money restored from export');
+assertEqual(rtPlayer23.garage.length, 1, 'Player garage count restored');
+assertTrue(rtPlayer23.garage[0] instanceof Bus, 'Imported bus[0] is Bus instance');
+
+// Verify GarageConfig restored
+const gcConfig = GarageConfig.getConfig();
+assertTrue(gcConfig !== null, 'GarageConfig restored from import');
+
+// Verify active bus
+const activeBus23 = mockGameInitImportTarget.getActiveBus();
+assertTrue(activeBus23 instanceof Bus, 'Active bus is Bus instance after round-trip');
+assertTrue(typeof activeBus23.draw === 'function', 'Active bus has draw method');
+assertTrue(typeof activeBus23.update === 'function', 'Active bus has update method');
+assertTrue(typeof activeBus23.refuel === 'function', 'Active bus has refuel method');
+
+// Verify GarageSystem synchronized
+assertTrue(GarageSystem._garage === rtPlayer23.garage, 'GarageSystem._garage === Player.garage');
+assertEqual(rtPlayer23.activeBusId, rtPlayer23.garage[0].id, 'Active bus ID synchronized');
+
+// ============================================
+// TEST 24: Missing GarageConfig in export remains backward compatible
+// ============================================
+console.log('\n--- TEST 24: Missing GarageConfig backward compatible ---');
+
+const noConfigExport = {
+  version: '1.0.0',
+  exportedAt: Date.now(),
+  player: exportPlayer.serialize(),
+  systems: { GarageSystem: { activeBusId: exportPlayer.garage[0].id, garageSlots: 5 } }
+  // No garageConfig field
+};
+const noConfigString = JSON.stringify(noConfigExport);
+
+let noConfigCrash = false;
+let noConfigResult = null;
+try {
+  noConfigResult = SaveLoadSystem.importSave(noConfigString);
+} catch (e) {
+  noConfigCrash = true;
+}
+assertFalse(noConfigCrash, 'Import without garageConfig does not crash');
+assertTrue(noConfigResult.success, 'Import without garageConfig returns success');
+
+// ============================================
+// TEST 25: No duplicate init after Bus.deserialize
+// ============================================
+console.log('\n--- TEST 25: No duplicate init after Bus.deserialize ---');
+
+const freshBus = new Bus(100, 200, 'pallevelugu');
+const freshData = {
+  id: freshBus.id,
+  busTypeId: 'pallevelugu',
+  x: 100, y: 200,
+  fuelLevel: 150,
+  damage: 0,
+  passengersOnBoard: 0,
+  maxSpeed: 75,
+  tripsCompleted: 3,
+  color: '#0000ff'
+};
+
+const deserializedOnce = Bus.deserialize(freshData);
+const deserializedAgain = Bus.deserialize(freshData);
+assertTrue(deserializedOnce instanceof Bus, 'First deserialize creates Bus');
+assertTrue(deserializedAgain instanceof Bus, 'Second deserialize creates Bus');
+assertEqual(deserializedOnce.id, deserializedAgain.id, 'Same id across deserializations');
+assertEqual(deserializedOnce.fuelLevel, 150, 'Fuel restored from serialized data');
+assertEqual(deserializedAgain.fuelLevel, 150, 'Fuel restored consistently from serialized data');
 
 // ============================================
 // SUMMARY
