@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="logoBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#090d1a"/>
+    </linearGradient>
+    <linearGradient id="neonGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="92" height="92" rx="22" fill="url(#logoBg)" stroke="#38bdf8" stroke-width="3" stroke-opacity="0.6"/>
+  <!-- Infinity symbol & lightning bolt -->
+  <path d="M30 40 C 20 40 18 60 30 60 C 42 60 48 40 60 40 C 72 40 80 48 80 50 C 80 52 72 60 60 60 C 48 60 42 40 30 40 Z" fill="none" stroke="url(#neonGlow)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Plus and Multiply accents -->
+  <path d="M50 20 L50 32 M44 26 L56 26" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+  <path d="M45 70 L55 80 M55 70 L45 80" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+</svg>
+

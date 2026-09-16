@@ -62,7 +62,14 @@ async function runSmokeTest() {
 
     const endpoints = [
       { name: 'Health Check', url: 'http://localhost:3000/api/health', check: (d) => d.status === 'healthy' },
-      { name: 'Games Catalog', url: 'http://localhost:3000/api/games', check: (d) => d.games && d.games.some(g => g.id === 'chess') },
+      { name: 'Games Catalog has Quick Math', url: 'http://localhost:3000/api/games', check: (d) => d.games && d.games.some(g => g.id === 'quick-math') },
+      { name: 'Quick Math index.html', url: 'http://localhost:3000/games/quick-math/index.html', raw: true, check: (d) => d.includes('QUICK MATH') },
+      { name: 'Quick Math CSS', url: 'http://localhost:3000/games/quick-math/css/game.css', raw: true, check: (d) => d.includes('quick-math') || d.includes('arena') },
+      { name: 'Quick Math JS Engine', url: 'http://localhost:3000/games/quick-math/js/game.js', raw: true, check: (d) => d.includes('GameManager') },
+      { name: 'Quick Math Questions JS', url: 'http://localhost:3000/games/quick-math/js/questions.js', raw: true, check: (d) => d.includes('QuestionEngine') },
+      { name: 'Quick Math Thumbnail SVG', url: 'http://localhost:3000/assets/games/thumb_quick_math.svg', raw: true, check: (d) => d.includes('<svg') },
+      { name: 'Quick Math Top Banner SVG', url: 'http://localhost:3000/assets/games/top_quick_math.svg', raw: true, check: (d) => d.includes('<svg') },
+      { name: 'Quick Math Logo SVG', url: 'http://localhost:3000/games/quick-math/assets/images/logo.svg', raw: true, check: (d) => d.includes('<svg') },
       { name: 'Chess Leaderboard', url: 'http://localhost:3000/api/chess/leaderboard', check: (d) => Array.isArray(d.leaderboard) && d.leaderboard.length > 0 },
       { name: 'Chess Match History', url: 'http://localhost:3000/api/chess/history', check: (d) => Array.isArray(d.history) },
       { name: 'Chess Stats', url: 'http://localhost:3000/api/chess/stats', check: (d) => d.stats && typeof d.stats.totalGames === 'number' },
