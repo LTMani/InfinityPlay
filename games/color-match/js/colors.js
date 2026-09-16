@@ -326,6 +326,24 @@
     },
 
     /**
+     * Get colors that are extremely similar in hue or tone (for Worlds 4 and 7)
+     */
+    getSimilarShades(target, count, maxDeltaHue = 40) {
+      const others = COLOR_CATALOG.filter(c => c.id !== target.id);
+      
+      // Calculate angular hue distance (0-180 deg)
+      others.sort((a, b) => {
+        const diffA = Math.min(Math.abs(a.hue - target.hue), 360 - Math.abs(a.hue - target.hue));
+        const diffB = Math.min(Math.abs(b.hue - target.hue), 360 - Math.abs(b.hue - target.hue));
+        return diffA - diffB;
+      });
+
+      // Take closest candidates
+      const candidates = others.slice(0, Math.max(count, 4));
+      return candidates.sort(() => 0.5 - Math.random()).slice(0, count);
+    },
+
+    /**
      * Find the color with the highest perceived luminance
      */
     findBrightest(colors) {

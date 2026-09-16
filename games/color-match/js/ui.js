@@ -305,7 +305,10 @@
       html += `
         <div class="world-card-banner" style="border-left: 5px solid ${currentWorld.theme};">
           <div class="banner-meta">
-            <span class="banner-world-num">WORLD ${currentWorld.id}</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="banner-world-num">WORLD ${currentWorld.id}</span>
+              <span class="banner-diff-badge" style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 800; color: ${currentWorld.theme};">${currentWorld.difficulty.toUpperCase()}</span>
+            </div>
             <h3 class="banner-world-title">${currentWorld.name}</h3>
             <p class="banner-world-desc">${currentWorld.description}</p>
           </div>
@@ -317,11 +320,12 @@
         const isUnlocked = (lvl.id <= save.unlockedLevel);
         const stars = save.levelStars[lvl.id] || 0;
         const bestScore = save.levelHighScores[lvl.id] || 0;
+        const isChamp = lvl.isLevel100;
 
         html += `
-          <button class="level-node-btn ${isUnlocked ? 'unlocked' : 'locked'} ${lvl.isMilestone ? 'milestone-node' : ''}"
-                  data-level-id="${lvl.id}" ${!isUnlocked ? 'disabled' : ''}>
-            ${lvl.isMilestone ? '<span class="milestone-crown">👑 BOSS</span>' : ''}
+          <button class="level-node-btn ${isUnlocked ? 'unlocked' : 'locked'} ${lvl.isMilestone ? 'milestone-node' : ''} ${isChamp ? 'championship-node' : ''}"
+                  data-level-id="${lvl.id}" ${!isUnlocked ? 'disabled' : ''} title="${lvl.title}: ${lvl.description}">
+            ${isChamp ? '<span class="milestone-crown" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff;">👑 20-RD FINALE</span>' : (lvl.isMilestone ? '<span class="milestone-crown">👑 BOSS</span>' : '')}
             <span class="level-num">${lvl.id}</span>
             <div class="level-stars-row">
               <span class="star ${stars >= 1 ? 'earned' : ''}">★</span>
@@ -334,6 +338,20 @@
       });
 
       html += `</div>`;
+
+      // If Level 100 has been beaten or Infinity Mode is unlocked, render the Infinity Mode portal!
+      if (save.infinityModeUnlocked || save.unlockedLevel > 100) {
+        html += `
+          <div class="infinity-portal-card">
+            <div class="portal-meta">
+              <span class="portal-badge">UNLOCKED</span>
+              <h4>♾️ INFINITY MODE ACTIVATED</h4>
+              <p>Procedural endless spectrum scaling beyond Level 100. Ascend the infinite singularity!</p>
+            </div>
+            <button id="btnLaunchInfinity" class="modal-btn modal-btn-primary" style="padding: 10px 20px;">ENTER INFINITY ❯</button>
+          </div>
+        `;
+      }
       this.mapContainer.innerHTML = html;
 
       // Bind world tab buttons
@@ -353,6 +371,16 @@
           onLevelSelect(lvlId);
         });
       });
+
+      // Bind Infinity Mode launcher
+      const btnInfinity = this.mapContainer.querySelector('#btnLaunchInfinity');
+      if (btnInfinity) {
+        btnInfinity.addEventListener('click', () => {
+          window.SoundEngine.playButtonClick();
+          const targetLevel = Math.max(101, save.unlockedLevel);
+          onLevelSelect(targetLevel);
+        });
+      }
     }
 
     /**
