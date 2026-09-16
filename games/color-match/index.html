@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Color Match: Spectrum Arena | InfinityPlay</title>
+  <meta name="description" content="Experience high-speed chromatic reaction challenges across 100 playable levels, 10 worlds, cognitive Stroop interference, and sub-second trials.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/game.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <!-- Canvas for particle bursts and glowing effects -->
+  <canvas id="effectsCanvas"></canvas>
+
+  <div class="app-container">
+    <!-- Application Global Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <a href="../../index.html" class="back-link" title="Return to InfinityPlay Hub">
+          <span class="icon-back">❮</span>
+          <span class="hub-label">InfinityPlay</span>
+        </a>
+        <div class="header-title-wrap">
+          <img src="assets/images/logo.svg" alt="Color Match Logo" class="header-logo">
+          <h1 class="header-title">COLOR MATCH</h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btnColorBlindToggle" class="header-btn" title="Toggle Color-Blind Friendly Labels (Hotkey: C)">
+          <span class="btn-icon">👁</span>
+          <span class="btn-label">Symbols</span>
+        </button>
+        <button id="btnSoundToggle" class="header-btn" title="Toggle Sound (Hotkey: M)">
+          🔊
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN MENU SCREEN -->
+    <main id="menuScreen" class="screen-view">
+      <div class="menu-hero">
+        <div class="hero-prism-emblem">
+          <div class="prism-glow"></div>
+          <div class="prism-core">◈</div>
+        </div>
+        <h2 class="hero-title">SPECTRUM ARENA</h2>
+        <p class="hero-tagline">100 Levels • 10 Cognitive Worlds • High-Speed Reflexes</p>
+      </div>
+
+      <!-- Player Progress Summary Card -->
+      <div class="player-stat-bar">
+        <div class="stat-pill">
+          <span class="stat-icon">★</span>
+          <div class="stat-content">
+            <span class="stat-label">Stars</span>
+            <strong id="menuTotalStars" class="stat-val">0/300</strong>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-icon">◈</span>
+          <div class="stat-content">
+            <span class="stat-label">Progress</span>
+            <strong id="menuHighestLevel" class="stat-val">Lv 1</strong>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-icon">🪙</span>
+          <div class="stat-content">
+            <span class="stat-label">Coins</span>
+            <strong id="menuCoins" class="stat-val">0</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tactile Menu Actions -->
+      <div class="menu-actions">
+        <button id="btnPlayGame" class="menu-btn menu-btn-primary">
+          <span class="btn-pulse-glow"></span>
+          <span class="btn-icon">▶</span>
+          <span class="btn-text">PLAY CAMPAIGN</span>
+        </button>
+
+        <div class="menu-btn-grid">
+          <button id="btnLevelMap" class="menu-btn menu-btn-secondary">
+            <span class="btn-icon">🗺️</span>
+            <span class="btn-text">World Map (100)</span>
+          </button>
+          <button id="btnGameModes" class="menu-btn menu-btn-secondary">
+            <span class="btn-icon">⚡</span>
+            <span class="btn-text">Arcade Modes</span>
+          </button>
+          <button id="btnAchievements" class="menu-btn menu-btn-secondary">
+            <span class="btn-icon">🏆</span>
+            <span class="btn-text">Achievements</span>
+          </button>
+          <button id="btnHowToPlay" class="menu-btn menu-btn-secondary">
+            <span class="btn-icon">ℹ️</span>
+            <span class="btn-text">How to Play</span>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- IN-GAME ARENA SCREEN -->
+    <main id="gameScreen" class="screen-view hidden">
+      <!-- In-Game HUD -->
+      <div class="game-hud">
+        <div class="hud-col hud-left">
+          <span id="hudModeTitle" class="hud-mode-tag">LEVEL 1</span>
+          <div class="hud-score-wrap">
+            <span class="hud-label">SCORE</span>
+            <span id="hudScore" class="hud-value">0</span>
+          </div>
+        </div>
+
+        <div class="hud-col hud-center">
+          <div id="hudComboBadge" class="combo-badge hidden">
+            <span class="combo-fire">🔥</span>
+            <span id="hudCombo" class="combo-text">1x</span>
+          </div>
+          <div id="hudLives" class="lives-hearts-row">
+            <span class="life-heart alive">♥</span>
+            <span class="life-heart alive">♥</span>
+            <span class="life-heart alive">♥</span>
+          </div>
+        </div>
+
+        <div class="hud-col hud-right">
+          <div class="hud-round-wrap">
+            <span class="hud-label">ROUND</span>
+            <span id="hudRound" class="hud-value">1/6</span>
+          </div>
+          <button id="btnPause" class="hud-pause-btn" title="Pause Game (Hotkey: P or Esc)">
+            ⏸
+          </button>
+        </div>
+      </div>
+
+      <!-- Precision Micro-Timer Bar -->
+      <div class="timer-track">
+        <div id="hudTimerFill" class="timer-fill"></div>
+        <span id="hudTimerText" class="timer-label">5.0s</span>
+      </div>
+
+      <!-- Interactive Arena -->
+      <div id="gameArena" class="game-arena">
+        <!-- Challenge Directive Prompt -->
+        <div class="arena-directive">
+          <h3 id="promptTitle" class="prompt-title">TARGET SPECTRUM FREQUENCY</h3>
+          <p id="promptSub" class="prompt-sub">Select the matching hue tile</p>
+        </div>
+
+        <!-- Central Prism Target Area -->
+        <div class="target-display-wrap">
+          <div id="targetPrism" class="target-prism">
+            <div id="targetSwatch" class="target-swatch">
+              <span id="targetSymbol" class="target-symbol">◆</span>
+            </div>
+            <div id="targetLabel" class="target-label">CRIMSON</div>
+          </div>
+        </div>
+
+        <!-- Options Grid -->
+        <div id="optionsGrid" class="options-grid grid-cols-2-2">
+          <!-- Dynamically injected option buttons -->
+        </div>
+      </div>
+    </main>
+
+    <!-- LEVEL MAP SCREEN (100 LEVELS / 10 WORLDS) -->
+    <main id="levelMapScreen" class="screen-view hidden">
+      <div class="subscreen-header">
+        <button id="btnMapBack" class="subscreen-back-btn">❮ BACK</button>
+        <h2 class="subscreen-title">SPECTRUM ODYSSEY MAP</h2>
+      </div>
+
+      <div id="worldMapContainer" class="world-map-wrapper">
+        <!-- Injected by UIManager -->
+      </div>
+    </main>
+
+    <!-- ARCADE MODES SCREEN -->
+    <main id="modesScreen" class="screen-view hidden">
+      <div class="subscreen-header">
+        <button id="btnModesBack" class="subscreen-back-btn">❮ BACK</button>
+        <h2 class="subscreen-title">SPECTRUM ARENA MODES</h2>
+      </div>
+
+      <div class="modes-card-grid">
+        <div class="mode-card" data-mode="classic">
+          <div class="mode-badge">100 LEVELS</div>
+          <div class="mode-icon">🗺️</div>
+          <h3 class="mode-name">Campaign Odyssey</h3>
+          <p class="mode-desc">Journey through 10 worlds of escalating color science, Stroop interference, and boss trials.</p>
+        </div>
+
+        <div class="mode-card" data-mode="time_attack">
+          <div class="mode-badge">60 SECONDS</div>
+          <div class="mode-icon">⏳</div>
+          <h3 class="mode-name">Time Attack</h3>
+          <p class="mode-desc">60 seconds on the clock. Every streak adds bonus time. Score as high as humanly possible!</p>
+        </div>
+
+        <div class="mode-card" data-mode="survival">
+          <div class="mode-badge">3 LIVES</div>
+          <div class="mode-icon">🛡️</div>
+          <h3 class="mode-name">Survival Protocol</h3>
+          <p class="mode-desc">3 lives only. Mistake or timeout costs 1 life. Timer accelerates with every correct wave.</p>
+        </div>
+
+        <div class="mode-card" data-mode="endless">
+          <div class="mode-badge">1 MISTAKE = OVER</div>
+          <div class="mode-icon">♾️</div>
+          <h3 class="mode-name">Endless Singularity</h3>
+          <p class="mode-desc">Zero mistakes tolerated. One misstep ends your run. How high can your combo streak climb?</p>
+        </div>
+
+        <div class="mode-card" data-mode="daily">
+          <div class="mode-badge">DAILY SEEDED</div>
+          <div class="mode-icon">📅</div>
+          <h3 class="mode-name">Daily Challenge</h3>
+          <p class="mode-desc">A unique 10-round synchronized trial generated fresh every single calendar day.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODALS -->
+
+  <!-- PAUSE MODAL -->
+  <div id="pauseModal" class="modal-backdrop hidden">
+    <div class="modal-dialog">
+      <h3 class="modal-title">GAME PAUSED</h3>
+      <p class="modal-subtitle">Take a breath. The spectrum awaits.</p>
+      <div class="modal-actions">
+        <button id="btnResume" class="modal-btn modal-btn-primary">▶ RESUME</button>
+        <button id="btnRestart" class="modal-btn modal-btn-secondary">↺ RESTART</button>
+        <button id="btnQuit" class="modal-btn modal-btn-ghost">⌂ MAIN MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VICTORY / LEVEL COMPLETE MODAL -->
+  <div id="victoryModal" class="modal-backdrop hidden">
+    <div class="modal-dialog victory-dialog">
+      <div class="victory-ribbon">
+        <h3 id="victoryTitle" class="modal-title">SPECTRUM CLEAR!</h3>
+      </div>
+      
+      <div id="victoryStars" class="stars-celebration-row">
+        <span class="modal-star earned">★</span>
+        <span class="modal-star earned">★</span>
+        <span class="modal-star earned">★</span>
+      </div>
+
+      <div class="victory-stats-box">
+        <div class="v-stat">
+          <span class="v-label">FINAL SCORE</span>
+          <strong id="victoryScore" class="v-val">12,450</strong>
+        </div>
+        <div class="v-stat">
+          <span class="v-label">REACTION TIME</span>
+          <strong id="victoryTime" class="v-val">4.2s (Avg 380ms)</strong>
+        </div>
+        <div class="v-stat">
+          <span class="v-label">REWARDS</span>
+          <strong id="victoryXP" class="v-val reward-gold">+250 XP • +45 Coins</strong>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btnVictoryNext" class="modal-btn modal-btn-primary">NEXT LEVEL ❯</button>
+        <button id="btnVictoryReplay" class="modal-btn modal-btn-secondary">↺ REPLAY</button>
+        <button id="btnVictoryMap" class="modal-btn modal-btn-ghost">🗺️ WORLD MAP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER MODAL -->
+  <div id="gameOverModal" class="modal-backdrop hidden">
+    <div class="modal-dialog gameover-dialog">
+      <h3 class="modal-title gameover-title">RUN TERMINATED</h3>
+      <p id="gameOverReason" class="modal-subtitle">Time Expired!</p>
+
+      <div class="victory-stats-box">
+        <div class="v-stat">
+          <span class="v-label">SCORE EARNED</span>
+          <strong id="gameOverScore" class="v-val">3,800</strong>
+        </div>
+        <div class="v-stat">
+          <span class="v-label">PROGRESSION</span>
+          <strong id="gameOverRound" class="v-val">Round 4</strong>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btnGameOverRetry" class="modal-btn modal-btn-primary">↺ TRY AGAIN</button>
+        <button id="btnGameOverMenu" class="modal-btn modal-btn-ghost">⌂ MAIN MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACHIEVEMENTS MODAL -->
+  <div id="achievementsModal" class="modal-backdrop hidden">
+    <div class="modal-dialog modal-dialog-wide">
+      <div class="modal-header-row">
+        <h3 class="modal-title">SPECTRUM HALL OF ACHIEVEMENTS</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="achievements-list">
+        <!-- Injected by UIManager -->
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO PLAY MODAL -->
+  <div id="howToPlayModal" class="modal-backdrop hidden">
+    <div class="modal-dialog modal-dialog-wide">
+      <div class="modal-header-row">
+        <h3 class="modal-title">SPECTRUM FIELD MANUAL</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="manual-content">
+        <div class="manual-section">
+          <h4>◈ Core Mechanics</h4>
+          <p>Inspect the target prompt and select the correct chromatic tile from the options before the micro-timer runs out. Correct answers scale your combo up to <strong>10x</strong>.</p>
+        </div>
+        <div class="manual-section">
+          <h4>🧠 Cognitive Stroop Challenges</h4>
+          <p><strong>MATCH WORD:</strong> Read the printed word text (e.g. "RUBY") and match its meaning, ignoring whatever color ink it is written in.<br>
+          <strong>MATCH INK:</strong> Observe the actual font color of the text, ignoring the letters themselves!</p>
+        </div>
+        <div class="manual-section">
+          <h4>☀ Luminance Void & Anomalies</h4>
+          <p><strong>BRIGHTEST:</strong> Find the option with the highest perceived luminance.<br>
+          <strong>DARKEST:</strong> Find the deepest, lowest-luminance shade.<br>
+          <strong>ANOMALY:</strong> In a sea of clones, find the single foreign color.</p>
+        </div>
+        <div class="manual-section">
+          <h4>⌨ Keyboard Hotkeys</h4>
+          <p>Press <strong>1 – 8</strong> to instantly trigger options.<br>
+          Press <strong>P</strong> or <strong>Esc</strong> to pause.<br>
+          Press <strong>R</strong> to restart round.<br>
+          Press <strong>C</strong> for color-blind symbols.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Core Game Scripts -->
+  <script src="js/colors.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
+

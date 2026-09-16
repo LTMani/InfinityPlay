@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 450" width="1200" height="450">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050814"/>
+      <stop offset="35%" stop-color="#0c112b"/>
+      <stop offset="70%" stop-color="#180b2b"/>
+      <stop offset="100%" stop-color="#070312"/>
+    </linearGradient>
+
+    <radialGradient id="prismLight" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.35"/>
+      <stop offset="50%" stop-color="#a855f7" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="spectrumBeam" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="18%" stop-color="#f97316"/>
+      <stop offset="36%" stop-color="#eab308"/>
+      <stop offset="54%" stop-color="#10b981"/>
+      <stop offset="72%" stop-color="#06b6d4"/>
+      <stop offset="88%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+
+    <linearGradient id="prismEdge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.8"/>
+    </linearGradient>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="tileGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1200" height="450" fill="url(#bgGrad)"/>
+  <circle cx="600" cy="225" r="400" fill="url(#prismLight)"/>
+
+  <!-- Geometric Grid Pattern -->
+  <g stroke="#ffffff" stroke-opacity="0.04" stroke-width="1">
+    <line x1="0" y1="75" x2="1200" y2="75"/>
+    <line x1="0" y1="150" x2="1200" y2="150"/>
+    <line x1="0" y1="225" x2="1200" y2="225"/>
+    <line x1="0" y1="300" x2="1200" y2="300"/>
+    <line x1="0" y1="375" x2="1200" y2="375"/>
+    <line x1="150" y1="0" x2="150" y2="450"/>
+    <line x1="300" y1="0" x2="300" y2="450"/>
+    <line x1="450" y1="0" x2="450" y2="450"/>
+    <line x1="600" y1="0" x2="600" y2="450"/>
+    <line x1="750" y1="0" x2="750" y2="450"/>
+    <line x1="900" y1="0" x2="900" y2="450"/>
+    <line x1="1050" y1="0" x2="1050" y2="450"/>
+  </g>
+
+  <!-- Chromatic Spectrum Ribbon / Beams -->
+  <path d="M-50,225 C250,120 400,310 600,225 C800,140 950,330 1250,225" fill="none" stroke="url(#spectrumBeam)" stroke-width="26" opacity="0.35" filter="url(#glow)"/>
+  <path d="M-50,225 C250,120 400,310 600,225 C800,140 950,330 1250,225" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.75"/>
+
+  <!-- Left Accent Crystals / Tiles -->
+  <g transform="translate(180, 225) rotate(-15)">
+    <rect x="-45" y="-45" width="90" height="90" rx="18" fill="#ef4444" fill-opacity="0.8" stroke="#fca5a5" stroke-width="3" filter="url(#tileGlow)"/>
+    <text x="0" y="8" font-family="'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">◆</text>
+  </g>
+  <g transform="translate(320, 140) rotate(12)">
+    <rect x="-40" y="-40" width="80" height="80" rx="16" fill="#06b6d4" fill-opacity="0.85" stroke="#67e8f9" stroke-width="3" filter="url(#tileGlow)"/>
+    <text x="0" y="8" font-family="'Segoe UI', Roboto, sans-serif" font-size="26" font-weight="900" fill="#ffffff" text-anchor="middle">▲</text>
+  </g>
+  <g transform="translate(290, 310) rotate(-8)">
+    <rect x="-38" y="-38" width="76" height="76" rx="16" fill="#10b981" fill-opacity="0.85" stroke="#6ee7b7" stroke-width="3" filter="url(#tileGlow)"/>
+    <text x="0" y="7" font-family="'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="900" fill="#ffffff" text-anchor="middle">●</text>
+  </g>
+
+  <!-- Right Accent Crystals / Tiles -->
+  <g transform="translate(1020, 225) rotate(15)">
+    <rect x="-45" y="-45" width="90" height="90" rx="18" fill="#a855f7" fill-opacity="0.8" stroke="#d8b4fe" stroke-width="3" filter="url(#tileGlow)"/>
+    <text x="0" y="8" font-family="'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">★</text>
+  </g>
+  <g transform="translate(880, 140) rotate(-10)">
+    <rect x="-40" y="-40" width="80" height="80" rx="16" fill="#eab308" fill-opacity="0.85" stroke="#fef08a" stroke-width="3" filter="url(#tileGlow)"/>
+    <text x="0" y="8" font-family="'Segoe UI', Roboto, sans-serif" font-size="26" font-weight="900" fill="#ffffff" text-anchor="middle">■</text>
+  </g>
+  <g transform="translate(910, 310) rotate(12)">
+    <rect x="-38" y="-38" width="76" height="76" rx="16" fill="#ec4899" fill-opacity="0.85" stroke="#fbcfe8" stroke-width="3" filter="url(#tileGlow)"/>
+    <text x="0" y="7" font-family="'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="900" fill="#ffffff" text-anchor="middle">⬢</text>
+  </g>
+
+  <!-- Central Prismatic Core -->
+  <g transform="translate(600, 185)">
+    <!-- Prismatic Hexagon Crystal -->
+    <polygon points="0,-90 78,-45 78,45 0,90 -78,45 -78,-45" fill="#0f172a" stroke="url(#prismEdge)" stroke-width="5" filter="url(#glow)"/>
+    <polygon points="0,-70 60,-35 60,35 0,70 -60,35 -60,-35" fill="none" stroke="url(#spectrumBeam)" stroke-width="3" opacity="0.8"/>
+    
+    <!-- Central Prism Symbol -->
+    <circle cx="0" cy="0" r="32" fill="#ffffff" fill-opacity="0.1"/>
+    <text x="0" y="11" font-family="'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="900" fill="#ffffff" text-anchor="middle" filter="url(#glow)">◈</text>
+  </g>
+
+  <!-- Typography & Badges -->
+  <text x="600" y="325" font-family="'Segoe UI', 'Montserrat', Roboto, sans-serif" font-size="44" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="4">
+    COLOR MATCH
+  </text>
+  <text x="600" y="360" font-family="'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700" fill="#38bdf8" text-anchor="middle" letter-spacing="8">
+    SPECTRUM ARENA • 100 LEVELS
+  </text>
+
+  <!-- Badge Row -->
+  <g transform="translate(600, 400)">
+    <rect x="-190" y="-16" width="110" height="28" rx="14" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5"/>
+    <text x="-135" y="4" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#c7d2fe" text-anchor="middle">10 WORLDS</text>
+
+    <rect x="-70" y="-16" width="140" height="28" rx="14" fill="#142c2e" stroke="#14b8a6" stroke-width="1.5"/>
+    <text x="0" y="4" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#99f6e4" text-anchor="middle">10 CHALLENGES</text>
+
+    <rect x="80" y="-16" width="110" height="28" rx="14" fill="#3b0764" stroke="#d946ef" stroke-width="1.5"/>
+    <text x="135" y="4" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#f5d0fe" text-anchor="middle">5 MODES</text>
+  </g>
+</svg>
+

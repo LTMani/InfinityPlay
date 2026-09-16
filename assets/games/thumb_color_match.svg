@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#141c38"/>
+      <stop offset="60%" stop-color="#090d1a"/>
+      <stop offset="100%" stop-color="#04060d"/>
+    </radialGradient>
+
+    <!-- Color Glow Filters -->
+    <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="24" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="tileShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.8"/>
+    </filter>
+
+    <!-- Tile Gradients -->
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="magentaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#be185d"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#6b21a8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Dark Atmospheric Backdrop -->
+  <rect width="600" height="400" fill="url(#bgGrad)"/>
+
+  <!-- Subtle Perspective Grid Lines -->
+  <g stroke="rgba(0, 240, 255, 0.06)" stroke-width="1.5">
+    <line x1="0" y1="280" x2="600" y2="280"/>
+    <line x1="0" y1="320" x2="600" y2="320"/>
+    <line x1="0" y1="360" x2="600" y2="360"/>
+    <line x1="300" y1="200" x2="50" y2="400"/>
+    <line x1="300" y1="200" x2="175" y2="400"/>
+    <line x1="300" y1="200" x2="300" y2="400"/>
+    <line x1="300" y1="200" x2="425" y2="400"/>
+    <line x1="300" y1="200" x2="550" y2="400"/>
+  </g>
+
+  <!-- Ambient Color Light Cones -->
+  <circle cx="180" cy="160" r="140" fill="#00f0ff" opacity="0.12" filter="url(#neonGlow)"/>
+  <circle cx="420" cy="160" r="140" fill="#ec4899" opacity="0.12" filter="url(#neonGlow)"/>
+  <circle cx="300" cy="130" r="120" fill="#a855f7" opacity="0.1" filter="url(#neonGlow)"/>
+
+  <!-- Chromatic Spectrum Diamond Array (Central Artwork) -->
+  <g transform="translate(300, 160)" filter="url(#tileShadow)">
+    <!-- Center Target Diamond Frame -->
+    <rect x="-65" y="-65" width="130" height="130" rx="26" transform="rotate(45)" fill="rgba(15, 23, 42, 0.85)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2"/>
+
+    <!-- Left Cyan Prism -->
+    <rect x="-160" y="-38" width="76" height="76" rx="16" transform="rotate(45 -122 0)" fill="url(#cyanGrad)" stroke="#38bdf8" stroke-width="2" filter="url(#neonGlow)"/>
+    <text x="-122" y="5" font-family="'Inter', sans-serif" font-weight="900" font-size="20" fill="#040814" text-anchor="middle" dominant-baseline="central">◆</text>
+
+    <!-- Right Magenta Prism -->
+    <rect x="84" y="-38" width="76" height="76" rx="16" transform="rotate(45 122 0)" fill="url(#magentaGrad)" stroke="#f472b6" stroke-width="2" filter="url(#neonGlow)"/>
+    <text x="122" y="5" font-family="'Inter', sans-serif" font-weight="900" font-size="20" fill="#ffffff" text-anchor="middle" dominant-baseline="central">★</text>
+
+    <!-- Top Gold Prism -->
+    <rect x="-38" y="-160" width="76" height="76" rx="16" transform="rotate(45 0 -122)" fill="url(#goldGrad)" stroke="#fcd34d" stroke-width="2" filter="url(#neonGlow)"/>
+    <text x="0" y="-117" font-family="'Inter', sans-serif" font-weight="900" font-size="20" fill="#040814" text-anchor="middle" dominant-baseline="central">▲</text>
+
+    <!-- Central Glowing Matching Core -->
+    <rect x="-44" y="-44" width="88" height="88" rx="18" transform="rotate(45)" fill="url(#cyanGrad)" stroke="#ffffff" stroke-width="3" filter="url(#neonGlow)"/>
+    <text x="0" y="4" font-family="'Inter', sans-serif" font-weight="900" font-size="28" fill="#040814" text-anchor="middle" dominant-baseline="central">◆</text>
+
+    <!-- Connecting Energy Laser Rays -->
+    <line x1="-70" y1="0" x2="-45" y2="0" stroke="#00f0ff" stroke-width="4" filter="url(#neonGlow)"/>
+    <line x1="45" y1="0" x2="70" y2="0" stroke="#ec4899" stroke-width="3" opacity="0.6"/>
+    <line x1="0" y1="-70" x2="0" y2="-45" stroke="#fbbf24" stroke-width="3" opacity="0.6"/>
+  </g>
+
+  <!-- Precision Match Badge -->
+  <g transform="translate(300, 275)">
+    <rect x="-85" y="-16" width="170" height="32" rx="16" fill="rgba(0, 240, 255, 0.15)" stroke="rgba(0, 240, 255, 0.5)" stroke-width="1.5"/>
+    <text x="0" y="2" font-family="'Inter', sans-serif" font-weight="800" font-size="12" fill="#00f0ff" letter-spacing="3" text-anchor="middle" dominant-baseline="central">PERFECT MATCH</text>
+  </g>
+
+  <!-- Typography: COLOR MATCH -->
+  <text x="300" y="340" font-family="'Inter', -apple-system, sans-serif" font-weight="900" font-size="38" letter-spacing="4" fill="#ffffff" text-anchor="middle">COLOR MATCH</text>
+  <text x="300" y="372" font-family="'Inter', -apple-system, sans-serif" font-weight="800" font-size="13" letter-spacing="6" fill="#f59e0b" text-anchor="middle">SPECTRUM ARENA • 100 LEVELS</text>
+</svg>
+

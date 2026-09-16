@@ -1,0 +1,169 @@
+/**
+ * Color Match: Spectrum Arena - Responsive & Accessibility Rules
+ * Mobile, tablet, touch targets, and high-DPI scaling.
+ */
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px;
+  }
+
+  .app-header {
+    padding: 10px 14px;
+    margin-bottom: 12px;
+  }
+
+  .header-title {
+    font-size: 1.05rem;
+  }
+
+  .hub-label {
+    display: none;
+  }
+
+  .hero-title {
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+  }
+
+  .player-stat-bar {
+    gap: 8px;
+  }
+
+  .stat-pill {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .stat-val {
+    font-size: 0.95rem;
+  }
+
+  .menu-btn-primary {
+    padding: 14px 20px;
+    font-size: 1.1rem;
+  }
+
+  .game-hud {
+    padding: 8px 12px;
+  }
+
+  .hud-value {
+    font-size: 1.1rem;
+  }
+
+  .target-swatch {
+    width: 100px;
+    height: 100px;
+  }
+
+  .target-symbol {
+    font-size: 2.5rem;
+  }
+
+  .target-label {
+    font-size: 1.15rem;
+  }
+
+  .grid-cols-4-2 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .color-tile-btn {
+    padding: 6px;
+    min-height: 48px; /* Touch target minimum */
+  }
+
+  .tile-swatch {
+    height: 64px;
+  }
+
+  .tile-symbol {
+    font-size: 1.8rem;
+  }
+
+  .levels-serpentine-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .hero-tagline {
+    font-size: 0.85rem;
+  }
+
+  .player-stat-bar {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .stat-pill {
+    flex: 1;
+    padding: 6px 8px;
+    justify-content: center;
+  }
+
+  .menu-btn-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .target-swatch {
+    width: 85px;
+    height: 85px;
+  }
+
+  .target-symbol {
+    font-size: 2rem;
+  }
+
+  .target-label {
+    font-size: 1rem;
+  }
+
+  .grid-cols-3,
+  .grid-cols-3-2 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .grid-cols-4-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tile-swatch {
+    height: 56px;
+  }
+
+  .tile-symbol {
+    font-size: 1.5rem;
+  }
+
+  .levels-serpentine-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Touch optimization */
+@media (hover: none) and (pointer: coarse) {
+  .color-tile-btn:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .screen-shake {
+    animation: none !important;
+  }
+}
+
