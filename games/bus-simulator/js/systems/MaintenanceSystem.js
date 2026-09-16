@@ -108,6 +108,38 @@
         }
       }
 
+      // Phase 10B Task 15: electrical inspection recommendation.
+      // MaintenanceSystem only READS electrical state via the existing
+      // vehicle hook; it does NOT own, reset, or duplicate battery or
+      // charging logic. ElectricalSystem remains the sole owner.
+      const electrical = (typeof bus.getElectrical === 'function') ? bus.getElectrical() : null;
+      if (electrical) {
+        const elecLowBattery = electrical.batteryCharge <= electrical.lowBatteryCharge;
+        const elecDeadBattery = electrical.batteryCharge <= electrical.deadBatteryCharge;
+        if (electrical.electricalFailure) {
+          recommendations.push({
+            type: 'electrical_inspection',
+            severity: 'critical',
+            description: 'Electrical system failure - diagnostics required',
+            cost: 9000
+          });
+        } else if (elecDeadBattery) {
+          recommendations.push({
+            type: 'electrical_inspection',
+            severity: 'critical',
+            description: 'Dead battery - replacement required',
+            cost: 6000
+          });
+        } else if (elecLowBattery) {
+          recommendations.push({
+            type: 'electrical_inspection',
+            severity: 'moderate',
+            description: 'Battery charge low - charging/inspection recommended',
+            cost: 2500
+          });
+        }
+      }
+
       if (recommendations.length === 0) return null;
 
       return {

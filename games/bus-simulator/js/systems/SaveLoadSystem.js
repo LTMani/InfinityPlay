@@ -135,6 +135,19 @@
             }
           }
 
+          // Phase 10B Task 15: re-attach electrical state to restored Bus
+          // instances by id so battery/charge survive save/load.
+          const electricalSystem = this.modules
+            ? this.modules.ElectricalSystem
+            : null;
+          if (electricalSystem && typeof electricalSystem.attachElectrical === 'function') {
+            if (player.garage) {
+              for (const bus of player.garage) {
+                electricalSystem.attachElectrical(bus);
+              }
+            }
+          }
+
           // Load subsystem states
           // Store for later restoration — systems may not be initialized yet
           // (loadPlayer runs during GameInitSystem.init, before GarageSystem.init).
@@ -238,7 +251,7 @@
         'DayNightSystem', 'WeatherSystem', 'RouteSystem', 'TripSystem',
         'FuelSystem', 'DamageSystem', 'MaintenanceSystem', 'GarageSystem',
         'TransmissionSystem', 'SuspensionSystem', 'BrakeSystem', 'TireSystem',
-        'AirBrakeSystem', 'EngineTemperatureSystem',
+        'AirBrakeSystem', 'EngineTemperatureSystem', 'ElectricalSystem',
         'TicketSystem', 'PassengerSystem', 'AchievementSystem',
         'ProgressionSystem', 'MissionSystem', 'NavigationSystem',
         'BoardingSystem', 'DropOffSystem'

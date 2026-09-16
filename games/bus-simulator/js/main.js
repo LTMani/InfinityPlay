@@ -44,6 +44,7 @@ const GarageConfig = window.BusSim.GarageConfig;
     const RoadSurfaceSystem = window.BusSim.RoadSurfaceSystem;
     const AirBrakeSystem = window.BusSim.AirBrakeSystem;
     const EngineTemperatureSystem = window.BusSim.EngineTemperatureSystem;
+    const ElectricalSystem = window.BusSim.ElectricalSystem;
 
   // UI
   const UIManager = window.BusSim.UIManager;
@@ -110,6 +111,7 @@ const GarageConfig = window.BusSim.GarageConfig;
         ['BrakeSystem', BrakeSystem],
         ['AirBrakeSystem', AirBrakeSystem],
         ['EngineTemperatureSystem', EngineTemperatureSystem],
+        ['ElectricalSystem', ElectricalSystem],
         ['TireSystem', TireSystem],
         ['RoadSurfaceSystem', RoadSurfaceSystem],
         ['InputSystem', InputSystem],
