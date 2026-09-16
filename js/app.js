@@ -100,7 +100,12 @@
      */
     launchGameModal(gameId) {
       const game = window.InfinityPlay.gamesData.find(g => g.id === gameId);
-      if (!game) return;
+      if (!game) {
+        if (window.InfinityPlay && window.InfinityPlay.Helpers && typeof window.InfinityPlay.Helpers.showToast === 'function') {
+          window.InfinityPlay.Helpers.showToast('This game is no longer available.', 'info');
+        }
+        return;
+      }
 
       // Track in recently played
       if (window.InfinityPlay.API) {

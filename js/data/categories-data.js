@@ -19,7 +19,7 @@ const categoriesData = [
     slug: 'Adventure',
     icon: 'assets/categories/cat_adventure_art.png',
     fullCard: 'assets/categories/cat_adventure_full.png',
-    gameCount: 1,
+    gameCount: 0,
     gradient: 'linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(3, 105, 161, 0.05))',
     borderColor: 'rgba(14, 165, 233, 0.3)'
   },
@@ -39,7 +39,7 @@ const categoriesData = [
     slug: 'Puzzle',
     icon: 'assets/categories/cat_puzzle_art.png',
     fullCard: 'assets/categories/cat_puzzle_full.png',
-    gameCount: 3,
+    gameCount: 4,
     gradient: 'linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(126, 34, 206, 0.05))',
     borderColor: 'rgba(168, 85, 247, 0.3)'
   },
@@ -49,7 +49,7 @@ const categoriesData = [
     slug: 'Sports',
     icon: 'assets/categories/cat_sports_art.png',
     fullCard: 'assets/categories/cat_sports_full.png',
-    gameCount: 1,
+    gameCount: 0,
     gradient: 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(4, 120, 87, 0.05))',
     borderColor: 'rgba(16, 185, 129, 0.3)'
   },
@@ -59,7 +59,7 @@ const categoriesData = [
     slug: 'Strategy',
     icon: 'assets/categories/cat_strategy_art.png',
     fullCard: 'assets/categories/cat_strategy_full.png',
-    gameCount: 2,
+    gameCount: 3,
     gradient: 'linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(180, 83, 9, 0.05))',
     borderColor: 'rgba(245, 158, 11, 0.3)'
   },
@@ -79,7 +79,7 @@ const categoriesData = [
     slug: 'Survival',
     icon: 'assets/categories/cat_survival_art.png',
     fullCard: 'assets/categories/cat_survival_full.png',
-    gameCount: 1,
+    gameCount: 0,
     gradient: 'linear-gradient(135deg, rgba(249, 115, 22, 0.25), rgba(194, 65, 12, 0.05))',
     borderColor: 'rgba(249, 115, 22, 0.3)'
   }

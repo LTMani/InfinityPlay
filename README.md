@@ -118,16 +118,16 @@ Anyone on any smartphone, tablet, laptop, or desktop browser can instantly open 
    - Exact 2048 directional compression & single-merge rule implementation
    - 1-move undo system & continuous local auto-save / resume modal
    - Procedural Web Audio API sound synthesis (swooshes, chords, pitch-scaled merge chimes)
-   - Responsive 4×4 grid layout with touch swipe gestures & mobile scroll prevention
-
-### 🌟 Showcase Titles:
-8. **Shadow Adventure** (Adventure • ★ 4.7 • 8.1K Plays)
-9. **Speed Arena** (Racing • ★ 4.9 • 10.5K Plays)
-10. **Tower Defense** (Strategy • ★ 4.8 • 8.6K Plays)
-11. **Survival Island** (Survival • ★ 4.8 • 7.8K Plays)
-12. **Football Legends** (Sports • ★ 4.6 • 6.4K Plays)
-13. **Puzzle Master** (Puzzle • ★ 4.7 • 5.9K Plays)
-14. **Farm Life** (Simulation • ★ 4.5 • 4.3K Plays)
+9. **Tic-Tac-Toe: Ultimate Arena** (Puzzle • ★ 5.0 • 18.2K Plays • **Playable Tactical Board Game**)
+   - Progressive AI difficulty, competitive scoring, and achievements
+10. **Highway Oasis Tycoon** (Simulation • ★ 5.0 • 21.5K Plays • **Playable 3D WebGL Sim**)
+    - Travel oasis management with 3D traffic, dispensers, and suites
+11. **Hill Rush** (Racing • ★ 5.0 • 19.5K Plays • **Playable 2D Physics Racer**)
+    - Physics-based hill climbing, flips, engine and tire upgrades
+12. **Railway Commander** (Simulation • ★ 5.0 • 24.2K Plays • **Playable 2.5D Train Sim**)
+    - Train speed control, signaling, and precision station arrivals
+13. **Laser Logic** (Puzzle • ★ 5.0 • **Playable Optical Puzzle**)
+    - Laser beam splitting, mirror angles, and target illumination
 
 ---
 

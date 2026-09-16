@@ -1,4 +1,4 @@
-﻿/**
+/**
  * InfinityPlay - LocalStorage Utility
  * Manages favorites and recently played state
  */
@@ -7,18 +7,35 @@
   const FAVORITES_KEY = 'infinityplay_favorites';
   const RECENTLY_PLAYED_KEY = 'infinityplay_recently_played';
 
+  const REMOVED_GAME_IDS = new Set([
+    'sports-football-legends',
+    'football-legends',
+    'survival-island',
+    'puzzle-master',
+    'tower-defense',
+    'farm-life',
+    'speed-arena',
+    'shadow-adventure'
+  ]);
+
   const defaultRecentlyPlayed = [
     { id: 'ultimate-racing', playedAt: Date.now() - 2 * 60 * 60 * 1000, label: 'Played 2 hours ago' },
-    { id: 'puzzle-master', playedAt: Date.now() - 5 * 60 * 60 * 1000, label: 'Played 5 hours ago' },
-    { id: 'football-legends', playedAt: Date.now() - 24 * 60 * 60 * 1000, label: 'Played 1 day ago' },
-    { id: 'farm-life', playedAt: Date.now() - 48 * 60 * 60 * 1000, label: 'Played 2 days ago' }
+    { id: 'city-drive', playedAt: Date.now() - 5 * 60 * 60 * 1000, label: 'Played 5 hours ago' },
+    { id: 'tic-tac-toe', playedAt: Date.now() - 24 * 60 * 60 * 1000, label: 'Played 1 day ago' },
+    { id: 'city-builder', playedAt: Date.now() - 48 * 60 * 60 * 1000, label: 'Played 2 days ago' }
   ];
 
   const Storage = {
     getFavorites() {
       try {
         const data = localStorage.getItem(FAVORITES_KEY);
-        return data ? JSON.parse(data) : ['ultimate-racing', 'city-builder'];
+        let list = data ? JSON.parse(data) : ['ultimate-racing', 'city-builder'];
+        if (!Array.isArray(list)) list = ['ultimate-racing', 'city-builder'];
+        const filtered = list.filter(id => typeof id === 'string' && !REMOVED_GAME_IDS.has(id));
+        if (filtered.length !== list.length) {
+          this.saveFavorites(filtered);
+        }
+        return filtered;
       } catch (e) {
         return ['ultimate-racing', 'city-builder'];
       }
@@ -56,7 +73,16 @@
           this.saveRecentlyPlayed(defaultRecentlyPlayed);
           return defaultRecentlyPlayed;
         }
-        return JSON.parse(data);
+        let list = JSON.parse(data);
+        if (!Array.isArray(list)) {
+          this.saveRecentlyPlayed(defaultRecentlyPlayed);
+          return defaultRecentlyPlayed;
+        }
+        const filtered = list.filter(item => item && item.id && !REMOVED_GAME_IDS.has(item.id));
+        if (filtered.length !== list.length) {
+          this.saveRecentlyPlayed(filtered);
+        }
+        return filtered;
       } catch (e) {
         return defaultRecentlyPlayed;
       }
