@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Whack-a-Mole: Arcade Edition | InfinityPlay</title>
+  <meta name="description" content="Experience high-speed 3D arcade Whack-a-Mole across 100 playable levels, 10 worlds, 7 mole species, combo multipliers, and grand championship.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;800&family=Outfit:wght@600;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/game.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <!-- Canvas for particle bursts and flying splinters -->
+  <canvas id="effectsCanvas"></canvas>
+
+  <!-- 3D Wooden Mallet Cursor -->
+  <div id="gameMallet" class="game-mallet" aria-hidden="true">
+    <div class="mallet-head">
+      <div class="mallet-face mallet-face-left"></div>
+      <div class="mallet-core"></div>
+      <div class="mallet-face mallet-face-right"></div>
+    </div>
+    <div class="mallet-handle"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <a href="../../index.html" class="back-link" title="Return to InfinityPlay Hub">
+          <span class="icon-back">❮</span>
+          <span class="hub-label">InfinityPlay</span>
+        </a>
+        <div class="header-title-wrap">
+          <img src="assets/images/logo.svg" alt="Whack-a-Mole Logo" class="header-logo">
+          <h1 class="header-title">WHACK-A-MOLE</h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btnSoundToggle" class="header-btn" title="Toggle Sound (Hotkey: M)">
+          🔊
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN MENU SCREEN -->
+    <main id="menuScreen" class="screen-view">
+      <div class="menu-hero">
+        <div class="hero-mole-emblem">
+          <img src="assets/images/logo.svg" alt="Arcade Mole" class="hero-mole-img">
+        </div>
+        <h2 class="hero-title">ARCADE WHACK-A-MOLE</h2>
+        <p class="hero-tagline">FAST HANDS • HIGH SCORE • ENDLESS FUN</p>
+      </div>
+
+      <!-- Player Progress Summary -->
+      <div class="player-stat-bar">
+        <div class="stat-pill">
+          <span class="stat-icon">⭐</span>
+          <div class="stat-content">
+            <span class="stat-label">Stars</span>
+            <strong id="menuTotalStars" class="stat-val">0/300</strong>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-icon">🐾</span>
+          <div class="stat-content">
+            <span class="stat-label">Total Hits</span>
+            <strong id="menuTotalHits" class="stat-val">0</strong>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-icon">🔥</span>
+          <div class="stat-content">
+            <span class="stat-label">Best Combo</span>
+            <strong id="menuBestCombo" class="stat-val">0x</strong>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-icon">🪙</span>
+          <div class="stat-content">
+            <span class="stat-label">Coins</span>
+            <strong id="menuCoins" class="stat-val">0</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3D Tactile Menu Actions -->
+      <div class="menu-actions">
+        <button id="btnPlayGame" class="menu-btn menu-btn-primary">
+          <span class="btn-pulse-glow"></span>
+          <span class="btn-icon">🔨</span>
+          <span class="btn-text">PLAY CAMPAIGN</span>
+        </button>
+
+        <div class="menu-btn-grid">
+          <button id="btnLevelMap" class="menu-btn menu-btn-secondary">
+            <span class="btn-icon">🗺️</span>
+            <span class="btn-text">World Map (100)</span>
+          </button>
+          <button id="btnGameModes" class="menu-btn menu-btn-secondary">
+            <span class="btn-icon">⚡</span>
+            <span class="btn-text">Arcade Modes</span>
+          </button>
+          <button id="btnAchievements" class="menu-btn menu-btn-secondary">
+            <span class="btn-icon">🏆</span>
+            <span class="btn-text">Achievements</span>
+          </button>
+          <button id="btnHowToPlay" class="menu-btn menu-btn-secondary">
+            <span class="btn-icon">📖</span>
+            <span class="btn-text">How to Play</span>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- IN-GAME ARENA SCREEN -->
+    <main id="gameScreen" class="screen-view hidden">
+      <!-- HUD Bar -->
+      <div class="game-hud">
+        <div class="hud-col hud-left">
+          <span id="hudLevelTag" class="hud-level-badge">LEVEL 1</span>
+          <div class="hud-score-wrap">
+            <span class="hud-label">SCORE</span>
+            <span id="hudScore" class="hud-value">0</span>
+          </div>
+        </div>
+
+        <div class="hud-col hud-center">
+          <div id="hudComboBadge" class="combo-badge hidden">
+            <span class="combo-fire">🔥</span>
+            <span id="hudCombo" class="combo-text">1x</span>
+          </div>
+          <div id="hudLivesRow" class="lives-hearts-row">
+            <span class="life-heart alive">❤️</span>
+            <span class="life-heart alive">❤️</span>
+            <span class="life-heart alive">❤️</span>
+          </div>
+        </div>
+
+        <div class="hud-col hud-right">
+          <div class="hud-timer-wrap">
+            <span class="hud-label">TIME</span>
+            <span id="hudTimerText" class="hud-value hud-timer-val">00:30</span>
+          </div>
+          <button id="btnPause" class="hud-pause-btn" title="Pause Game (Hotkey: P or Esc)">
+            ⏸
+          </button>
+        </div>
+      </div>
+
+      <!-- Micro-Timer Progress Bar -->
+      <div class="timer-track">
+        <div id="hudTimerFill" class="timer-fill"></div>
+      </div>
+
+      <!-- Realistic Wooden Game Board Wrapper -->
+      <div id="gameBoardWrapper" class="game-board-wrapper">
+        <div class="board-wood-frame">
+          <!-- Dynamic Holes Injected Here -->
+          <div id="gameBoard" class="game-board grid-3x3"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- LEVEL MAP SCREEN -->
+    <main id="levelMapScreen" class="screen-view hidden">
+      <div class="subscreen-header">
+        <button id="btnMapBack" class="subscreen-back-btn">❮ BACK</button>
+        <h2 class="subscreen-title">100-LEVEL CAMPAIGN ODYSSEY</h2>
+      </div>
+
+      <div id="worldMapContainer" class="world-map-wrapper">
+        <!-- Injected by UIManager -->
+      </div>
+    </main>
+
+    <!-- ARCADE MODES SCREEN -->
+    <main id="modesScreen" class="screen-view hidden">
+      <div class="subscreen-header">
+        <button id="btnModesBack" class="subscreen-back-btn">❮ BACK</button>
+        <h2 class="subscreen-title">ARCADE GAME MODES</h2>
+      </div>
+
+      <div class="modes-card-grid">
+        <div class="mode-card" data-mode="classic">
+          <div class="mode-badge">100 LEVELS</div>
+          <div class="mode-icon">🗺️</div>
+          <h3 class="mode-name">Campaign Odyssey</h3>
+          <p class="mode-desc">Progress through 10 worlds with expanding grids, new mole species, and grand championships.</p>
+        </div>
+
+        <div class="mode-card" data-mode="time_attack">
+          <div class="mode-badge">60 SECONDS</div>
+          <div class="mode-icon">⏳</div>
+          <h3 class="mode-name">Time Attack</h3>
+          <p class="mode-desc">Hit as many moles as possible before time expires. Streaks grant precious time bonuses!</p>
+        </div>
+
+        <div class="mode-card" data-mode="survival">
+          <div class="mode-badge">3 LIVES</div>
+          <div class="mode-icon">🛡️</div>
+          <h3 class="mode-name">Survival Protocol</h3>
+          <p class="mode-desc">Limited to 3 lives. Missing moles or hitting ticking bomb moles reduces your lives.</p>
+        </div>
+
+        <div class="mode-card" data-mode="endless">
+          <div class="mode-badge">ESCALATING SPEED</div>
+          <div class="mode-icon">♾️</div>
+          <h3 class="mode-name">Endless Singularity</h3>
+          <p class="mode-desc">Moles spawn with continuously escalating speed. How long can your reflexes hold out?</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODALS -->
+
+  <!-- PAUSE MODAL -->
+  <div id="pauseModal" class="modal-backdrop hidden">
+    <div class="modal-dialog">
+      <h3 class="modal-title">GAME PAUSED</h3>
+      <p class="modal-subtitle">Moles are resting in their burrows.</p>
+      <div class="modal-actions">
+        <button id="btnResume" class="modal-btn modal-btn-primary">▶ RESUME</button>
+        <button id="btnRestart" class="modal-btn modal-btn-secondary">↺ RESTART</button>
+        <button id="btnQuit" class="modal-btn modal-btn-ghost">⌂ MAIN MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VICTORY MODAL -->
+  <div id="victoryModal" class="modal-backdrop hidden">
+    <div class="modal-dialog victory-dialog">
+      <h3 id="victoryTitle" class="modal-title">BURROW CLEARED!</h3>
+
+      <div id="victoryStars" class="stars-celebration-row">
+        <span class="modal-star earned">⭐</span>
+        <span class="modal-star earned">⭐</span>
+        <span class="modal-star earned">⭐</span>
+      </div>
+
+      <div class="victory-stats-box">
+        <div class="v-stat">
+          <span class="v-label">FINAL SCORE</span>
+          <strong id="victoryScore" class="v-val">15,400</strong>
+        </div>
+        <div class="v-stat">
+          <span class="v-label">PERFORMANCE</span>
+          <strong id="victoryStats" class="v-val">Accuracy: 92% • Best Combo: 10x</strong>
+        </div>
+        <div class="v-stat">
+          <span class="v-label">REWARDS</span>
+          <strong id="victoryRewards" class="v-val reward-gold">+350 XP • +75 Coins</strong>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btnVictoryNext" class="modal-btn modal-btn-primary">NEXT LEVEL ❯</button>
+        <button id="btnVictoryReplay" class="modal-btn modal-btn-secondary">↺ REPLAY</button>
+        <button id="btnVictoryMap" class="modal-btn modal-btn-ghost">🗺️ WORLD MAP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER MODAL -->
+  <div id="gameOverModal" class="modal-backdrop hidden">
+    <div class="modal-dialog gameover-dialog">
+      <h3 class="modal-title gameover-title">ROUND OVER</h3>
+      <p id="gameOverReason" class="modal-subtitle">Time Expired!</p>
+
+      <div class="victory-stats-box">
+        <div class="v-stat">
+          <span class="v-label">FINAL SCORE</span>
+          <strong id="gameOverScore" class="v-val">4,200</strong>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btnGameOverRetry" class="modal-btn modal-btn-primary">↺ TRY AGAIN</button>
+        <button id="btnGameOverMenu" class="modal-btn modal-btn-ghost">⌂ MAIN MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACHIEVEMENTS MODAL -->
+  <div id="achievementsModal" class="modal-backdrop hidden">
+    <div class="modal-dialog modal-dialog-wide">
+      <div class="modal-header-row">
+        <h3 class="modal-title">HALL OF ACHIEVEMENTS</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="achievements-list">
+        <!-- Injected by UIManager -->
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO PLAY MODAL -->
+  <div id="howToPlayModal" class="modal-backdrop hidden">
+    <div class="modal-dialog modal-dialog-wide">
+      <div class="modal-header-row">
+        <h3 class="modal-title">MOLE FIELD MANUAL</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="manual-content">
+        <div class="manual-section">
+          <h4>🐾 7 Unique Mole Species</h4>
+          <div class="manual-mole-grid">
+            <div class="mole-guide-card">
+              <strong>NORMAL MOLE (+100 pts)</strong>
+              <p>Yellow hard hat. 1 strike needed.</p>
+            </div>
+            <div class="mole-guide-card">
+              <strong style="color: #f59e0b;">GOLDEN MOLE (+300 pts)</strong>
+              <p>Royal golden crown. Fast retreat & high points!</p>
+            </div>
+            <div class="mole-guide-card">
+              <strong style="color: #0284c7;">SPEED MOLE (+200 pts)</strong>
+              <p>Aviator goggles. Pops and darts at supersonic speed!</p>
+            </div>
+            <div class="mole-guide-card">
+              <strong style="color: #94a3b8;">ARMORED MOLE (+250 pts)</strong>
+              <p>Steel helmet. Requires <strong>2 STRIKES</strong> to defeat!</p>
+            </div>
+            <div class="mole-guide-card">
+              <strong style="color: #ec4899;">BONUS MOLE (+500 pts)</strong>
+              <p>Carries sparkling gemstones. Rare jackpot target!</p>
+            </div>
+            <div class="mole-guide-card">
+              <strong style="color: #a855f7;">TRICK MOLE (+150 pts)</strong>
+              <p>Masquerade mask. Feints emergence to bait early misses.</p>
+            </div>
+            <div class="mole-guide-card" style="border-color: #ef4444;">
+              <strong style="color: #ef4444;">BOMB MOLE (DANGER!)</strong>
+              <p>Ticking fuse! DO NOT HIT! Costs -300 pts & 1 life.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="manual-section">
+          <h4>🔥 Combo Multiplier</h4>
+          <p>Chain hits without missing or hitting bombs:<br>
+          <strong>3 hits → x2</strong> • <strong>5 hits → x3</strong> • <strong>10 hits → x5</strong> • <strong>20 hits → x10!</strong></p>
+        </div>
+
+        <div class="manual-section">
+          <h4>⌨ Keyboard & Touch Controls</h4>
+          <p>Press <strong>1 – 9</strong> on keyboard to strike corresponding holes.<br>
+          Press <strong>P</strong> or <strong>Esc</strong> to pause.<br>
+          Press <strong>R</strong> to restart.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Core Scripts -->
+  <script src="js/moles.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
+
