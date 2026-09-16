@@ -1,15 +1,30 @@
 const CANVAS = document.getElementById('gameCanvas');
-const CTX = CANVAS.getContext('2d');
+const CTX = CANVAS ? CANVAS.getContext('2d') : null;
 const OVERLAY = document.getElementById('levelCompleteOverlay');
 const BTN_NEW = document.getElementById('btn-new-game');
 const BTN_NEXT = document.getElementById('btn-next-level');
+const BTN_EXIT = document.getElementById('btn-exit');
+
+console.log('[LaserLogic] Elements found:', {
+  canvas: !!CANVAS,
+  ctx: !!CTX,
+  overlay: !!OVERLAY,
+  btnNew: !!BTN_NEW,
+  btnNext: !!BTN_NEXT,
+  btnExit: !!BTN_EXIT
+});
+
+if (!CANVAS || !CTX || !OVERLAY || !BTN_NEW || !BTN_NEXT || !BTN_EXIT) {
+  console.error('[LaserLogic] Missing required DOM elements!');
+}
 
 const DPR = Math.min(window.devicePixelRatio || 1, 2);
 let canvasWidth = 0;
 let canvasHeight = 0;
 let currentLevel = 0;
+let levelState = null;
 
-const LEVELS = [
+const BASE_LEVELS = [
   {
     gridSize: 5,
     laser: { x: 0, y: 2, dir: 'right' },
@@ -61,8 +76,17 @@ const PRISM_SPLIT = {
   right: ['up', 'down']
 };
 
+function deepCloneLevel(level) {
+  return JSON.parse(JSON.stringify(level));
+}
+
+function getCurrentLevel() {
+  return levelState;
+}
+
 function resizeCanvas() {
   const wrapper = document.querySelector('.ll-board-wrapper');
+  if (!wrapper) return;
   const rect = wrapper.getBoundingClientRect();
   canvasWidth = Math.floor(rect.width);
   canvasHeight = Math.floor(rect.height);
@@ -70,7 +94,7 @@ function resizeCanvas() {
   CANVAS.height = canvasHeight * DPR;
   CANVAS.style.width = canvasWidth + 'px';
   CANVAS.style.height = canvasHeight + 'px';
-  CTX.scale(DPR, DPR);
+  CTX.setTransform(DPR, 0, 0, DPR, 0, 0);
   draw();
 }
 
@@ -300,7 +324,7 @@ function traceLaser(level) {
 }
 
 function checkTargetHit(target) {
-  const beams = traceLaser(LEVELS[currentLevel]);
+  const beams = traceLaser(getCurrentLevel());
   return beams.some(beam =>
     beam.points.some(pt =>
       Math.abs(pt.x - (target.x + 0.5)) < 0.3 && Math.abs(pt.y - (target.y + 0.5)) < 0.3
@@ -309,7 +333,7 @@ function checkTargetHit(target) {
 }
 
 function checkMirrorHit(mirror) {
-  const beams = traceLaser(LEVELS[currentLevel]);
+  const beams = traceLaser(getCurrentLevel());
   return beams.some(beam =>
     beam.points.some(pt =>
       Math.abs(pt.x - (mirror.x + 0.5)) < 0.3 && Math.abs(pt.y - (mirror.y + 0.5)) < 0.3
@@ -318,7 +342,7 @@ function checkMirrorHit(mirror) {
 }
 
 function checkPrismHit(prism) {
-  const beams = traceLaser(LEVELS[currentLevel]);
+  const beams = traceLaser(getCurrentLevel());
   return beams.some(beam =>
     beam.points.some(pt =>
       Math.abs(pt.x - (prism.x + 0.5)) < 0.3 && Math.abs(pt.y - (prism.y + 0.5)) < 0.3
@@ -327,13 +351,13 @@ function checkPrismHit(prism) {
 }
 
 function checkLevelComplete() {
-  const level = LEVELS[currentLevel];
+  const level = getCurrentLevel();
   return level.targets.every(t => checkTargetHit(t));
 }
 
 function draw() {
   CTX.clearRect(0, 0, canvasWidth, canvasHeight);
-  const level = LEVELS[currentLevel];
+  const level = getCurrentLevel();
   const cellSize = getCellSize(level);
   const origin = getGridOrigin(level, cellSize);
 
@@ -346,12 +370,12 @@ function draw() {
 }
 
 function handleCanvasClick(e) {
-  const level = LEVELS[currentLevel];
+  const level = getCurrentLevel();
   const cellSize = getCellSize(level);
   const origin = getGridOrigin(level, cellSize);
   const rect = CANVAS.getBoundingClientRect();
-  const x = (e.clientX - rect.left) * DPR;
-  const y = (e.clientY - rect.top) * DPR;
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
   const gx = Math.floor((x - origin.x) / cellSize);
   const gy = Math.floor((y - origin.y) / cellSize);
 
@@ -370,15 +394,47 @@ function handleCanvasClick(e) {
 }
 
 function loadLevel(index) {
-  currentLevel = Math.max(0, Math.min(index, LEVELS.length - 1));
+  const clampedIndex = Math.max(0, Math.min(index, BASE_LEVELS.length - 1));
+  currentLevel = clampedIndex;
+  levelState = deepCloneLevel(BASE_LEVELS[currentLevel]);
   OVERLAY.hidden = true;
   resizeCanvas();
 }
 
-BTN_NEW.addEventListener('click', () => loadLevel(0));
-BTN_NEXT.addEventListener('click', () => loadLevel(currentLevel + 1));
-CANVAS.addEventListener('click', handleCanvasClick);
+function loadRandomLevel() {
+  const randomIndex = Math.floor(Math.random() * BASE_LEVELS.length);
+  loadLevel(randomIndex);
+}
+
+function exitGame() {
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'exitGame', gameId: 'laser-logic' }, '*');
+  } else {
+    window.location.href = '../../index.html';
+  }
+}
+
+BTN_NEW.addEventListener('click', (e) => {
+  console.log('[LaserLogic] New Puzzle clicked');
+  loadRandomLevel();
+});
+BTN_NEXT.addEventListener('click', (e) => {
+  console.log('[LaserLogic] Next Level clicked');
+  loadLevel(currentLevel + 1);
+});
+BTN_EXIT.addEventListener('click', (e) => {
+  console.log('[LaserLogic] Exit clicked');
+  e.preventDefault();
+  exitGame();
+});
+CANVAS.addEventListener('click', (e) => {
+  console.log('[LaserLogic] Canvas clicked', e.clientX, e.clientY);
+  handleCanvasClick(e);
+});
 window.addEventListener('resize', resizeCanvas);
+
+console.log('[LaserLogic] Event listeners attached');
 
 resizeCanvas();
 loadLevel(0);
+console.log('[LaserLogic] Initialization complete');
