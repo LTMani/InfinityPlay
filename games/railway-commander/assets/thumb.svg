@@ -1,64 +1,154 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="100%" height="100%">
   <defs>
-    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="tSky" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#0284c7" />
-      <stop offset="50%" stop-color="#0369a1" />
-      <stop offset="100%" stop-color="#082f49" />
+      <stop offset="40%" stop-color="#0369a1" />
+      <stop offset="85%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#020617" />
     </linearGradient>
-    <linearGradient id="locoGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#0ea5e9" />
-      <stop offset="50%" stop-color="#38bdf8" />
-      <stop offset="100%" stop-color="#0284c7" />
+
+    <linearGradient id="tGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="50%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#d97706" />
     </linearGradient>
-    <linearGradient id="lightBeam" x1="0" y1="1" x2="0" y2="0">
+
+    <linearGradient id="tRed" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#dc2626" />
+      <stop offset="60%" stop-color="#b91c1c" />
+      <stop offset="100%" stop-color="#7f1d1d" />
+    </linearGradient>
+
+    <linearGradient id="tBeam" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+      <stop offset="40%" stop-color="#fef08a" stop-opacity="0.35" />
       <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
     </linearGradient>
-    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="6" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+
+    <filter id="tGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
     </filter>
   </defs>
 
-  <!-- Sky & Stars -->
-  <rect width="600" height="400" fill="url(#skyGrad)" />
-  <circle cx="500" cy="80" r="30" fill="#fef08a" filter="url(#neonGlow)" />
+  <!-- Sky -->
+  <rect width="600" height="400" fill="url(#tSky)" />
 
-  <!-- Ballast & Rails in Perspective -->
-  <polygon points="260,180 340,180 520,400 80,400" fill="#1e293b" />
-  
-  <!-- Sleepers -->
-  <line x1="250" y1="210" x2="350" y2="210" stroke="#334155" stroke-width="4" />
-  <line x1="230" y1="240" x2="370" y2="240" stroke="#334155" stroke-width="6" />
-  <line x1="200" y1="280" x2="400" y2="280" stroke="#334155" stroke-width="8" />
-  <line x1="160" y1="330" x2="440" y2="330" stroke="#334155" stroke-width="11" />
-  <line x1="100" y1="390" x2="500" y2="390" stroke="#334155" stroke-width="14" />
+  <!-- City Skyline Silhouette -->
+  <polygon points="0,220 40,210 60,220 110,190 140,220 220,180 270,220 380,200 420,220 490,195 530,220 600,210 600,250 0,250" fill="#090d16" opacity="0.9" />
 
-  <!-- Shiny Steel Rails -->
-  <line x1="280" y1="180" x2="160" y2="400" stroke="#00f0ff" stroke-width="5" filter="url(#neonGlow)" />
-  <line x1="320" y1="180" x2="440" y2="400" stroke="#00f0ff" stroke-width="5" filter="url(#neonGlow)" />
+  <!-- Arakkonam Station Overhead Canopy (Right Side) -->
+  <polygon points="340,90 600,40 600,220 380,220" fill="#1e3a8a" opacity="0.85" />
+  <!-- Canopy Rafters &amp; Fluorescent Lamps -->
+  <line x1="360" y1="120" x2="600" y2="70" stroke="#3b82f6" stroke-width="2.5" />
+  <line x1="380" y1="150" x2="600" y2="100" stroke="#3b82f6" stroke-width="2.5" />
+  <rect x="420" y="105" width="40" height="4" rx="2" fill="#ffffff" filter="url(#tGlow)" />
+  <rect x="520" y="80" width="50" height="4" rx="2" fill="#ffffff" filter="url(#tGlow)" />
 
-  <!-- Headlight beam -->
-  <polygon points="285,155 315,155 460,370 140,370" fill="url(#lightBeam)" opacity="0.45" />
+  <!-- Platform Deck Structure -->
+  <polygon points="360,210 600,180 600,340 370,340" fill="#f1f5f9" />
+  <!-- Red Coping Edge -->
+  <polygon points="350,212 360,210 370,340 358,340" fill="#b91c1c" />
+  <!-- Bright Yellow Tactile Line -->
+  <line x1="375" y1="210" x2="395" y2="340" stroke="#facc15" stroke-width="4" />
 
-  <!-- Modern Locomotive Nose (Approaching) -->
-  <path d="M 270 195 L 300 130 L 330 195 L 345 270 L 255 270 Z" fill="url(#locoGrad)" />
-  <polygon points="280,180 300,140 320,180 315,200 285,200" fill="#0c4a6e" stroke="#00f0ff" stroke-width="2" />
-  
-  <!-- Front Headlights -->
-  <circle cx="280" cy="245" r="8" fill="#ffffff" filter="url(#neonGlow)" />
-  <circle cx="320" cy="245" r="8" fill="#ffffff" filter="url(#neonGlow)" />
-  <circle cx="300" cy="142" r="6" fill="#ffffff" filter="url(#neonGlow)" />
+  <!-- Trilingual Station Signboard -->
+  <g transform="translate(420, 130)">
+    <line x1="30" y1="40" x2="30" y2="85" stroke="#1e293b" stroke-width="4" />
+    <line x1="120" y1="40" x2="120" y2="85" stroke="#1e293b" stroke-width="4" />
+    <rect x="0" y="0" width="150" height="42" rx="4" fill="#facc15" stroke="#0f172a" stroke-width="2" />
+    <text x="75" y="13" fill="#000000" font-family="'Inter', sans-serif" font-weight="900" font-size="8.5" text-anchor="middle">அரக்கோணம்</text>
+    <text x="75" y="26" fill="#000000" font-family="'Inter', sans-serif" font-weight="900" font-size="11" text-anchor="middle" letter-spacing="1">ARAKKONAM</text>
+    <text x="75" y="37" fill="#000000" font-family="'Inter', sans-serif" font-weight="900" font-size="8.5" text-anchor="middle">अरक्कोणम</text>
+  </g>
 
-  <!-- Railway Signal Mast (Green Light) -->
-  <line x1="200" y1="140" x2="200" y2="250" stroke="#475569" stroke-width="4" />
-  <rect x="190" y="140" width="20" height="50" rx="6" fill="#0f172a" stroke="#334155" stroke-width="2" />
-  <circle cx="200" cy="152" r="5" fill="#334155" />
-  <circle cx="200" cy="165" r="5" fill="#334155" />
-  <circle cx="200" cy="178" r="6" fill="#22c55e" filter="url(#neonGlow)" />
+  <!-- Traditional Coolie &amp; Commuters on Platform -->
+  <g transform="translate(385, 175)">
+    <!-- Luggage Trunk on Head -->
+    <rect x="-1" y="-8" width="16" height="8" rx="1" fill="#b45309" stroke="#78350f" stroke-width="1" />
+    <!-- Red gamchha head cushion -->
+    <ellipse cx="7" cy="0" rx="5" ry="2" fill="#ef4444" />
+    <!-- Head -->
+    <circle cx="7" cy="4" r="3.5" fill="#a16207" />
+    <!-- Arms raised holding trunk -->
+    <path d="M2,14 L-1,0 L1, -3 M12,14 L15,0 L13,-3" stroke="#ef4444" stroke-width="2" stroke-linecap="round" fill="none" />
+    <!-- Red Kurta -->
+    <rect x="2" y="8" width="10" height="15" rx="2" fill="#ef4444" />
+    <!-- White Dhoti Pants -->
+    <line x1="4" y1="23" x2="3" y2="34" stroke="#ffffff" stroke-width="3" />
+    <line x1="10" y1="23" x2="11" y2="34" stroke="#ffffff" stroke-width="3" />
+  </g>
 
-  <!-- Game Title Badge -->
-  <rect x="30" y="25" width="250" height="46" rx="10" fill="rgba(15, 23, 42, 0.85)" stroke="#00f0ff" stroke-width="1.5" />
-  <text x="45" y="46" fill="#00f0ff" font-family="'Inter', sans-serif" font-weight="900" font-size="16">RAILWAY COMMANDER</text>
-  <text x="45" y="62" fill="#94a3b8" font-family="'Inter', sans-serif" font-weight="600" font-size="10">2.5D TRAIN DRIVING SIMULATOR</text>
+  <!-- Track Ballast &amp; Ties -->
+  <polygon points="120,210 350,210 400,400 0,400" fill="#1e293b" />
+  <line x1="140" y1="235" x2="330" y2="235" stroke="#334155" stroke-width="4" />
+  <line x1="110" y1="270" x2="340" y2="270" stroke="#334155" stroke-width="6" />
+  <line x1="70" y1="315" x2="355" y2="315" stroke="#334155" stroke-width="8" />
+  <line x1="20" y1="370" x2="375" y2="370" stroke="#334155" stroke-width="11" />
+
+  <!-- Rails -->
+  <line x1="170" y1="210" x2="65" y2="400" stroke="#00f0ff" stroke-width="4" filter="url(#tGlow)" />
+  <line x1="290" y1="210" x2="320" y2="400" stroke="#00f0ff" stroke-width="4" filter="url(#tGlow)" />
+
+  <!-- Headlight Beam -->
+  <polygon points="215,160 50,400 320,400" fill="url(#tBeam)" opacity="0.45" />
+
+  <!-- WAP-7 Rajdhani Approaching -->
+  <!-- Trailing LHB Coaches -->
+  <polygon points="175,180 195,160 215,160 195,180" fill="#b91c1c" />
+  <rect x="175" y="170" width="20" height="2" fill="#fef08a" />
+
+  <!-- Locomotive Pantograph -->
+  <path d="M210,135 L220,110 L230,135 M205,110 L235,110" stroke="#dc2626" stroke-width="2.5" fill="none" />
+  <circle cx="220" cy="110" r="3" fill="#ffffff" filter="url(#tGlow)" />
+
+  <!-- WAP-7 Body -->
+  <polygon points="175,150 255,150 270,225 155,225" fill="url(#tRed)" />
+  <!-- Windshield -->
+  <polygon points="180,155 212,155 210,185 174,185" fill="#0f172a" stroke="#475569" stroke-width="1.5" />
+  <polygon points="218,155 250,155 256,185 220,185" fill="#0f172a" stroke="#475569" stroke-width="1.5" />
+  <!-- Sun Visors -->
+  <rect x="180" y="155" width="32" height="4" fill="#065f46" />
+  <rect x="218" y="155" width="32" height="4" fill="#065f46" />
+
+  <!-- Lower Body -->
+  <polygon points="155,225 270,225 275,275 150,275" fill="#991b1b" />
+  <!-- Chevron -->
+  <polygon points="152,230 215,255 273,230 270,240 215,265 155,240" fill="url(#tGold)" filter="url(#tGlow)" />
+  <!-- Tiranga Flag -->
+  <g transform="translate(202, 222)">
+    <rect x="0" y="0" width="26" height="4" fill="#ff9933" />
+    <rect x="0" y="4" width="26" height="4" fill="#ffffff" />
+    <rect x="0" y="8" width="26" height="4" fill="#138808" />
+    <circle cx="13" cy="6" r="1.8" fill="#000080" />
+  </g>
+  <!-- Lettering -->
+  <text x="215" y="217" fill="#ffffff" font-family="'Inter', sans-serif" font-weight="900" font-size="7" text-anchor="middle">RAJDHANI • WAP-7</text>
+
+  <!-- Headlights -->
+  <circle cx="215" cy="142" r="6" fill="#ffffff" filter="url(#tGlow)" />
+  <circle cx="170" cy="245" r="5" fill="#ffffff" filter="url(#tGlow)" />
+  <circle cx="258" cy="245" r="5" fill="#ffffff" filter="url(#tGlow)" />
+
+  <!-- Cowcatcher -->
+  <polygon points="155,275 270,275 258,305 167,305" fill="#b91c1c" stroke="#7f1d1d" stroke-width="1.5" />
+  <line x1="180" y1="277" x2="175" y2="303" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+  <line x1="198" y1="277" x2="195" y2="303" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+  <line x1="215" y1="277" x2="215" y2="303" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+  <line x1="232" y1="277" x2="235" y2="303" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+  <line x1="250" y1="277" x2="255" y2="303" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+
+  <!-- Parked Blue ICF Coach on Far Left Track -->
+  <polygon points="0,175 60,175 75,235 0,235" fill="#1d4ed8" />
+  <rect x="0" y="195" width="65" height="4" fill="#facc15" />
+  <rect x="15" y="180" width="12" height="10" rx="1" fill="#fef08a" opacity="0.9" />
+  <rect x="35" y="180" width="12" height="10" rx="1" fill="#fef08a" opacity="0.9" />
+
+  <!-- Overlay Header Badge -->
+  <rect x="20" y="20" width="280" height="52" rx="12" fill="rgba(15, 23, 42, 0.9)" stroke="url(#tGold)" stroke-width="1.5" filter="url(#tGlow)" />
+  <text x="36" y="42" fill="#ffffff" font-family="'Inter', sans-serif" font-weight="900" font-size="16" letter-spacing="0.5">RAILWAY COMMANDER</text>
+  <text x="36" y="58" fill="#00f0ff" font-family="'Inter', sans-serif" font-weight="700" font-size="10" letter-spacing="1.5">INDIAN RAILWAYS WAP-7 SIMULATOR</text>
 </svg>

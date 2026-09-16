@@ -1,19 +1,29 @@
 /**
- * Railway Commander - 2.5D Indian Railways Simulator Renderer
- * Features:
- * - Authentic Indian Railways WAP-7 Electric Locomotive in Rajdhani Express livery
- * - Red & cream LHB Rajdhani passenger coaches with lit passenger windows
- * - 3 Dynamic Camera Modes:
- *     1. 'platform' (Cinematic station platform view alongside passengers & coolies)
- *     2. 'cab' (Inside the WAP-7 cockpit with windshield & wipers)
- *     3. 'chase' (Elevated third-person follow cam)
- * - Station platforms (e.g. Arakkonam Junction) with tiled floors, red coping borders,
- *   yellow safety lines, blue corrugated canopy roof trusses, Indian Railways station boards (Tamil/English/Hindi)
- * - Animated platform life: Indian railway coolies in red kurtas carrying trunks on heads,
- *   walking passengers, luggage trolleys, and traditional "CHAI & SNACKS" stalls
- * - 25kV AC OHE overhead electrification catenary wires and steel portal gantries
- * - Double-track railway corridor with parked/opposing rakes on parallel track
- * - 4-aspect Indian railway color light signals and dynamic headlight bloom
+ * Railway Commander - Authentic 2.5D Indian Railways Simulator Renderer
+ * 
+ * Implements high-fidelity perspective rendering for:
+ * 1. Indian Railways WAP-7 Electric Locomotive in Rajdhani Express livery
+ * 2. LHB Rajdhani passenger coaches with lit interior windows & roof ribs
+ * 3. 3 Dynamic Camera Modes:
+ *    - 'platform': Cinematic station platform view alongside passengers, coolies, and canopy
+ *    - 'cab': First-person driver cockpit view with windshield, wipers & console
+ *    - 'chase': Elevated third-person follow cam
+ * 4. Arakkonam Junction platform:
+ *    - Paved stone tiles with perspective joint lines
+ *    - Red coping curb stones & bright yellow tactile safety line
+ *    - Blue corrugated iron canopy roof with steel rafters, support columns & warm ceiling lamps
+ *    - Trilingual station signboards (Tamil: அரக்கோணம் / English: ARAKKONAM / Hindi: अरक्कोणम)
+ * 5. Platform life & crowds:
+ *    - Coolies in red kurtas carrying luggage trunks on heads
+ *    - Passengers with rolling bags & suitcases
+ *    - Traditional "CHAI / SNACKS" tea stall with illuminated display & awning
+ *    - Luggage wheel trolleys & parcel carts
+ * 6. Track & Electrification:
+ *    - Broad gauge active track + parallel depot track with parked ICF rake
+ *    - Concrete sleepers with metal pandrol clips & crushed granite ballast bed
+ *    - Polished steel rails with specular headlight highlights
+ *    - 25kV OHE catenary wires, steel lattice masts, cantilevers & acceleration spark flashes
+ * 7. Multi-aspect optical signals, volumetric headlight beams & weather overlays
  */
 
 export class Renderer25D {
@@ -21,7 +31,7 @@ export class Renderer25D {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d', { alpha: false });
 
-    // Camera Mode: 'platform' (cinematic station view), 'cab' (cockpit windshield), or 'chase' (elevated)
+    // Camera Mode: 'platform' (default cinematic view), 'cab' (windscreen), or 'chase' (rear follow)
     this.cameraMode = 'platform';
 
     // Rain Particle Pool
@@ -34,8 +44,6 @@ export class Renderer25D {
     this.wiperDirection = 1;
 
     // Headlight & Spark Animation
-    this.sparkTimer = 0;
-    this.sparkActive = false;
     this.animTime = 0;
   }
 
@@ -54,8 +62,8 @@ export class Renderer25D {
   resize() {
     const rect = this.canvas.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const cssW = (rect.width > 0 ? rect.width : window.innerWidth) || 800;
-    const cssH = (rect.height > 0 ? rect.height : window.innerHeight) || 600;
+    const cssW = (rect.width > 0 ? rect.width : window.innerWidth) || 1280;
+    const cssH = (rect.height > 0 ? rect.height : window.innerHeight) || 720;
     this.canvas.width = Math.floor(cssW * dpr);
     this.canvas.height = Math.floor(cssH * dpr);
     this.width = this.canvas.width;
@@ -63,8 +71,8 @@ export class Renderer25D {
   }
 
   setCameraMode(mode) {
-    if (mode === 'cab' || mode === 'chase' || mode === 'platform') {
-      this.cameraMode = mode;
+    if (mode === 'cab' || mode === 'trackside' || mode === 'chase' || mode === 'platform') {
+      this.cameraMode = (mode === 'chase') ? 'trackside' : mode;
     } else {
       this.cameraMode = 'platform';
     }
@@ -74,7 +82,7 @@ export class Renderer25D {
     if (this.cameraMode === 'platform') {
       this.setCameraMode('cab');
     } else if (this.cameraMode === 'cab') {
-      this.setCameraMode('chase');
+      this.setCameraMode('trackside');
     } else {
       this.setCameraMode('platform');
     }
@@ -84,7 +92,7 @@ export class Renderer25D {
   getCameraModeLabel() {
     if (this.cameraMode === 'platform') return '🎥 PLATFORM VIEW';
     if (this.cameraMode === 'cab') return '🎥 CAB VIEW';
-    return '🎥 CHASE VIEW';
+    return '🎥 TRACKSIDE VIEW';
   }
 
   /**
@@ -106,89 +114,111 @@ export class Renderer25D {
     const trainPos = state.positionMeters;
     const speedKmh = state.speedKmh;
 
-    // Camera Configuration based on Active View Mode
-    let cameraX = 0;
-    let cameraHeight = 3.6;
-    let cameraZ = trainPos - 7.5;
-    let horizonY = h * 0.42;
-    const focalLength = w * 0.78;
+    // Track Geometry & Curvature
+    const trackHalfGauge = 0.838; // Indian Broad Gauge 1676mm / 2 = 0.838m
+    const baseCurvature = trackManager?.getCurvatureAt ? trackManager.getCurvatureAt(trainPos) : 0;
+
+    let project;
+    let horizonY;
+    let cameraZ;
 
     if (this.cameraMode === 'platform') {
-      // Cinematic platform view matching user's screenshot
-      cameraX = 2.4; // positioned on right platform
-      cameraHeight = 1.85; // standing human eye level on platform
-      cameraZ = trainPos - 6.2; // alongside and slightly ahead of the loco nose
-      horizonY = h * 0.42;
+      // Three-quarters cinematic platform view matching reference image
+      // Standing on Platform 1 walking lane looking towards approaching WAP-7 locomotive & platform life
+      const cameraX = 2.6; // standing on platform 1 walking lane
+      const cameraHeight = 1.90; // human eye level on platform (0.85m above 1.05m platform)
+      cameraZ = trainPos + 11.2; // positioned 11.2m ahead of the loco nose
+      horizonY = h * 0.40;
+      const focalLength = w * 0.78;
+
+      project = (x, y, z) => {
+        const relZ = cameraZ - z;
+        if (relZ <= 0.4) return null;
+        const scale = focalLength / relZ;
+        const distFromCam = relZ;
+        const curveOffset = baseCurvature * (distFromCam * distFromCam) * 0.08;
+        const screenX = (w * 0.48) + (x - cameraX - curveOffset) * scale;
+        const screenY = horizonY + (cameraHeight - y) * scale;
+        return { x: screenX, y: screenY, scale, relZ };
+      };
     } else if (this.cameraMode === 'cab') {
-      // Driver windscreen view
-      cameraX = 0.0;
-      cameraHeight = 2.45;
-      cameraZ = trainPos + 0.8;
+      // Driver windscreen cockpit view looking forward (+Z) down track
+      const cameraX = 0.32; // loco pilot seat on right/center side
+      const cameraHeight = 2.40; // driver eye line in WAP-7 cab
+      cameraZ = trainPos;
       horizonY = h * 0.44;
+      const focalLength = w * 0.82;
+
+      project = (x, y, z) => {
+        const relZ = z - cameraZ;
+        if (relZ <= 0.3) return null;
+        const scale = focalLength / relZ;
+        const distFromCam = relZ;
+        const curveOffset = baseCurvature * (distFromCam * distFromCam) * 0.12;
+        const screenX = (w * 0.50) + (x - cameraX + curveOffset) * scale;
+        const screenY = horizonY + (cameraHeight - y) * scale;
+        return { x: screenX, y: screenY, scale, relZ };
+      };
     } else {
-      // Chase follow cam
-      cameraX = 0.0;
-      cameraHeight = 4.8;
-      cameraZ = trainPos - 9.5;
-      horizonY = h * 0.39;
+      // Trackside / railfan elevated exterior cam looking back at approaching train
+      const cameraX = -3.8;
+      const cameraHeight = 3.4;
+      cameraZ = trainPos + 18.0;
+      horizonY = h * 0.42;
+      const focalLength = w * 0.76;
+
+      project = (x, y, z) => {
+        const relZ = cameraZ - z;
+        if (relZ <= 0.4) return null;
+        const scale = focalLength / relZ;
+        const distFromCam = relZ;
+        const curveOffset = baseCurvature * (distFromCam * distFromCam) * 0.08;
+        const screenX = (w * 0.54) + (x - cameraX - curveOffset) * scale;
+        const screenY = horizonY + (cameraHeight - y) * scale;
+        return { x: screenX, y: screenY, scale, relZ };
+      };
     }
 
     // 1. Draw Sky & Landscape
     this.drawSkyAndLandscape(ctx, w, h, horizonY, timeOfDay, weather, trainPos);
 
-    // Track Geometry & Curvature
-    const trackHalfGauge = 0.84; // broad gauge half-width (~1676mm Indian Broad Gauge)
-    const baseCurvature = trackManager.getCurvatureAt(trainPos);
+    // 2. Draw Ground & Ballast Beds (Double Track Corridor)
+    this.drawGroundAndBallast(ctx, w, h, horizonY, project, trainPos, timeOfDay);
 
-    // 3D Perspective Projection Function
-    const project = (x, y, z) => {
-      const relZ = z - cameraZ;
-      if (relZ <= 0.2) return null;
-      const scale = focalLength / relZ;
-      const distFromCam = relZ;
-      const curveOffset = baseCurvature * (distFromCam * distFromCam) * 0.15;
-      const screenX = (w * 0.5) + (x - cameraX + curveOffset) * scale;
-      const screenY = horizonY + (cameraHeight - y) * scale;
-      return { x: screenX, y: screenY, scale, relZ };
-    };
+    // 3. Draw Railroad Sleepers (Concrete Ties with Pandrol Clips)
+    this.drawRailTies(ctx, project, trainPos, timeOfDay);
 
-    // 2. Draw Ground & Ballast Beds (Double Track)
-    this.drawGroundAndBallast(ctx, w, h, horizonY, project, cameraZ, timeOfDay);
-
-    // 3. Draw Railroad Sleepers (Ties)
-    this.drawRailTies(ctx, project, cameraZ, timeOfDay);
-
-    // 4. Draw Steel Rails (Active Track + Left Parallel Track)
-    this.drawSteelRails(ctx, project, cameraZ, trackHalfGauge, state.headlights, timeOfDay);
+    // 4. Draw Steel Rails (Active Broad Gauge Track + Parallel Track)
+    this.drawSteelRails(ctx, project, trainPos, trackHalfGauge, state.headlights, timeOfDay);
 
     // 5. Draw 25kV OHE Catenary Electric Wires
-    this.drawOverheadCatenary(ctx, project, cameraZ, timeOfDay);
+    this.drawOverheadCatenary(ctx, project, trainPos, timeOfDay);
 
-    // 6. Draw Stations, Platforms, Canopies & Boards
-    this.drawStations(ctx, project, cameraZ, stationSystem, trackHalfGauge, timeOfDay);
+    // 6. Draw Station Platform (Arakkonam Junction: Floor, Red Curb, Yellow Line, Canopy, Signboard)
+    this.drawStationPlatform(ctx, project, trainPos, stationSystem, timeOfDay);
 
-    // 7. Draw Scenery (Coolies, passengers, tea stalls, catenary masts, buildings)
-    this.drawScenery(ctx, project, cameraZ, trackManager, timeOfDay);
+    // 7. Draw Scenery (Coolies, Passengers, Chai Stall, Catenary Masts, Parked Train)
+    this.drawScenery(ctx, project, trainPos, trackManager, timeOfDay);
 
-    // 8. Draw Railway Color Light Signals
-    this.drawSignals(ctx, project, cameraZ, signalSystem, timeOfDay);
+    // 8. Draw Color Light Signals
+    this.drawSignals(ctx, project, trainPos, signalSystem, timeOfDay);
 
-    // 9. Draw Headlight Projection Beams
+    // 9. Draw Volumetric Headlight Beams
     if (state.headlights) {
-      this.drawHeadlightBeams(ctx, w, h, horizonY, this.cameraMode === 'cab', cameraX);
+      this.drawHeadlightBeams(ctx, w, h, horizonY, this.cameraMode, trainPos, project);
     }
 
-    // 10. Draw 3D WAP-7 Rajdhani Train & Coaches (if not inside Cab View)
+    // 10. Draw 3D WAP-7 Locomotive & LHB Coaches (in Platform or Chase View)
     if (this.cameraMode !== 'cab') {
-      this.drawIndianTrain(ctx, project, cameraZ, trainPos, state, timeOfDay, dt);
+      this.drawIndianTrain(ctx, project, trainPos, state, timeOfDay, dt);
     }
 
-    // 11. Draw WAP-7 Driver Cockpit Frame (if Cab View Mode)
+    // 11. Draw WAP-7 Cockpit Windscreen Frame (in Cab View)
     if (this.cameraMode === 'cab') {
       this.drawCabCockpit(ctx, w, h, state, dt, weather);
     }
 
-    // 12. Draw Weather Overlay (Rain / Fog)
+    // 12. Weather Overlays (Rain & Fog)
     if (weather === 'rain') {
       this.drawRain(ctx, w, h, speedKmh, dt);
     } else if (weather === 'fog') {
@@ -198,55 +228,72 @@ export class Renderer25D {
 
   drawSkyAndLandscape(ctx, w, h, horizonY, timeOfDay, weather, trainPos) {
     // Sky Gradient
-    let skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
     if (timeOfDay === 'sunset') {
-      // Dusk / sunset as in reference screenshot
-      skyGrad.addColorStop(0, '#0c1e3d'); // Deep twilight navy
-      skyGrad.addColorStop(0.35, '#1e3a5f'); // Indigo
-      skyGrad.addColorStop(0.7, '#2563eb'); // Indian Railway blue haze
-      skyGrad.addColorStop(1.0, '#38bdf8'); // Horizon glow
+      // Rich twilight dusk matching reference screenshot
+      skyGrad.addColorStop(0, '#09152b'); // Deep twilight navy
+      skyGrad.addColorStop(0.35, '#16284a'); // Indigo
+      skyGrad.addColorStop(0.70, '#244578'); // Electric dusk blue
+      skyGrad.addColorStop(1.0, '#3b6ea8'); // Horizon haze
     } else if (timeOfDay === 'night') {
-      skyGrad.addColorStop(0, '#020617');
-      skyGrad.addColorStop(0.6, '#090d1f');
-      skyGrad.addColorStop(1.0, '#131b38');
+      skyGrad.addColorStop(0, '#020612');
+      skyGrad.addColorStop(0.5, '#070f24');
+      skyGrad.addColorStop(1.0, '#0e1b38');
     } else {
-      // Daytime
+      // Day
       skyGrad.addColorStop(0, '#0284c7');
-      skyGrad.addColorStop(0.5, '#38bdf8');
+      skyGrad.addColorStop(0.6, '#38bdf8');
       skyGrad.addColorStop(1.0, '#bae6fd');
     }
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, w, horizonY + 2);
 
-    // Moon / Evening Star
+    // Distant Stars
     if (timeOfDay === 'sunset' || timeOfDay === 'night') {
-      ctx.fillStyle = '#fef08a';
-      ctx.shadowColor = 'rgba(254, 240, 138, 0.6)';
-      ctx.shadowBlur = 12;
-      ctx.beginPath();
-      ctx.arc(w * 0.78, horizonY * 0.28, timeOfDay === 'night' ? 22 : 14, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      const stars = [
+        [0.12, 0.15], [0.28, 0.08], [0.45, 0.22], [0.65, 0.11],
+        [0.78, 0.25], [0.88, 0.09], [0.93, 0.18], [0.35, 0.30]
+      ];
+      stars.forEach(([sx, sy]) => {
+        ctx.fillRect(sx * w, sy * horizonY, 1.8, 1.8);
+      });
     }
 
-    // Distant City Skyline / Station Sheds (Parallax)
-    const skylineScroll = (trainPos * 0.08) % (w * 0.4);
-    ctx.fillStyle = timeOfDay === 'night' ? '#080d1e' : (timeOfDay === 'sunset' ? '#111827' : '#1e3a8a');
+    // Distant City Skyline & Railway Depot Silhouettes (Parallax)
+    const scroll = (trainPos * 0.12) % 360;
+    ctx.fillStyle = timeOfDay === 'night' ? '#060a17' : (timeOfDay === 'sunset' ? '#0c1424' : '#1e293b');
     ctx.beginPath();
     ctx.moveTo(0, horizonY);
-    for (let x = -skylineScroll; x <= w + 120; x += 90) {
-      const bH = 25 + Math.sin(x * 0.03) * 18 + (x % 30);
+    for (let x = -scroll; x <= w + 120; x += 60) {
+      const bH = 20 + Math.sin(x * 0.04) * 14 + (Math.abs(x % 50) * 0.4);
       ctx.lineTo(x, horizonY - bH);
-      ctx.lineTo(x + 55, horizonY - bH);
-      ctx.lineTo(x + 55, horizonY);
+      ctx.lineTo(x + 40, horizonY - bH);
+      ctx.lineTo(x + 40, horizonY);
     }
     ctx.closePath();
     ctx.fill();
+
+    // Distant Radio Towers with red hazard beacons
+    for (let x = 120; x < w; x += 380) {
+      ctx.strokeStyle = '#0a101f';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x, horizonY);
+      ctx.lineTo(x, horizonY - 48);
+      ctx.stroke();
+
+      // Blinking red beacon
+      ctx.fillStyle = (Math.floor(this.animTime * 2) % 2 === 0) ? '#ef4444' : 'rgba(239, 68, 68, 0.2)';
+      ctx.beginPath();
+      ctx.arc(x, horizonY - 48, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
-  drawGroundAndBallast(ctx, w, h, horizonY, project, cameraZ, timeOfDay) {
-    // Natural Ground (Dark earth / station apron)
-    let groundGrad = ctx.createLinearGradient(0, horizonY, 0, h);
+  drawGroundAndBallast(ctx, w, h, horizonY, project, trainPos, timeOfDay) {
+    // Ground Base
+    const groundGrad = ctx.createLinearGradient(0, horizonY, 0, h);
     if (timeOfDay === 'night' || timeOfDay === 'sunset') {
       groundGrad.addColorStop(0, '#090d16');
       groundGrad.addColorStop(1.0, '#0f172a');
@@ -257,17 +304,18 @@ export class Renderer25D {
     ctx.fillStyle = groundGrad;
     ctx.fillRect(0, horizonY, w, h - horizonY);
 
-    const farZ = cameraZ + 380;
-    const nearZ = cameraZ + 1.2;
+    const isLookingBackward = this.cameraMode !== 'cab';
+    const nearZ = isLookingBackward ? trainPos - 120 : trainPos + 0.6;
+    const farZ = isLookingBackward ? (this.cameraMode === 'trackside' ? trainPos + 18.0 : trainPos + 11.2) : trainPos + 260;
 
-    // 1. Main Track Gravel Ballast Bed (Active Track x = -2.2 to +2.2)
-    const pFarL = project(-2.2, 0, farZ);
-    const pFarR = project(2.2, 0, farZ);
-    const pNearL = project(-2.8, 0, nearZ);
-    const pNearR = project(2.8, 0, nearZ);
+    // 1. Active Track Dark Crushed Granite Ballast Bed (x = -1.6m to +1.6m)
+    const pFarL = project(-1.6, 0, farZ);
+    const pFarR = project(1.6, 0, farZ);
+    const pNearL = project(-1.6, 0, nearZ);
+    const pNearR = project(1.6, 0, nearZ);
 
     if (pFarL && pFarR && pNearL && pNearR) {
-      ctx.fillStyle = timeOfDay === 'night' ? '#1c1917' : '#292524'; // dark crushed granite ballast
+      ctx.fillStyle = timeOfDay === 'night' ? '#1c1917' : '#292524';
       ctx.beginPath();
       ctx.moveTo(pFarL.x, pFarL.y);
       ctx.lineTo(pFarR.x, pFarR.y);
@@ -277,14 +325,14 @@ export class Renderer25D {
       ctx.fill();
     }
 
-    // 2. Parallel Left Track Gravel Ballast Bed (x = -5.4 to -2.3)
+    // 2. Parallel Left Track Ballast Bed (x = -5.4m to -2.2m)
     const pLeftFarL = project(-5.4, 0, farZ);
-    const pLeftFarR = project(-2.3, 0, farZ);
-    const pLeftNearL = project(-6.0, 0, nearZ);
-    const pLeftNearR = project(-2.9, 0, nearZ);
+    const pLeftFarR = project(-2.2, 0, farZ);
+    const pLeftNearL = project(-5.4, 0, nearZ);
+    const pLeftNearR = project(-2.2, 0, nearZ);
 
     if (pLeftFarL && pLeftFarR && pLeftNearL && pLeftNearR) {
-      ctx.fillStyle = timeOfDay === 'night' ? '#171717' : '#262626';
+      ctx.fillStyle = timeOfDay === 'night' ? '#141414' : '#222222';
       ctx.beginPath();
       ctx.moveTo(pLeftFarL.x, pLeftFarL.y);
       ctx.lineTo(pLeftFarR.x, pLeftFarR.y);
@@ -295,67 +343,85 @@ export class Renderer25D {
     }
   }
 
-  drawRailTies(ctx, project, cameraZ, timeOfDay) {
-    const tieSpacing = 0.85; // Indian Railways sleeper spacing
-    const tieWidth = 1.35;   // half width for broad gauge concrete sleeper
-    const startZ = Math.floor(cameraZ / tieSpacing) * tieSpacing;
-    const endZ = cameraZ + 160;
+  drawRailTies(ctx, project, trainPos, timeOfDay) {
+    const tieSpacing = 0.82; // Indian Railways PSC sleeper spacing (~0.82m)
+    const tieHalfWidth = 1.30; // 2.6m total concrete sleeper length
 
-    ctx.fillStyle = timeOfDay === 'night' ? '#27272a' : '#52525b'; // PSC concrete sleepers
+    const isLookingBackward = this.cameraMode !== 'cab';
+    const minZ = isLookingBackward ? trainPos - 85 : trainPos + 0.6;
+    const maxZ = isLookingBackward ? (this.cameraMode === 'trackside' ? trainPos + 18.0 : trainPos + 11.2) : trainPos + 180;
 
-    for (let z = endZ; z >= startZ; z -= tieSpacing) {
-      if (z <= cameraZ + 0.5) continue;
+    const startZ = Math.floor(minZ / tieSpacing) * tieSpacing;
 
+    ctx.fillStyle = timeOfDay === 'night' ? '#2d3038' : '#4a505e'; // Pre-stressed concrete grey
+
+    for (let z = startZ; z <= maxZ; z += tieSpacing) {
       // Active Track Sleeper
-      const pL = project(-tieWidth, 0.05, z);
-      const pR = project(tieWidth, 0.05, z);
-      if (pL && pR) {
-        const thickness = Math.max(1.2, 3.8 * pL.scale);
-        ctx.fillRect(pL.x, pL.y - thickness, pR.x - pL.x, thickness);
+      const pL = project(-tieHalfWidth, 0.08, z);
+      const pR = project(tieHalfWidth, 0.08, z);
+
+      if (pL && pR && pL.scale > 0.05) {
+        const thickness = Math.max(1.2, Math.min(14, 0.16 * pL.scale));
+        const wTie = pR.x - pL.x;
+        ctx.fillRect(pL.x, pL.y - thickness, wTie, thickness);
+
+        // Pandrol clip fastenings (dark iron spots on sleeper)
+        if (pL.scale > 25) {
+          ctx.fillStyle = '#0f172a';
+          const pClipL = project(-0.84, 0.10, z);
+          const pClipR = project(0.84, 0.10, z);
+          if (pClipL && pClipR) {
+            const clipW = Math.max(2, 0.09 * pL.scale);
+            ctx.fillRect(pClipL.x - clipW * 0.5, pClipL.y - thickness, clipW, thickness * 0.7);
+            ctx.fillRect(pClipR.x - clipW * 0.5, pClipR.y - thickness, clipW, thickness * 0.7);
+          }
+          ctx.fillStyle = timeOfDay === 'night' ? '#2d3038' : '#4a505e';
+        }
       }
 
       // Parallel Left Track Sleeper
-      const pLeftL = project(-3.6 - tieWidth, 0.05, z);
-      const pLeftR = project(-3.6 + tieWidth, 0.05, z);
-      if (pLeftL && pLeftR) {
-        const thickness = Math.max(1.0, 3.2 * pLeftL.scale);
-        ctx.fillRect(pLeftL.x, pLeftL.y - thickness, pLeftR.x - pLeftL.x, thickness);
+      const pLL = project(-3.8 - tieHalfWidth, 0.08, z);
+      const pLR = project(-3.8 + tieHalfWidth, 0.08, z);
+      if (pLL && pLR && pLL.scale > 0.05) {
+        const thickness = Math.max(1.0, Math.min(12, 0.14 * pLL.scale));
+        ctx.fillRect(pLL.x, pLL.y - thickness, pLR.x - pLL.x, thickness);
       }
     }
   }
 
-  drawSteelRails(ctx, project, cameraZ, trackHalfGauge, headlightsOn, timeOfDay) {
-    const steps = 40;
-    const maxViewZ = 340;
-    const stepSize = maxViewZ / steps;
+  drawSteelRails(ctx, project, trainPos, trackHalfGauge, headlightsOn, timeOfDay) {
+    const isLookingBackward = this.cameraMode !== 'cab';
+    const steps = 35;
+    const minZ = isLookingBackward ? trainPos - 90 : trainPos + 0.6;
+    const maxZ = isLookingBackward ? (this.cameraMode === 'trackside' ? trainPos + 18.0 : trainPos + 11.2) : trainPos + 220;
+    const stepSize = (maxZ - minZ) / steps;
 
-    // Active Track Rails
     const leftRail = [];
     const rightRail = [];
-    // Left Parallel Track Rails
     const leftTrkL = [];
     const leftTrkR = [];
 
     for (let i = 0; i <= steps; i++) {
-      const z = cameraZ + 0.8 + (i * stepSize);
+      const z = minZ + (i * stepSize);
 
-      const pL = project(-trackHalfGauge, 0.16, z);
-      const pR = project(trackHalfGauge, 0.16, z);
+      // Active Track Rails
+      const pL = project(-trackHalfGauge, 0.18, z);
+      const pR = project(trackHalfGauge, 0.18, z);
       if (pL && pR) {
         leftRail.push(pL);
         rightRail.push(pR);
       }
 
-      const pLL = project(-3.6 - trackHalfGauge, 0.16, z);
-      const pLR = project(-3.6 + trackHalfGauge, 0.16, z);
+      // Parallel Left Track Rails
+      const pLL = project(-3.8 - trackHalfGauge, 0.18, z);
+      const pLR = project(-3.8 + trackHalfGauge, 0.18, z);
       if (pLL && pLR) {
         leftTrkL.push(pLL);
         leftTrkR.push(pLR);
       }
     }
 
-    // Render Shiny Steel Rails
-    const drawRail = (pts, width, color) => {
+    const drawRailStroke = (pts, color, width) => {
       if (pts.length < 2) return;
       ctx.strokeStyle = color;
       ctx.lineWidth = width;
@@ -365,34 +431,39 @@ export class Renderer25D {
       ctx.stroke();
     };
 
-    // Active track base and shiny chrome head
-    drawRail(leftRail, 4, '#090d16');
-    drawRail(rightRail, 4, '#090d16');
-    drawRail(leftRail, 2.4, '#e2e8f0');
-    drawRail(rightRail, 2.4, '#e2e8f0');
-    drawRail(leftRail, 1.2, '#ffffff');
-    drawRail(rightRail, 1.2, '#ffffff');
+    // Dark Rail Web Base
+    drawRailStroke(leftRail, '#0a0f1d', 4.0);
+    drawRailStroke(rightRail, '#0a0f1d', 4.0);
+    drawRailStroke(leftTrkL, '#0a0f1d', 3.0);
+    drawRailStroke(leftTrkR, '#0a0f1d', 3.0);
 
-    // Parallel track rails
-    drawRail(leftTrkL, 3, '#090d16');
-    drawRail(leftTrkR, 3, '#090d16');
-    drawRail(leftTrkL, 2, '#94a3b8');
-    drawRail(leftTrkR, 2, '#94a3b8');
+    // Steel Specular Highlight on Railheads
+    drawRailStroke(leftRail, '#94a3b8', 2.4);
+    drawRailStroke(rightRail, '#94a3b8', 2.4);
+    drawRailStroke(leftTrkL, '#64748b', 1.8);
+    drawRailStroke(leftTrkR, '#64748b', 1.8);
+
+    // Glistening Chrome Top Reflection from Headlights & Platform Lamps
+    drawRailStroke(leftRail, '#ffffff', 1.2);
+    drawRailStroke(rightRail, '#ffffff', 1.2);
   }
 
-  drawOverheadCatenary(ctx, project, cameraZ, timeOfDay) {
-    // 25kV OHE Catenary Wire & Contact Wire
-    const steps = 30;
-    const stepSize = 10;
+  drawOverheadCatenary(ctx, project, trainPos, timeOfDay) {
+    const isLookingBackward = this.cameraMode !== 'cab';
+    const steps = 25;
+    const minZ = isLookingBackward ? trainPos - 80 : trainPos + 0.6;
+    const maxZ = isLookingBackward ? (this.cameraMode === 'trackside' ? trainPos + 18.0 : trainPos + 11.2) : trainPos + 220;
+    const stepSize = (maxZ - minZ) / steps;
+
     const catenaryWire = [];
     const contactWire = [];
 
     for (let i = 0; i <= steps; i++) {
-      const z = cameraZ + 0.8 + (i * stepSize);
-      // Droop sag between masts
-      const sag = Math.sin((z % 65) / 65 * Math.PI) * 0.18;
-      const pTop = project(0, 5.8 - sag, z);
-      const pContact = project(0, 5.2, z);
+      const z = minZ + (i * stepSize);
+      // Realistic catenary droop sag between masts (span ~65m)
+      const sag = Math.sin(((z % 65) / 65) * Math.PI) * 0.16;
+      const pTop = project(0, 5.85 - sag, z);
+      const pContact = project(0, 5.30, z); // 25kV contact wire
 
       if (pTop && pContact) {
         catenaryWire.push(pTop);
@@ -410,129 +481,216 @@ export class Renderer25D {
       ctx.stroke();
     };
 
-    drawWire(catenaryWire, 'rgba(148, 163, 184, 0.4)', 1.2);
-    drawWire(contactWire, 'rgba(253, 224, 71, 0.65)', 1.5); // copper contact wire
+    // Messenger Wire & Contact Wire
+    drawWire(catenaryWire, 'rgba(148, 163, 184, 0.45)', 1.2);
+    drawWire(contactWire, 'rgba(253, 224, 71, 0.70)', 1.5); // copper contact wire
   }
 
-  drawStations(ctx, project, cameraZ, stationSystem, trackHalfGauge, timeOfDay) {
-    const stations = stationSystem.stations || [];
+  /**
+   * Station Platform (Arakkonam Junction)
+   * Continuous corrugated blue canopy roof, paved stone deck, red coping curb stones,
+   * yellow tactile line, steel support columns, ceiling fluorescent lamps, and trilingual yellow station signboard.
+   */
+  drawStationPlatform(ctx, project, trainPos, stationSystem, timeOfDay) {
+    let zClose, zFar;
+    if (this.cameraMode === 'cab') {
+      zClose = trainPos + 0.8;
+      zFar = trainPos + 220;
+    } else if (this.cameraMode === 'trackside') {
+      zClose = trainPos + 17.0;
+      zFar = trainPos - 90;
+    } else {
+      zClose = trainPos + 9.6;
+      zFar = trainPos - 90;
+    }
 
-    for (const st of stations) {
-      const dist = st.stopPosition - cameraZ;
-      if (dist < -120 || dist > 450) continue;
+    const minZ = Math.min(zClose, zFar);
+    const maxZ = Math.max(zClose, zFar);
 
-      const platLength = st.platformLength || 160;
-      const platStart = st.stopPosition - platLength * 0.72;
-      const platEnd = st.stopPosition + platLength * 0.28;
-      const platSideX = trackHalfGauge + 1.1; // 1.94m from center
-      const platWidth = 5.2;
-      const platHeight = 0.95; // high-level Indian Railway passenger platform
+    const platSideX = 1.95; // right edge facing active track
+    const platWidth = 5.5;  // platform width
+    const platHeight = 1.05; // high-level Indian passenger platform
 
-      // 1. Platform Deck Surface (Tiled stone)
-      const pNearFront = project(platSideX, platHeight, Math.max(cameraZ + 0.8, platStart));
-      const pNearBack = project(platSideX + platWidth, platHeight, Math.max(cameraZ + 0.8, platStart));
-      const pFarFront = project(platSideX, platHeight, platEnd);
-      const pFarBack = project(platSideX + platWidth, platHeight, platEnd);
+    const pNearFront = project(platSideX, platHeight, zClose);
+    const pNearBack = project(platSideX + platWidth, platHeight, zClose);
+    const pFarFront = project(platSideX, platHeight, zFar);
+    const pFarBack = project(platSideX + platWidth, platHeight, zFar);
 
-      if (pNearFront && pNearBack && pFarFront && pFarBack) {
-        // Platform Deck Stone Surface
-        const platGrad = ctx.createLinearGradient(pNearFront.x, 0, pNearBack.x, 0);
-        platGrad.addColorStop(0, '#cbd5e1'); // Stone grey tiles
-        platGrad.addColorStop(0.3, '#94a3b8');
-        platGrad.addColorStop(1.0, '#64748b');
+    if (pNearFront && pNearBack && pFarFront && pFarBack) {
+      // 1. Platform Deck Surface (Paved stone slabs with perspective depth)
+      const platGrad = ctx.createLinearGradient(pNearFront.x, 0, pNearBack.x, 0);
+      platGrad.addColorStop(0, '#e2e8f0'); // Grey stone tiles
+      platGrad.addColorStop(0.4, '#cbd5e1');
+      platGrad.addColorStop(1.0, '#94a3b8');
 
-        ctx.fillStyle = platGrad;
+      ctx.fillStyle = platGrad;
+      ctx.beginPath();
+      ctx.moveTo(pNearFront.x, pNearFront.y);
+      ctx.lineTo(pNearBack.x, pNearBack.y);
+      ctx.lineTo(pFarBack.x, pFarBack.y);
+      ctx.lineTo(pFarFront.x, pFarFront.y);
+      ctx.closePath();
+      ctx.fill();
+
+      // Platform Stone Tile Grid Lines
+      ctx.strokeStyle = 'rgba(100, 116, 139, 0.35)';
+      ctx.lineWidth = 1;
+      for (let z = Math.floor(minZ / 4) * 4; z <= maxZ; z += 4) {
+        const ptL = project(platSideX, platHeight, z);
+        const ptR = project(platSideX + platWidth, platHeight, z);
+        if (ptL && ptR) {
+          ctx.beginPath();
+          ctx.moveTo(ptL.x, ptL.y);
+          ctx.lineTo(ptR.x, ptR.y);
+          ctx.stroke();
+        }
+      }
+
+      // 2. Vertical Concrete Face facing track
+      const pNearBase = project(platSideX, 0, zClose);
+      const pFarBase = project(platSideX, 0, zFar);
+      if (pNearBase && pFarBase) {
+        ctx.fillStyle = '#1e293b';
         ctx.beginPath();
         ctx.moveTo(pNearFront.x, pNearFront.y);
-        ctx.lineTo(pNearBack.x, pNearBack.y);
-        ctx.lineTo(pFarBack.x, pFarBack.y);
+        ctx.lineTo(pFarFront.x, pFarFront.y);
+        ctx.lineTo(pFarBase.x, pFarBase.y);
+        ctx.lineTo(pNearBase.x, pNearBase.y);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // 3. Indian Red Coping Curb Stones along Track Edge
+      const pNearRedBack = project(platSideX + 0.35, platHeight, zClose);
+      const pFarRedBack = project(platSideX + 0.35, platHeight, zFar);
+      if (pNearRedBack && pFarRedBack) {
+        ctx.fillStyle = '#b91c1c'; // Classic Indian Railways Red platform edge
+        ctx.beginPath();
+        ctx.moveTo(pNearFront.x, pNearFront.y);
+        ctx.lineTo(pNearRedBack.x, pNearRedBack.y);
+        ctx.lineTo(pFarRedBack.x, pFarRedBack.y);
         ctx.lineTo(pFarFront.x, pFarFront.y);
         ctx.closePath();
         ctx.fill();
+      }
 
-        // Platform Vertical Concrete Wall Facing Track
-        const pNearBase = project(platSideX, 0, Math.max(cameraZ + 0.8, platStart));
-        const pFarBase = project(platSideX, 0, platEnd);
-        if (pNearBase && pFarBase) {
-          ctx.fillStyle = '#1e293b';
-          ctx.beginPath();
-          ctx.moveTo(pNearFront.x, pNearFront.y);
-          ctx.lineTo(pFarFront.x, pFarFront.y);
-          ctx.lineTo(pFarBase.x, pFarBase.y);
-          ctx.lineTo(pNearBase.x, pNearBase.y);
-          ctx.closePath();
-          ctx.fill();
-        }
+      // 4. Bright Yellow Tactile Safety Line
+      const pNearYellow = project(platSideX + 0.65, platHeight, zClose);
+      const pFarYellow = project(platSideX + 0.65, platHeight, zFar);
+      if (pNearYellow && pFarYellow) {
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = Math.max(2, Math.min(6, 0.08 * pNearYellow.scale));
+        ctx.beginPath();
+        ctx.moveTo(pNearYellow.x, pNearYellow.y);
+        ctx.lineTo(pFarYellow.x, pFarYellow.y);
+        ctx.stroke();
+      }
 
-        // Red Coping Stone Edge along Platform Edge (classic Indian Railway platform)
-        const pNearRedBack = project(platSideX + 0.35, platHeight, Math.max(cameraZ + 0.8, platStart));
-        const pFarRedBack = project(platSideX + 0.35, platHeight, platEnd);
-        if (pNearRedBack && pFarRedBack) {
-          ctx.fillStyle = '#b91c1c'; // Indian Red platform curb edge
-          ctx.beginPath();
-          ctx.moveTo(pNearFront.x, pNearFront.y);
-          ctx.lineTo(pNearRedBack.x, pNearRedBack.y);
-          ctx.lineTo(pFarRedBack.x, pFarRedBack.y);
-          ctx.lineTo(pFarFront.x, pFarFront.y);
-          ctx.closePath();
-          ctx.fill();
-        }
+      // 5. Continuous Blue Corrugated Iron Canopy Platform Roof Overhead
+      const pCanopyNearL = project(platSideX - 0.4, platHeight + 4.8, zClose);
+      const pCanopyNearR = project(platSideX + 5.5, platHeight + 4.4, zClose);
+      const pCanopyFarL = project(platSideX - 0.4, platHeight + 4.8, zFar);
+      const pCanopyFarR = project(platSideX + 5.5, platHeight + 4.4, zFar);
 
-        // Yellow Platform Safety Line
-        const pNearYellow = project(platSideX + 0.65, platHeight, Math.max(cameraZ + 0.8, platStart));
-        const pFarYellow = project(platSideX + 0.65, platHeight, platEnd);
-        if (pNearYellow && pFarYellow) {
-          ctx.strokeStyle = '#facc15';
-          ctx.lineWidth = Math.max(2, 4.5 * pNearYellow.scale);
-          ctx.beginPath();
-          ctx.moveTo(pNearYellow.x, pNearYellow.y);
-          ctx.lineTo(pFarYellow.x, pFarYellow.y);
-          ctx.stroke();
-        }
+      if (pCanopyNearL && pCanopyNearR && pCanopyFarL && pCanopyFarR) {
+        const canopyGrad = ctx.createLinearGradient(pCanopyNearL.x, 0, pCanopyNearR.x, 0);
+        canopyGrad.addColorStop(0, '#1e3a8a');
+        canopyGrad.addColorStop(0.3, '#1d4ed8');
+        canopyGrad.addColorStop(0.7, '#2563eb');
+        canopyGrad.addColorStop(1.0, '#1e40af');
 
-        // Platform Corrugated Blue Canopy Roof Shed (as seen in screenshot)
-        for (let postZ = platStart + 15; postZ < platEnd; postZ += 28) {
-          if (postZ < cameraZ + 0.8) continue;
-          const pPostBase = project(platSideX + 2.8, platHeight, postZ);
-          const pPostTop = project(platSideX + 2.8, platHeight + 4.2, postZ);
-          const pCanopyLeft = project(platSideX - 0.6, platHeight + 4.8, postZ);
-          const pCanopyRight = project(platSideX + 5.0, platHeight + 4.4, postZ);
+        ctx.fillStyle = canopyGrad;
+        ctx.beginPath();
+        ctx.moveTo(pCanopyNearL.x, pCanopyNearL.y);
+        ctx.lineTo(pCanopyNearR.x, pCanopyNearR.y);
+        ctx.lineTo(pCanopyFarR.x, pCanopyFarR.y);
+        ctx.lineTo(pCanopyFarL.x, pCanopyFarL.y);
+        ctx.closePath();
+        ctx.fill();
 
-          if (pPostBase && pPostTop && pCanopyLeft && pCanopyRight) {
-            // Steel Support Column
-            ctx.strokeStyle = '#1e3a8a';
-            ctx.lineWidth = Math.max(2.5, 6 * pPostBase.scale);
+        // Corrugated roof rib lines
+        ctx.strokeStyle = 'rgba(147, 197, 253, 0.25)';
+        ctx.lineWidth = 1;
+        for (let cz = Math.floor(minZ / 5) * 5; cz <= maxZ; cz += 5) {
+          const pRibL = project(platSideX - 0.4, platHeight + 4.8, cz);
+          const pRibR = project(platSideX + 5.5, platHeight + 4.4, cz);
+          if (pRibL && pRibR) {
             ctx.beginPath();
-            ctx.moveTo(pPostBase.x, pPostBase.y);
-            ctx.lineTo(pPostTop.x, pPostTop.y);
+            ctx.moveTo(pRibL.x, pRibL.y);
+            ctx.lineTo(pRibR.x, pRibR.y);
             ctx.stroke();
-
-            // Roof Triangular Steel Truss Girder
-            ctx.strokeStyle = '#2563eb';
-            ctx.lineWidth = Math.max(2, 4 * pPostBase.scale);
-            ctx.beginPath();
-            ctx.moveTo(pCanopyLeft.x, pCanopyLeft.y);
-            ctx.lineTo(pPostTop.x, pPostTop.y);
-            ctx.lineTo(pCanopyRight.x, pCanopyRight.y);
-            ctx.stroke();
-
-            // Corrugated Blue Metal Roof Sheet
-            ctx.fillStyle = '#1d4ed8';
-            ctx.fillRect(pCanopyLeft.x, pCanopyLeft.y - (4 * pPostBase.scale), Math.abs(pCanopyRight.x - pCanopyLeft.x), 5 * pPostBase.scale);
           }
         }
       }
 
-      // 2. Indian Railways Yellow Enamel Station Board Signpost
-      const pSignBase = project(platSideX + 2.8, platHeight, st.stopPosition - 18);
-      const pSignTop = project(platSideX + 2.8, platHeight + 3.2, st.stopPosition - 18);
-      if (pSignBase && pSignTop && pSignBase.scale > 0.002) {
-        const signW = 140 * pSignBase.scale;
-        const signH = 50 * pSignBase.scale;
+      // Support Columns, Rafter Trusses & Ceiling Fluorescent Lights
+      const pillarSpacing = 24;
+      const startPillarZ = Math.floor(minZ / pillarSpacing) * pillarSpacing;
 
-        // Signpost Legs
+      for (let pz = startPillarZ; pz <= maxZ; pz += pillarSpacing) {
+        const pPostBase = project(platSideX + 2.8, platHeight, pz);
+        const pPostTop = project(platSideX + 2.8, platHeight + 4.2, pz);
+        const pCanopyLeft = project(platSideX - 0.4, platHeight + 4.8, pz);
+        const pCanopyRight = project(platSideX + 5.5, platHeight + 4.4, pz);
+
+        if (pPostBase && pPostTop && pCanopyLeft && pCanopyRight && pPostBase.scale > 0.05) {
+          // Structural Steel Column
+          ctx.strokeStyle = '#0f172a';
+          ctx.lineWidth = Math.max(2.5, Math.min(10, 0.16 * pPostBase.scale));
+          ctx.beginPath();
+          ctx.moveTo(pPostBase.x, pPostBase.y);
+          ctx.lineTo(pPostTop.x, pPostTop.y);
+          ctx.stroke();
+
+          // Triangular Steel Roof Truss
+          ctx.strokeStyle = '#1e3a8a';
+          ctx.lineWidth = Math.max(1.8, Math.min(6, 0.09 * pPostBase.scale));
+          ctx.beginPath();
+          ctx.moveTo(pCanopyLeft.x, pCanopyLeft.y);
+          ctx.lineTo(pPostTop.x, pPostTop.y);
+          ctx.lineTo(pCanopyRight.x, pCanopyRight.y);
+          ctx.stroke();
+
+          // Overhead Fluorescent Ceiling Tube Light
+          const pLamp = project(platSideX + 2.0, platHeight + 4.1, pz);
+          if (pLamp && pLamp.scale > 15) {
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#fef08a';
+            ctx.shadowBlur = 10;
+            ctx.fillRect(pLamp.x - 14, pLamp.y - 2, 28, 4);
+            ctx.shadowBlur = 0;
+
+            // Warm Light Pool on Platform Floor
+            const pFloorPool = project(platSideX + 2.0, platHeight, pz);
+            if (pFloorPool) {
+              const radGrad = ctx.createRadialGradient(
+                pFloorPool.x, pFloorPool.y, 6,
+                pFloorPool.x, pFloorPool.y, Math.max(25, 0.9 * pFloorPool.scale)
+              );
+              radGrad.addColorStop(0, 'rgba(254, 240, 138, 0.28)');
+              radGrad.addColorStop(1, 'rgba(254, 240, 138, 0.0)');
+              ctx.fillStyle = radGrad;
+              ctx.beginPath();
+              ctx.arc(pFloorPool.x, pFloorPool.y, Math.max(25, 0.9 * pFloorPool.scale), 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        }
+      }
+
+      // 6. Indian Railways Yellow Enamel Station Signboard
+      const signZ = (this.cameraMode === 'cab') ? trainPos + 35 : trainPos - 6.5;
+      const pSignBase = project(platSideX + 3.2, platHeight, signZ);
+      const pSignTop = project(platSideX + 3.2, platHeight + 3.0, signZ);
+
+      if (pSignBase && pSignTop && pSignBase.scale > 10) {
+        const sc = pSignBase.scale;
+        const signW = 2.4 * sc; // 2.4m wide signboard
+        const signH = 0.85 * sc; // 0.85m tall signboard
+
+        // Twin Support Legs
         ctx.strokeStyle = '#334155';
-        ctx.lineWidth = Math.max(2, 4 * pSignBase.scale);
+        ctx.lineWidth = Math.max(2, 0.08 * sc);
         ctx.beginPath();
         ctx.moveTo(pSignTop.x - signW * 0.35, pSignBase.y);
         ctx.lineTo(pSignTop.x - signW * 0.35, pSignTop.y);
@@ -540,279 +698,298 @@ export class Renderer25D {
         ctx.lineTo(pSignTop.x + signW * 0.35, pSignTop.y);
         ctx.stroke();
 
-        // Yellow Enamel Board
-        ctx.fillStyle = '#facc15'; // Authentic Indian Railway yellow
+        // Authentic Indian Railways Enamel Yellow Board
+        ctx.fillStyle = '#facc15';
         ctx.fillRect(pSignTop.x - signW * 0.5, pSignTop.y - signH * 0.5, signW, signH);
         ctx.strokeStyle = '#000000';
-        ctx.lineWidth = Math.max(1.5, 3 * pSignBase.scale);
+        ctx.lineWidth = Math.max(1.5, 0.04 * sc);
         ctx.strokeRect(pSignTop.x - signW * 0.5, pSignTop.y - signH * 0.5, signW, signH);
 
         // Station Names (Tamil / English / Hindi)
-        if (signH > 18) {
+        if (signH > 22) {
           ctx.fillStyle = '#000000';
           ctx.textAlign = 'center';
-          ctx.font = `bold ${Math.max(8, Math.round(11 * pSignBase.scale * 10))}px Inter, sans-serif`;
-          ctx.fillText(st.name || 'ARAKKONAM', pSignTop.x, pSignTop.y + 2);
 
-          if (st.nativeTamil && signH > 28) {
-            ctx.font = `bold ${Math.max(7, Math.round(8 * pSignBase.scale * 10))}px sans-serif`;
-            ctx.fillText(st.nativeTamil, pSignTop.x, pSignTop.y - signH * 0.24);
-          }
-          if (st.nativeHindi && signH > 28) {
-            ctx.font = `bold ${Math.max(7, Math.round(8 * pSignBase.scale * 10))}px sans-serif`;
-            ctx.fillText(st.nativeHindi, pSignTop.x, pSignTop.y + signH * 0.32);
+          // English: ARAKKONAM
+          const fSizeEng = Math.max(9, Math.round(0.22 * sc));
+          ctx.font = `900 ${fSizeEng}px 'Inter', sans-serif`;
+          ctx.fillText('ARAKKONAM', pSignTop.x, pSignTop.y + fSizeEng * 0.3);
+
+          // Tamil: அரக்கோணம்
+          if (signH > 38) {
+            const fSizeNative = Math.max(8, Math.round(0.16 * sc));
+            ctx.font = `bold ${fSizeNative}px sans-serif`;
+            ctx.fillText('அரக்கோணம்', pSignTop.x, pSignTop.y - signH * 0.24);
+
+            // Hindi: अरक्कोणम
+            ctx.fillText('अरक्कोणम', pSignTop.x, pSignTop.y + signH * 0.36);
           }
           ctx.textAlign = 'left';
-        }
-      }
-
-      // 3. STOP TARGET ZONE MARKER on Track & Platform
-      const stopZ = st.stopPosition;
-      if (stopZ > cameraZ + 0.5 && stopZ < cameraZ + 350) {
-        const pStopL = project(-trackHalfGauge * 1.3, 0.08, stopZ);
-        const pStopR = project(trackHalfGauge * 1.3, 0.08, stopZ);
-        const pPlatStop = project(platSideX + 1.2, platHeight + 0.05, stopZ);
-
-        if (pStopL && pStopR) {
-          ctx.strokeStyle = '#ef4444';
-          ctx.lineWidth = Math.max(3, 7 * pStopL.scale);
-          ctx.beginPath();
-          ctx.moveTo(pStopL.x, pStopL.y);
-          ctx.lineTo(pStopR.x, pStopR.y);
-          ctx.stroke();
-
-          if (pPlatStop && pPlatStop.scale > 0.003) {
-            ctx.font = 'bold 12px Inter, sans-serif';
-            ctx.fillStyle = '#ef4444';
-            ctx.fillText('🛑 STOP TARGET', pPlatStop.x, pPlatStop.y);
-          }
         }
       }
     }
   }
 
-  drawScenery(ctx, project, cameraZ, trackManager, timeOfDay) {
-    const scenery = trackManager.scenery || [];
+  /**
+   * Scenery Elements (Depth-Sorted with Painter's Algorithm):
+   * Coolies in red kurtas carrying trunks, walking passengers with bags,
+   * Chai & snack stalls, luggage trolleys, parked opposing train rake, and catenary gantries.
+   */
+  drawScenery(ctx, project, trainPos, trackManager, timeOfDay) {
+    const rawScenery = trackManager?.scenery || [];
 
-    for (const item of scenery) {
-      const relZ = item.position - cameraZ;
-      if (relZ < 1 || relZ > 420) continue;
+    // Map and depth-sort scenery items from furthest to nearest
+    const scenery = rawScenery.map(item => {
+      const p = project(item.dist || 3.4, 1.05, item.position);
+      return { item, p, relZ: p ? p.relZ : -1 };
+    }).filter(o => o.p && o.p.scale > 6 && o.p.scale < 250);
 
-      // 1. Coolies (Porters in red kurtas carrying trunks on head)
+    // Sort descending by distance (furthest items drawn first)
+    scenery.sort((a, b) => b.relZ - a.relZ);
+
+    for (const { item, p } of scenery) {
+      // 1. Indian Railways Coolie (Porter in red kurta carrying luggage trunk on head)
       if (item.type === 'coolie') {
-        const p = project(item.dist, 0.95, item.position);
-        if (p && p.scale > 0.002) {
-          const sc = p.scale * 14;
-          const coolieH = 34 * sc;
-          const coolieW = 14 * sc;
+        const sc = p.scale;
+        const hCoolie = 1.72 * sc;
+        const wCoolie = 0.55 * sc;
 
-          // Red Kurta Body
-          ctx.fillStyle = '#dc2626'; // Vibrant red
-          ctx.fillRect(p.x - coolieW * 0.4, p.y - coolieH * 0.72, coolieW * 0.8, coolieH * 0.45);
+        // White Dhoti / Pyjamas (standing on platform at p.y)
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(p.x - wCoolie * 0.35, p.y - hCoolie * 0.48, wCoolie * 0.32, hCoolie * 0.48);
+        ctx.fillRect(p.x + wCoolie * 0.03, p.y - hCoolie * 0.48, wCoolie * 0.32, hCoolie * 0.48);
 
-          // Head with turban
-          ctx.fillStyle = '#d97706'; // turban
-          ctx.beginPath();
-          ctx.arc(p.x, p.y - coolieH * 0.82, coolieW * 0.35, 0, Math.PI * 2);
-          ctx.fill();
+        // Traditional Scarlet Red Kurta
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(p.x - wCoolie * 0.45, p.y - hCoolie * 0.85, wCoolie * 0.90, hCoolie * 0.42);
 
-          // Dhoti / Trousers
-          ctx.fillStyle = '#f8fafc';
-          ctx.fillRect(p.x - coolieW * 0.35, p.y - coolieH * 0.32, coolieW * 0.3, coolieH * 0.32);
-          ctx.fillRect(p.x + coolieW * 0.05, p.y - coolieH * 0.32, coolieW * 0.3, coolieH * 0.32);
+        // Brass Porter Arm Badge
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(p.x - wCoolie * 0.52, p.y - hCoolie * 0.74, wCoolie * 0.18, hCoolie * 0.10);
 
-          // Luggage Trunk Box Balanced on Head!
-          ctx.fillStyle = item.trunkColor || '#b45309';
-          ctx.fillRect(p.x - coolieW * 0.75, p.y - coolieH * 1.15, coolieW * 1.5, coolieH * 0.32);
-          ctx.strokeStyle = '#fef08a';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(p.x - coolieW * 0.75, p.y - coolieH * 1.15, coolieW * 1.5, coolieH * 0.32);
-        }
+        // Head & Turban
+        ctx.fillStyle = '#b45309';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y - hCoolie * 0.90, wCoolie * 0.28, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Turban Cloth Roll (Head Cushion Pad / Gamchha)
+        ctx.fillStyle = '#e11d48'; // Red rolled gamchha on head
+        ctx.fillRect(p.x - wCoolie * 0.38, p.y - hCoolie * 1.05, wCoolie * 0.76, hCoolie * 0.08);
+
+        // Large Metal Luggage Trunk Balanced Directly on Head Cushion
+        const trunkW = 0.88 * sc;
+        const trunkH = 0.38 * sc;
+        const trunkBottomY = p.y - hCoolie * 1.05;
+        ctx.fillStyle = item.trunkColor || '#b45309';
+        ctx.fillRect(p.x - trunkW * 0.5, trunkBottomY - trunkH, trunkW, trunkH);
+        ctx.strokeStyle = '#fde047';
+        ctx.lineWidth = Math.max(1, 0.025 * sc);
+        ctx.strokeRect(p.x - trunkW * 0.5, trunkBottomY - trunkH, trunkW, trunkH);
+
+        // Trunk Metal Corner Brackets & Latches
+        ctx.fillStyle = '#fde047';
+        const bSize = Math.max(2, 0.06 * sc);
+        ctx.fillRect(p.x - trunkW * 0.5, trunkBottomY - trunkH, bSize, bSize);
+        ctx.fillRect(p.x + trunkW * 0.5 - bSize, trunkBottomY - trunkH, bSize, bSize);
+        ctx.fillRect(p.x - trunkW * 0.5, trunkBottomY - bSize, bSize, bSize);
+        ctx.fillRect(p.x + trunkW * 0.5 - bSize, trunkBottomY - bSize, bSize, bSize);
+
+        // Arms Raised Holding Trunk Sides (Iconic Coolie Pose!)
+        ctx.strokeStyle = '#dc2626';
+        ctx.lineWidth = Math.max(2.5, 0.08 * sc);
+        ctx.beginPath();
+        ctx.moveTo(p.x - wCoolie * 0.40, p.y - hCoolie * 0.80);
+        ctx.lineTo(p.x - trunkW * 0.46, trunkBottomY - trunkH * 0.20);
+        ctx.moveTo(p.x + wCoolie * 0.40, p.y - hCoolie * 0.80);
+        ctx.lineTo(p.x + trunkW * 0.46, trunkBottomY - trunkH * 0.20);
+        ctx.stroke();
       }
-      // 2. Passengers walking with bags
+      // 2. Platform Passengers with Bags & Rolling Suitcases
       else if (item.type === 'passenger') {
-        const p = project(item.dist, 0.95, item.position);
-        if (p && p.scale > 0.002) {
-          const sc = p.scale * 14;
-          const passH = 32 * sc;
-          const passW = 12 * sc;
+        const sc = p.scale;
+        const hPass = 1.70 * sc;
+        const wPass = 0.50 * sc;
 
-          // Shirt
-          ctx.fillStyle = item.shirtColor || '#f8fafc';
-          ctx.fillRect(p.x - passW * 0.4, p.y - passH * 0.7, passW * 0.8, passH * 0.42);
+        // Dark Trousers / Legs (standing on platform deck at p.y)
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(p.x - wPass * 0.38, p.y - hPass * 0.46, wPass * 0.34, hPass * 0.46);
+        ctx.fillRect(p.x + wPass * 0.04, p.y - hPass * 0.46, wPass * 0.34, hPass * 0.46);
 
-          // Head
-          ctx.fillStyle = '#78350f';
-          ctx.beginPath();
-          ctx.arc(p.x, p.y - passH * 0.82, passW * 0.35, 0, Math.PI * 2);
-          ctx.fill();
+        // Shoes
+        ctx.fillStyle = '#020617';
+        ctx.fillRect(p.x - wPass * 0.42, p.y - hPass * 0.06, wPass * 0.40, hPass * 0.06);
+        ctx.fillRect(p.x + wPass * 0.02, p.y - hPass * 0.06, wPass * 0.40, hPass * 0.06);
 
-          // Trousers
-          ctx.fillStyle = '#1e293b';
-          ctx.fillRect(p.x - passW * 0.35, p.y - passH * 0.3, passW * 0.3, passH * 0.3);
-          ctx.fillRect(p.x + passW * 0.05, p.y - passH * 0.3, passW * 0.3, passH * 0.3);
+        // Shirt Torso
+        ctx.fillStyle = item.shirtColor || '#0284c7';
+        ctx.fillRect(p.x - wPass * 0.45, p.y - hPass * 0.82, wPass * 0.90, hPass * 0.38);
 
-          // Suitcase in hand
-          ctx.fillStyle = '#0284c7';
-          ctx.fillRect(p.x + passW * 0.45, p.y - passH * 0.35, passW * 0.4, passH * 0.25);
-        }
-      }
-      // 3. Indian Railway Chai / Snack Stall ("CHAI / SNACKS")
-      else if (item.type === 'tea_stall') {
-        const p = project(item.dist, 0.95, item.position);
-        if (p && p.scale > 0.002) {
-          const sc = p.scale * 16;
-          const stallW = 45 * sc;
-          const stallH = 38 * sc;
+        // Arms at sides
+        ctx.fillStyle = item.shirtColor || '#0284c7';
+        ctx.fillRect(p.x - wPass * 0.58, p.y - hPass * 0.80, wPass * 0.16, hPass * 0.34);
+        ctx.fillRect(p.x + wPass * 0.42, p.y - hPass * 0.80, wPass * 0.16, hPass * 0.34);
 
-          // Counter Base
-          ctx.fillStyle = '#78350f';
-          ctx.fillRect(p.x - stallW * 0.5, p.y - stallH * 0.5, stallW, stallH * 0.5);
+        // Neck & Head
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(p.x - wPass * 0.12, p.y - hPass * 0.88, wPass * 0.24, hPass * 0.08);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y - hPass * 0.92, wPass * 0.26, 0, Math.PI * 2);
+        ctx.fill();
 
-          // Warm Counter Illumination
-          ctx.fillStyle = '#fef08a';
-          ctx.fillRect(p.x - stallW * 0.45, p.y - stallH * 0.85, stallW * 0.9, stallH * 0.35);
-
-          // Chai Signboard
-          ctx.fillStyle = '#dc2626';
-          ctx.fillRect(p.x - stallW * 0.5, p.y - stallH * 1.05, stallW, stallH * 0.22);
-          if (stallW > 35) {
-            ctx.fillStyle = '#ffffff';
-            ctx.font = `bold ${Math.max(8, Math.round(9 * sc))}px Inter, sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.fillText('CHAI / SNACKS', p.x, p.y - stallH * 0.9);
-            ctx.textAlign = 'left';
-          }
-
-          // Striped Awning
-          ctx.fillStyle = '#f59e0b';
-          ctx.fillRect(p.x - stallW * 0.55, p.y - stallH * 1.15, stallW * 1.1, stallH * 0.12);
-        }
-      }
-      // 4. Luggage Trolleys & Push Carts
-      else if (item.type === 'trolley') {
-        const p = project(item.dist, 0.95, item.position);
-        if (p && p.scale > 0.002) {
-          const sc = p.scale * 14;
-          const tW = 28 * sc;
-          const tH = 16 * sc;
-
-          ctx.fillStyle = '#1e293b';
-          ctx.fillRect(p.x - tW * 0.5, p.y - tH * 0.5, tW, tH * 0.3);
-
-          // Sacks and parcels
-          ctx.fillStyle = '#d97706';
-          ctx.fillRect(p.x - tW * 0.4, p.y - tH * 1.1, tW * 0.8, tH * 0.6);
-
-          // Small Wheels
+        // Rolling Suitcase in Hand (for passengers with bags)
+        if (item.shirtColor !== '#f8fafc') {
           ctx.fillStyle = '#0f172a';
+          ctx.fillRect(p.x + wPass * 0.48, p.y - hPass * 0.38, wPass * 0.38, hPass * 0.35);
+          ctx.strokeStyle = '#94a3b8';
+          ctx.lineWidth = Math.max(1, 0.02 * sc);
+          ctx.strokeRect(p.x + wPass * 0.48, p.y - hPass * 0.38, wPass * 0.38, hPass * 0.35);
+          // Suitcase handle
+          ctx.strokeStyle = '#64748b';
           ctx.beginPath();
-          ctx.arc(p.x - tW * 0.35, p.y - tH * 0.1, 3 * sc, 0, Math.PI * 2);
-          ctx.arc(p.x + tW * 0.35, p.y - tH * 0.1, 3 * sc, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.moveTo(p.x + wPass * 0.60, p.y - hPass * 0.38);
+          ctx.lineTo(p.x + wPass * 0.60, p.y - hPass * 0.50);
+          ctx.stroke();
         }
       }
-      // 5. Parked Opposing Passenger Rake on Left Track
+      // 3. Indian Railway Chai & Snack Stall ("CHAI / SNACKS")
+      else if (item.type === 'tea_stall') {
+        const sc = p.scale;
+        const stallW = 2.4 * sc;
+        const stallH = 2.0 * sc;
+
+        // Counter Base (sitting firmly on platform surface at p.y)
+        ctx.fillStyle = '#451a03';
+        ctx.fillRect(p.x - stallW * 0.5, p.y - stallH * 0.45, stallW, stallH * 0.45);
+
+        // Warm Illuminated Display Shelves with snacks and tea kettle
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(p.x - stallW * 0.45, p.y - stallH * 0.75, stallW * 0.9, stallH * 0.30);
+
+        // Snack Jars
+        ctx.fillStyle = '#b45309';
+        const numJars = 4;
+        for (let j = 0; j < numJars; j++) {
+          ctx.fillRect(p.x - stallW * 0.4 + (j * stallW * 0.22), p.y - stallH * 0.70, stallW * 0.14, stallH * 0.20);
+        }
+
+        // Red Header Board with "CHAI / SNACKS"
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(p.x - stallW * 0.5, p.y - stallH * 0.98, stallW, stallH * 0.23);
+        if (stallW > 35) {
+          ctx.fillStyle = '#ffffff';
+          ctx.font = `900 ${Math.max(8, Math.round(0.12 * sc))}px 'Inter', sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.fillText('CHAI / SNACKS', p.x, p.y - stallH * 0.81);
+          ctx.textAlign = 'left';
+        }
+
+        // Striped Yellow/Red Awning
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(p.x - stallW * 0.55, p.y - stallH * 1.12, stallW * 1.1, stallH * 0.14);
+      }
+      // 4. Station Luggage Trolley & Wheelbarrow
+      else if (item.type === 'trolley') {
+        const sc = p.scale;
+        const tW = 1.4 * sc;
+        const tH = 0.8 * sc;
+
+        // Metal Frame
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(p.x - tW * 0.5, p.y - tH * 0.45, tW, tH * 0.30);
+
+        // Stack of Burlap Parcels
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(p.x - tW * 0.4, p.y - tH * 0.95, tW * 0.8, tH * 0.55);
+
+        // Wheels
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(p.x - tW * 0.35, p.y - tH * 0.12, Math.max(2, 0.08 * sc), 0, Math.PI * 2);
+        ctx.arc(p.x + tW * 0.35, p.y - tH * 0.12, Math.max(2, 0.08 * sc), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // 5. Parked Opposing Passenger Rake on Left Track (Blue ICF Coaches)
       else if (item.type === 'parked_train') {
-        const pFront = project(-3.6, 0.8, item.position);
-        const pRear = project(-3.6, 0.8, item.endPosition || item.position + 60);
-        if (pFront && pRear) {
-          const sc = pFront.scale * 22;
-          const coachH = 45 * sc;
-          const coachW = 28 * sc;
+        const coachLength = 22;
+        for (let k = 0; k < 2; k++) {
+          const cZ = item.position + (k * coachLength);
+          const pF = project(-3.8, 0.85, cZ);
+          const pR = project(-3.8, 0.85, cZ + coachLength - 1);
+          if (pF && pR && pF.scale > 5 && pF.scale < 250) {
+            const sc = pF.scale;
+            const cH = 3.6 * sc;
+            const cW = 2.8 * sc;
 
-          // Coach Body (Indian Railway Red/Blue)
-          ctx.fillStyle = '#1e3a8a'; // Blue ICF livery on opposing train
-          ctx.fillRect(pFront.x - coachW * 0.5, pFront.y - coachH, coachW, coachH);
+            // Iconic Indian Railway Blue ICF Livery
+            ctx.fillStyle = '#1e3a8a';
+            ctx.fillRect(pF.x - cW * 0.5, pF.y - cH, cW, cH);
 
-          // Coach Windows with glowing warm light
-          ctx.fillStyle = '#fef08a';
-          const winCount = 4;
-          for (let wIdx = 0; wIdx < winCount; wIdx++) {
-            ctx.fillRect(
-              pFront.x - coachW * 0.4 + (wIdx * coachW * 0.22),
-              pFront.y - coachH * 0.65,
-              coachW * 0.16,
-              coachH * 0.28
-            );
+            // Light Blue Waist Stripe
+            ctx.fillStyle = '#60a5fa';
+            ctx.fillRect(pF.x - cW * 0.5, pF.y - cH * 0.65, cW, cH * 0.10);
+
+            // Warm Lit Passenger Windows
+            ctx.fillStyle = '#fef08a';
+            const winCount = 3;
+            for (let wIdx = 0; wIdx < winCount; wIdx++) {
+              ctx.fillRect(
+                pF.x - cW * 0.38 + (wIdx * cW * 0.28),
+                pF.y - cH * 0.58,
+                cW * 0.20,
+                cH * 0.22
+              );
+            }
           }
         }
       }
-      // 6. Overhead Electrification Catenary Portal Masts
+      // 6. 25kV OHE Catenary Steel Lattice Portal Masts
       else if (item.type === 'catenary') {
-        const pBase = project(item.side * 2.9, 0, item.position);
-        const pTop = project(item.side * 2.9, 6.8, item.position);
-        const pWireAnchor = project(0, 5.4, item.position);
+        const pBase = project(item.side * 2.8, 0, item.position);
+        const pTop = project(item.side * 2.8, 6.6, item.position);
+        const pWireAnchor = project(0, 5.3, item.position);
 
-        if (pBase && pTop && pWireAnchor) {
+        if (pBase && pTop && pWireAnchor && pBase.scale > 5 && pBase.scale < 250) {
           ctx.strokeStyle = timeOfDay === 'night' ? '#334155' : '#64748b';
-          ctx.lineWidth = Math.max(1.8, 3.8 * pBase.scale);
+          ctx.lineWidth = Math.max(1.8, Math.min(8, 0.12 * pBase.scale));
           ctx.beginPath();
           ctx.moveTo(pBase.x, pBase.y);
           ctx.lineTo(pTop.x, pTop.y);
           ctx.lineTo(pWireAnchor.x, pWireAnchor.y);
           ctx.stroke();
 
-          // Insulator
+          // Ceramic Insulator
           ctx.fillStyle = '#f59e0b';
           ctx.beginPath();
-          ctx.arc(pWireAnchor.x, pWireAnchor.y, Math.max(1.5, 3 * pBase.scale), 0, Math.PI * 2);
+          ctx.arc(pWireAnchor.x, pWireAnchor.y, Math.max(2, 0.08 * pBase.scale), 0, Math.PI * 2);
           ctx.fill();
-        }
-      }
-      // 7. Trees
-      else if (item.type === 'tree') {
-        const p = project(item.side * item.dist, 0, item.position);
-        if (p && p.scale > 0.002) {
-          const treeH = 38 * p.scale * (item.scale || 1);
-          const treeW = 24 * p.scale * (item.scale || 1);
-
-          ctx.fillStyle = '#3e2723';
-          ctx.fillRect(p.x - 2 * p.scale, p.y - treeH * 0.3, 4 * p.scale, treeH * 0.3);
-
-          ctx.fillStyle = timeOfDay === 'night' ? '#064e3b' : (timeOfDay === 'sunset' ? '#14532d' : '#15803d');
-          ctx.beginPath();
-          ctx.arc(p.x, p.y - treeH * 0.65, treeW, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      // 8. Buildings
-      else if (item.type === 'building') {
-        const p = project(item.side * item.dist, 0, item.position);
-        if (p && p.scale > 0.002) {
-          const bW = item.width * p.scale * 12;
-          const bH = item.height * p.scale * 14;
-
-          ctx.fillStyle = item.color || '#1e293b';
-          ctx.fillRect(p.x - bW * 0.5, p.y - bH, bW, bH);
         }
       }
     }
   }
 
-  drawSignals(ctx, project, cameraZ, signalSystem, timeOfDay) {
-    const signals = signalSystem.signals || [];
+  drawSignals(ctx, project, trainPos, signalSystem, timeOfDay) {
+    const signals = signalSystem?.signals || [];
 
     for (const sig of signals) {
-      const relZ = sig.positionMeters - cameraZ;
-      if (relZ < 1 || relZ > 420) continue;
-
-      const mastX = -2.4;
+      const mastX = -2.2; // left side of main track
       const pBase = project(mastX, 0, sig.positionMeters);
-      const pHead = project(mastX, 4.6, sig.positionMeters);
+      const pHead = project(mastX, 4.4, sig.positionMeters);
 
-      if (pBase && pHead) {
-        // Mast Pole
+      if (pBase && pHead && pHead.scale > 8 && pHead.scale < 250) {
+        const sc = pHead.scale;
+
+        // Signal Mast Post
         ctx.strokeStyle = '#475569';
-        ctx.lineWidth = Math.max(2, 4.5 * pBase.scale);
+        ctx.lineWidth = Math.max(2, Math.min(8, 0.12 * sc));
         ctx.beginPath();
         ctx.moveTo(pBase.x, pBase.y);
         ctx.lineTo(pHead.x, pHead.y);
         ctx.stroke();
 
-        // Signal Head Box
-        const boxW = 18 * pHead.scale;
-        const boxH = 44 * pHead.scale;
+        // Signal Head Box with Visor
+        const boxW = 0.42 * sc;
+        const boxH = 1.05 * sc;
         ctx.fillStyle = '#0f172a';
         ctx.fillRect(pHead.x - boxW * 0.5, pHead.y - boxH * 0.5, boxW, boxH);
         ctx.strokeStyle = '#334155';
@@ -820,7 +997,7 @@ export class Renderer25D {
         ctx.strokeRect(pHead.x - boxW * 0.5, pHead.y - boxH * 0.5, boxW, boxH);
 
         // Aspect Lenses: Red (Top), Yellow (Middle), Green (Bottom)
-        const radius = Math.max(2, 4.6 * pHead.scale);
+        const radius = Math.max(2.5, Math.min(10, 0.10 * sc));
         const offsets = [-boxH * 0.28, 0, boxH * 0.28];
         const aspects = ['RED', 'YELLOW', 'GREEN'];
         const colors = {
@@ -835,7 +1012,7 @@ export class Renderer25D {
 
           if (isActive) {
             ctx.shadowColor = colors[asp];
-            ctx.shadowBlur = Math.max(8, 22 * pHead.scale);
+            ctx.shadowBlur = Math.max(8, Math.min(24, 0.35 * sc));
             ctx.fillStyle = colors[asp];
           } else {
             ctx.shadowBlur = 0;
@@ -852,144 +1029,274 @@ export class Renderer25D {
     }
   }
 
-  drawHeadlightBeams(ctx, w, h, horizonY, isCab, cameraX) {
-    const originX = w * 0.5 - (cameraX * w * 0.15);
-    const originY = isCab ? h * 0.72 : h * 0.82;
+  drawHeadlightBeams(ctx, w, h, horizonY, cameraMode, trainPos, project) {
+    if (cameraMode === 'cab') {
+      const grad = ctx.createRadialGradient(
+        w * 0.5, h * 0.72, 20,
+        w * 0.5, horizonY + 20, w * 0.65
+      );
+      grad.addColorStop(0, 'rgba(255, 255, 230, 0.45)');
+      grad.addColorStop(0.4, 'rgba(255, 255, 200, 0.16)');
+      grad.addColorStop(1.0, 'rgba(255, 255, 200, 0.0)');
 
-    const grad = ctx.createRadialGradient(
-      originX, originY, 15,
-      originX, horizonY + 20, w * 0.7
-    );
-    grad.addColorStop(0, 'rgba(255, 255, 230, 0.5)');
-    grad.addColorStop(0.35, 'rgba(255, 255, 200, 0.18)');
-    grad.addColorStop(1.0, 'rgba(255, 255, 200, 0.0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(w * 0.5 - 50, h * 0.72);
+      ctx.lineTo(w * 0.05, horizonY + 20);
+      ctx.lineTo(w * 0.95, horizonY + 20);
+      ctx.lineTo(w * 0.5 + 50, h * 0.72);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      // Platform / Trackside View Volumetric Beam from Locomotive Nose
+      const pHead = project(0, 2.8, trainPos);
+      const beamZ = (cameraMode === 'platform') ? trainPos + 9.5 : trainPos + 16.0;
+      const pFarLeft = project(-2.2, 0.1, beamZ);
+      const pFarRight = project(1.2, 0.1, beamZ);
 
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.moveTo(originX - 45, originY);
-    ctx.lineTo(w * 0.05, horizonY + 15);
-    ctx.lineTo(w * 0.95, horizonY + 15);
-    ctx.lineTo(originX + 45, originY);
-    ctx.closePath();
-    ctx.fill();
+      if (pHead && pFarLeft && pFarRight) {
+        const grad = ctx.createRadialGradient(
+          pHead.x, pHead.y, 8,
+          (pFarLeft.x + pFarRight.x) * 0.5, (pFarLeft.y + pHead.y) * 0.5, Math.abs(pFarRight.x - pFarLeft.x) * 1.8
+        );
+        grad.addColorStop(0, 'rgba(255, 255, 230, 0.35)');
+        grad.addColorStop(0.5, 'rgba(255, 255, 200, 0.12)');
+        grad.addColorStop(1.0, 'rgba(255, 255, 200, 0.0)');
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(pHead.x, pHead.y);
+        ctx.lineTo(pFarLeft.x, pFarLeft.y);
+        ctx.lineTo(pFarRight.x, pFarRight.y);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
   }
 
   /**
-   * Draw Full 3D Indian Railways WAP-7 Locomotive & Red LHB Coaches
+   * Authentic Indian Railways WAP-7 Locomotive in Rajdhani Livery & Trailing LHB Coaches
    */
-  drawIndianTrain(ctx, project, cameraZ, trainPos, state, timeOfDay, dt) {
+  drawIndianTrain(ctx, project, trainPos, state, timeOfDay, dt) {
     ctx.save();
 
-    // 1. Draw Trailing LHB Passenger Coaches (Draw from rear-most forward)
+    // 1. Draw Trailing LHB Rajdhani Passenger Coaches (rear to front)
     const coachLength = 23; // meters per LHB coach
     const numCoaches = 3;
 
     for (let cIdx = numCoaches - 1; cIdx >= 0; cIdx--) {
-      const zStart = trainPos - 21.5 - (cIdx * coachLength);
-      const zEnd = zStart - (coachLength - 1.2);
+      const zStart = trainPos - 21.0 - (cIdx * coachLength);
+      const zEnd = zStart - (coachLength - 1.0);
 
-      const pFrontBaseL = project(-1.5, 0.85, zStart);
-      const pFrontBaseR = project(1.5, 0.85, zStart);
-      const pFrontTopL = project(-1.5, 3.85, zStart);
-      const pFrontTopR = project(1.5, 3.85, zStart);
+      const pF_BL = project(-1.48, 0.85, zStart);
+      const pF_BR = project(1.48, 0.85, zStart);
+      const pF_TL = project(-1.48, 3.80, zStart);
+      const pF_TR = project(1.48, 3.80, zStart);
 
-      const pRearBaseL = project(-1.5, 0.85, zEnd);
-      const pRearBaseR = project(1.5, 0.85, zEnd);
-      const pRearTopL = project(-1.5, 3.85, zEnd);
-      const pRearTopR = project(1.5, 3.85, zEnd);
+      const pR_BL = project(-1.48, 0.85, zEnd);
+      const pR_BR = project(1.48, 0.85, zEnd);
+      const pR_TL = project(-1.48, 3.80, zEnd);
+      const pR_TR = project(1.48, 3.80, zEnd);
 
-      if (pFrontBaseL && pFrontBaseR && pRearBaseL && pRearBaseR && pFrontTopL && pFrontTopR) {
-        // Red LHB Coach Side Body (Rajdhani Red)
-        ctx.fillStyle = '#b91c1c'; // Indian Railways Rajdhani Red
+      // Right Side Wall (Platform View)
+      if (pF_BR && pR_BR && pF_TR && pR_TR) {
+        ctx.fillStyle = '#b91c1c'; // Rajdhani Red
         ctx.beginPath();
-        ctx.moveTo(pFrontBaseR.x, pFrontBaseR.y);
-        ctx.lineTo(pRearBaseR.x, pRearBaseR.y);
-        ctx.lineTo(pRearTopR.x, pRearTopR.y);
-        ctx.lineTo(pFrontTopR.x, pFrontTopR.y);
+        ctx.moveTo(pF_BR.x, pF_BR.y);
+        ctx.lineTo(pR_BR.x, pR_BR.y);
+        ctx.lineTo(pR_TR.x, pR_TR.y);
+        ctx.lineTo(pF_TR.x, pF_TR.y);
         ctx.closePath();
         ctx.fill();
 
-        // Cream/Yellow Window Band
-        const pFrontBandBot = project(1.5, 1.8, zStart);
-        const pFrontBandTop = project(1.5, 2.9, zStart);
-        const pRearBandBot = project(1.5, 1.8, zEnd);
-        const pRearBandTop = project(1.5, 2.9, zEnd);
-        if (pFrontBandBot && pFrontBandTop && pRearBandBot && pRearBandTop) {
+        // Cream / Golden Yellow Window Band
+        const pBandF_B = project(1.49, 1.80, zStart);
+        const pBandF_T = project(1.49, 2.85, zStart);
+        const pBandR_B = project(1.49, 1.80, zEnd);
+        const pBandR_T = project(1.49, 2.85, zEnd);
+
+        if (pBandF_B && pBandF_T && pBandR_B && pBandR_T) {
           ctx.fillStyle = '#fef08a'; // Cream band
           ctx.beginPath();
-          ctx.moveTo(pFrontBandBot.x, pFrontBandBot.y);
-          ctx.lineTo(pRearBandBot.x, pRearBandBot.y);
-          ctx.lineTo(pRearBandTop.x, pRearBandTop.y);
-          ctx.lineTo(pFrontBandTop.x, pFrontBandTop.y);
+          ctx.moveTo(pBandF_B.x, pBandF_B.y);
+          ctx.lineTo(pBandR_B.x, pBandR_B.y);
+          ctx.lineTo(pBandR_T.x, pBandR_T.y);
+          ctx.lineTo(pBandF_T.x, pBandF_T.y);
           ctx.closePath();
           ctx.fill();
 
-          // Lit Passenger Windows with silhouettes
+          // Warm Lit Interior Passenger Windows
           for (let wZ = zStart - 3; wZ > zEnd + 2; wZ -= 3.8) {
-            const pWinL = project(1.52, 1.95, wZ);
-            const pWinR = project(1.52, 1.95, wZ - 2.2);
-            const pWinTop = project(1.52, 2.75, wZ);
-            if (pWinL && pWinR && pWinTop) {
-              ctx.fillStyle = '#fde047'; // warm interior glow
-              ctx.fillRect(pWinR.x, pWinTop.y, Math.abs(pWinL.x - pWinR.x), Math.abs(pWinL.y - pWinTop.y));
+            const pWinL = project(1.50, 1.95, wZ);
+            const pWinR = project(1.50, 1.95, wZ - 2.2);
+            const pWinT = project(1.50, 2.70, wZ);
+
+            if (pWinL && pWinR && pWinT) {
+              ctx.fillStyle = '#fde047'; // warm yellow interior light
+              const wW = Math.abs(pWinL.x - pWinR.x);
+              const wH = Math.abs(pWinL.y - pWinT.y);
+              ctx.fillRect(pWinR.x, pWinT.y, wW, wH);
+
+              // Passenger Silhouette
+              if (wW > 8) {
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+                ctx.beginPath();
+                ctx.arc(pWinR.x + wW * 0.5, pWinT.y + wH * 0.45, wW * 0.22, 0, Math.PI * 2);
+                ctx.fill();
+              }
             }
           }
         }
+      }
 
-        // Coach Curved Silver Roof
+      // Left Side Wall (Trackside View)
+      if (pF_BL && pR_BL && pF_TL && pR_TL) {
+        ctx.fillStyle = '#991b1b';
+        ctx.beginPath();
+        ctx.moveTo(pF_BL.x, pF_BL.y);
+        ctx.lineTo(pR_BL.x, pR_BL.y);
+        ctx.lineTo(pR_TL.x, pR_TL.y);
+        ctx.lineTo(pF_TL.x, pF_TL.y);
+        ctx.closePath();
+        ctx.fill();
+
+        // Cream / Golden Yellow Window Band
+        const pBandLF_B = project(-1.49, 1.80, zStart);
+        const pBandLF_T = project(-1.49, 2.85, zStart);
+        const pBandLR_B = project(-1.49, 1.80, zEnd);
+        const pBandLR_T = project(-1.49, 2.85, zEnd);
+
+        if (pBandLF_B && pBandLF_T && pBandLR_B && pBandLR_T) {
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.moveTo(pBandLF_B.x, pBandLF_B.y);
+          ctx.lineTo(pBandLR_B.x, pBandLR_B.y);
+          ctx.lineTo(pBandLR_T.x, pBandLR_T.y);
+          ctx.lineTo(pBandLF_T.x, pBandLF_T.y);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+
+      // Curved Silver Roof
+      if (pF_TL && pF_TR && pR_TR && pR_TL) {
         ctx.fillStyle = '#94a3b8';
         ctx.beginPath();
-        ctx.moveTo(pFrontTopL.x, pFrontTopL.y);
-        ctx.lineTo(pFrontTopR.x, pFrontTopR.y);
-        ctx.lineTo(pRearTopR.x, pRearTopR.y);
-        ctx.lineTo(pRearTopL.x, pRearTopL.y);
+        ctx.moveTo(pF_TL.x, pF_TL.y);
+        ctx.lineTo(pF_TR.x, pF_TR.y);
+        ctx.lineTo(pR_TR.x, pR_TR.y);
+        ctx.lineTo(pR_TL.x, pR_TL.y);
         ctx.closePath();
         ctx.fill();
       }
     }
 
-    // 2. Draw Indian Railways WAP-7 Electric Locomotive
+    // 2. Draw WAP-7 Locomotive Body
     const zNose = trainPos;
     const zRear = trainPos - 21.0;
 
-    // Projected Key Nose Vertices
-    const pNoseBaseL = project(-1.55, 0.85, zNose);
-    const pNoseBaseR = project(1.55, 0.85, zNose);
-    const pNoseMidL = project(-1.50, 2.30, zNose);
-    const pNoseMidR = project(1.50, 2.30, zNose);
-    const pNoseTopL = project(-1.42, 3.90, zNose - 1.8); // aerodynamic slant
-    const pNoseTopR = project(1.42, 3.90, zNose - 1.8);
+    const pN_BL = project(-1.50, 0.85, zNose);
+    const pN_BR = project(1.50, 0.85, zNose);
+    const pN_ML = project(-1.45, 2.20, zNose);
+    const pN_MR = project(1.45, 2.20, zNose);
+    const pN_TL = project(-1.38, 3.85, zNose - 1.6); // aerodynamic nose slant
+    const pN_TR = project(1.38, 3.85, zNose - 1.6);
 
-    const pRearTopR = project(1.55, 4.0, zRear);
-    const pRearBaseR = project(1.55, 0.85, zRear);
+    const pR_BL = project(-1.50, 0.85, zRear);
+    const pR_BR = project(1.50, 0.85, zRear);
+    const pR_TL = project(-1.45, 3.90, zRear);
+    const pR_TR = project(1.45, 3.90, zRear);
 
-    if (pNoseBaseL && pNoseBaseR && pNoseMidL && pNoseMidR && pNoseTopL && pNoseTopR) {
-      // 2a. Right Body Side Wall (if visible from angle)
-      if (pRearBaseR && pRearTopR) {
+    if (pN_BL && pN_BR && pN_ML && pN_MR && pN_TL && pN_TR) {
+      // 2a-right. Right Body Side Wall (facing platform)
+      if (pR_BR && pR_TR) {
         ctx.fillStyle = '#991b1b'; // Darker shaded red side
         ctx.beginPath();
-        ctx.moveTo(pNoseBaseR.x, pNoseBaseR.y);
-        ctx.lineTo(pRearBaseR.x, pRearBaseR.y);
-        ctx.lineTo(pRearTopR.x, pRearTopR.y);
-        ctx.lineTo(pNoseTopR.x, pNoseTopR.y);
+        ctx.moveTo(pN_BR.x, pN_BR.y);
+        ctx.lineTo(pR_BR.x, pR_BR.y);
+        ctx.lineTo(pR_TR.x, pR_TR.y);
+        ctx.lineTo(pN_TR.x, pN_TR.y);
         ctx.closePath();
         ctx.fill();
 
-        // Yellow Side Stripe
-        const pSideStripeNose = project(1.56, 2.1, zNose);
-        const pSideStripeRear = project(1.56, 2.1, zRear);
-        if (pSideStripeNose && pSideStripeRear) {
+        // Yellow Side Stripe along waist
+        const pSideF = project(1.51, 2.05, zNose);
+        const pSideR = project(1.51, 2.05, zRear);
+        if (pSideF && pSideR) {
           ctx.strokeStyle = '#facc15';
-          ctx.lineWidth = Math.max(3, 7 * pSideStripeNose.scale);
+          ctx.lineWidth = Math.max(2, Math.min(8, 0.08 * pSideF.scale));
           ctx.beginPath();
-          ctx.moveTo(pSideStripeNose.x, pSideStripeNose.y);
-          ctx.lineTo(pSideStripeRear.x, pSideStripeRear.y);
+          ctx.moveTo(pSideF.x, pSideF.y);
+          ctx.lineTo(pSideR.x, pSideR.y);
+          ctx.stroke();
+        }
+
+        // Circular Machine Room Louvers / Ventilation Grilles
+        for (let lz = zNose - 6.5; lz >= zRear + 4; lz -= 3.6) {
+          const pLouver = project(1.51, 2.65, lz);
+          if (pLouver && pLouver.scale > 10) {
+            const lr = Math.max(3, Math.min(10, 0.12 * pLouver.scale));
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.arc(pLouver.x, pLouver.y, lr, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+
+        // Driver Cab Side Door & Grab Handrail
+        const pDoorB = project(1.51, 0.95, zNose - 3.2);
+        const pDoorT = project(1.51, 3.10, zNose - 3.2);
+        if (pDoorB && pDoorT && pDoorB.scale > 12) {
+          ctx.strokeStyle = '#e2e8f0'; // Chrome vertical handrail
+          ctx.lineWidth = Math.max(1.5, 0.02 * pDoorB.scale);
+          ctx.beginPath();
+          ctx.moveTo(pDoorB.x, pDoorB.y);
+          ctx.lineTo(pDoorT.x, pDoorT.y);
           ctx.stroke();
         }
       }
 
-      // 2b. Front Nose Face (Vibrant Indian Red)
-      const frontGrad = ctx.createLinearGradient(pNoseBaseL.x, 0, pNoseBaseR.x, 0);
+      // 2a-left. Left Body Side Wall (visible in trackside mode)
+      if (pR_BL && pR_TL) {
+        ctx.fillStyle = '#7f1d1d';
+        ctx.beginPath();
+        ctx.moveTo(pN_BL.x, pN_BL.y);
+        ctx.lineTo(pR_BL.x, pR_BL.y);
+        ctx.lineTo(pR_TL.x, pR_TL.y);
+        ctx.lineTo(pN_TL.x, pN_TL.y);
+        ctx.closePath();
+        ctx.fill();
+
+        // Yellow Side Stripe along waist
+        const pSideLF = project(-1.51, 2.05, zNose);
+        const pSideLR = project(-1.51, 2.05, zRear);
+        if (pSideLF && pSideLR) {
+          ctx.strokeStyle = '#facc15';
+          ctx.lineWidth = Math.max(2, Math.min(8, 0.08 * pSideLF.scale));
+          ctx.beginPath();
+          ctx.moveTo(pSideLF.x, pSideLF.y);
+          ctx.lineTo(pSideLR.x, pSideLR.y);
+          ctx.stroke();
+        }
+      }
+
+      // 2a-roof. Locomotive Curved Roof
+      if (pN_TL && pN_TR && pR_TL && pR_TR) {
+        ctx.fillStyle = '#475569';
+        ctx.beginPath();
+        ctx.moveTo(pN_TL.x, pN_TL.y);
+        ctx.lineTo(pN_TR.x, pN_TR.y);
+        ctx.lineTo(pR_TR.x, pR_TR.y);
+        ctx.lineTo(pR_TL.x, pR_TL.y);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // 2b. Front Aerodynamic Nose Face (Vibrant Indian Railways Red)
+      const frontGrad = ctx.createLinearGradient(pN_BL.x, 0, pN_BR.x, 0);
       frontGrad.addColorStop(0, '#991b1b');
       frontGrad.addColorStop(0.3, '#dc2626');
       frontGrad.addColorStop(0.7, '#ef4444');
@@ -997,42 +1304,44 @@ export class Renderer25D {
 
       ctx.fillStyle = frontGrad;
       ctx.beginPath();
-      ctx.moveTo(pNoseBaseL.x, pNoseBaseL.y);
-      ctx.lineTo(pNoseBaseR.x, pNoseBaseR.y);
-      ctx.lineTo(pNoseMidR.x, pNoseMidR.y);
-      ctx.lineTo(pNoseTopR.x, pNoseTopR.y);
-      ctx.lineTo(pNoseTopL.x, pNoseTopL.y);
-      ctx.lineTo(pNoseMidL.x, pNoseMidL.y);
+      ctx.moveTo(pN_BL.x, pN_BL.y);
+      ctx.lineTo(pN_BR.x, pN_BR.y);
+      ctx.lineTo(pN_MR.x, pN_MR.y);
+      ctx.lineTo(pN_TR.x, pN_TR.y);
+      ctx.lineTo(pN_TL.x, pN_TL.y);
+      ctx.lineTo(pN_ML.x, pN_ML.y);
       ctx.closePath();
       ctx.fill();
+
       ctx.strokeStyle = '#7f1d1d';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // 2c. Front Yellow/Cream Chevron Cheatline (Signature Rajdhani design)
-      const pCheatL = project(-1.52, 2.15, zNose);
-      const pCheatR = project(1.52, 2.15, zNose);
-      const pCheatMid = project(0, 1.75, zNose);
+      // 2c. Golden-Yellow Chevron Cheatline on Front Nose
+      const pCheatL = project(-1.48, 2.10, zNose);
+      const pCheatR = project(1.48, 2.10, zNose);
+      const pCheatMid = project(0, 1.70, zNose);
       if (pCheatL && pCheatR && pCheatMid) {
         ctx.fillStyle = '#facc15';
         ctx.beginPath();
         ctx.moveTo(pCheatL.x, pCheatL.y);
         ctx.lineTo(pCheatMid.x, pCheatMid.y);
         ctx.lineTo(pCheatR.x, pCheatR.y);
-        ctx.lineTo(pCheatR.x, pCheatR.y + 12 * pCheatR.scale);
-        ctx.lineTo(pCheatMid.x, pCheatMid.y + 14 * pCheatMid.scale);
-        ctx.lineTo(pCheatL.x, pCheatL.y + 12 * pCheatL.scale);
+        ctx.lineTo(pCheatR.x, pCheatR.y + Math.max(3, 0.12 * pCheatR.scale));
+        ctx.lineTo(pCheatMid.x, pCheatMid.y + Math.max(4, 0.14 * pCheatMid.scale));
+        ctx.lineTo(pCheatL.x, pCheatL.y + Math.max(3, 0.12 * pCheatL.scale));
         ctx.closePath();
         ctx.fill();
       }
 
-      // 2d. Front Windshield (Twin cab windscreens)
-      const pWinBL = project(-1.25, 2.65, zNose - 0.4);
-      const pWinBR = project(1.25, 2.65, zNose - 0.4);
-      const pWinTL = project(-1.18, 3.65, zNose - 1.4);
-      const pWinTR = project(1.18, 3.65, zNose - 1.4);
+      // 2d. Twin Windshield Cab Windows
+      const pWinBL = project(-1.20, 2.60, zNose - 0.4);
+      const pWinBR = project(1.20, 2.60, zNose - 0.4);
+      const pWinTL = project(-1.14, 3.60, zNose - 1.4);
+      const pWinTR = project(1.14, 3.60, zNose - 1.4);
+
       if (pWinBL && pWinBR && pWinTL && pWinTR) {
-        ctx.fillStyle = '#082f49'; // dark reflective glass
+        ctx.fillStyle = '#082f49'; // Dark tinted glass
         ctx.beginPath();
         ctx.moveTo(pWinBL.x, pWinBL.y);
         ctx.lineTo(pWinBR.x, pWinBR.y);
@@ -1040,16 +1349,17 @@ export class Renderer25D {
         ctx.lineTo(pWinTL.x, pWinTL.y);
         ctx.closePath();
         ctx.fill();
+
         ctx.strokeStyle = '#0284c7';
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 1.2;
         ctx.stroke();
 
-        // Center Windshield Divider
-        const pWinMidB = project(0, 2.65, zNose - 0.4);
-        const pWinMidT = project(0, 3.65, zNose - 1.4);
+        // Center Windshield Pillar Divider
+        const pWinMidB = project(0, 2.60, zNose - 0.4);
+        const pWinMidT = project(0, 3.60, zNose - 1.4);
         if (pWinMidB && pWinMidT) {
           ctx.strokeStyle = '#0f172a';
-          ctx.lineWidth = Math.max(2, 4 * pWinMidB.scale);
+          ctx.lineWidth = Math.max(2, 0.06 * pWinMidB.scale);
           ctx.beginPath();
           ctx.moveTo(pWinMidB.x, pWinMidB.y);
           ctx.lineTo(pWinMidT.x, pWinMidT.y);
@@ -1057,26 +1367,30 @@ export class Renderer25D {
         }
       }
 
-      // 2e. "Rajdhani Express" & "WAP-7" Text Insignia on Front
-      const pInsignia = project(0, 2.35, zNose);
-      if (pInsignia && pInsignia.scale > 0.0025) {
+      // 2e. "Rajdhani Express" & "WAP-7" Insignia on Front Brow
+      const pInsignia = project(0, 2.30, zNose);
+      if (pInsignia && pInsignia.scale > 18) {
         ctx.textAlign = 'center';
-        ctx.font = `bold ${Math.max(9, Math.round(13 * pInsignia.scale * 10))}px 'Inter', sans-serif`;
+        const fSizeRaj = Math.max(8, Math.round(0.14 * pInsignia.scale));
+        ctx.font = `bold ${fSizeRaj}px 'Inter', sans-serif`;
         ctx.fillStyle = '#fef08a';
         ctx.fillText('Rajdhani Express', pInsignia.x, pInsignia.y);
 
         // WAP-7 Class Badge
-        ctx.font = `900 ${Math.max(8, Math.round(11 * pInsignia.scale * 10))}px 'JetBrains Mono', monospace`;
+        const fSizeWap = Math.max(7, Math.round(0.12 * pInsignia.scale));
+        ctx.font = `900 ${fSizeWap}px 'JetBrains Mono', monospace`;
         ctx.fillStyle = '#ffffff';
-        ctx.fillText('WAP-7', pInsignia.x, pInsignia.y + 14 * pInsignia.scale * 10);
+        ctx.fillText('WAP-7', pInsignia.x, pInsignia.y + fSizeRaj * 1.15);
         ctx.textAlign = 'left';
       }
 
-      // 2f. Indian Tricolor Flag on Front Nose
+      // 2f. Indian Tricolor Flag Emblem on Front Nose
       const pFlag = project(-0.85, 2.05, zNose);
-      if (pFlag && pFlag.scale > 0.002) {
-        const flagW = 24 * pFlag.scale * 10;
-        const flagH = 14 * pFlag.scale * 10;
+      if (pFlag && pFlag.scale > 18) {
+        const sc = pFlag.scale;
+        const flagW = 0.36 * sc;
+        const flagH = 0.22 * sc;
+
         ctx.fillStyle = '#f97316'; // Saffron
         ctx.fillRect(pFlag.x, pFlag.y, flagW, flagH * 0.33);
         ctx.fillStyle = '#ffffff'; // White
@@ -1085,27 +1399,27 @@ export class Renderer25D {
         ctx.fillRect(pFlag.x, pFlag.y + flagH * 0.66, flagW, flagH * 0.33);
       }
 
-      // 2g. High-Intensity LED Headlights
-      const pHeadL = project(-0.95, 1.8, zNose);
-      const pHeadR = project(0.95, 1.8, zNose);
-      const pHeadTop = project(0, 3.85, zNose - 1.6);
+      // 2g. High-Intensity Central Twin Headlights & Lower Marker Lamps
+      const pHeadTop = project(0, 3.80, zNose - 1.5);
+      const pHeadL = project(-0.95, 1.75, zNose);
+      const pHeadR = project(0.95, 1.75, zNose);
 
       if (state.headlights) {
         ctx.fillStyle = '#ffffff';
         ctx.shadowColor = '#ffffff';
-        ctx.shadowBlur = 25;
+        ctx.shadowBlur = 18;
 
-        // Top Central High-Beam
         if (pHeadTop) {
+          const r = Math.max(2.5, Math.min(8, 0.08 * pHeadTop.scale));
           ctx.beginPath();
-          ctx.arc(pHeadTop.x, pHeadTop.y, Math.max(3, 8 * pHeadTop.scale * 10), 0, Math.PI * 2);
+          ctx.arc(pHeadTop.x, pHeadTop.y, r, 0, Math.PI * 2);
           ctx.fill();
         }
-        // Left & Right Dual Front Beams
         if (pHeadL && pHeadR) {
+          const r = Math.max(2, Math.min(7, 0.07 * pHeadL.scale));
           ctx.beginPath();
-          ctx.arc(pHeadL.x, pHeadL.y, Math.max(3, 7 * pHeadL.scale * 10), 0, Math.PI * 2);
-          ctx.arc(pHeadR.x, pHeadR.y, Math.max(3, 7 * pHeadR.scale * 10), 0, Math.PI * 2);
+          ctx.arc(pHeadL.x, pHeadL.y, r, 0, Math.PI * 2);
+          ctx.arc(pHeadR.x, pHeadR.y, r, 0, Math.PI * 2);
           ctx.fill();
         }
         ctx.shadowBlur = 0;
@@ -1116,60 +1430,109 @@ export class Renderer25D {
       const pMarkerR = project(1.25, 1.45, zNose);
       if (pMarkerL && pMarkerR) {
         ctx.fillStyle = '#ef4444';
+        const r = Math.max(1.8, Math.min(5, 0.05 * pMarkerL.scale));
         ctx.beginPath();
-        ctx.arc(pMarkerL.x, pMarkerL.y, Math.max(2, 4 * pMarkerL.scale * 10), 0, Math.PI * 2);
-        ctx.arc(pMarkerR.x, pMarkerR.y, Math.max(2, 4 * pMarkerR.scale * 10), 0, Math.PI * 2);
+        ctx.arc(pMarkerL.x, pMarkerL.y, r, 0, Math.PI * 2);
+        ctx.arc(pMarkerR.x, pMarkerR.y, r, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // 2h. Front Buffers & Coupler
-      const pBufferL = project(-1.15, 0.95, zNose + 0.3);
-      const pBufferR = project(1.15, 0.95, zNose + 0.3);
-      if (pBufferL && pBufferR) {
-        ctx.fillStyle = '#0f172a';
+      // 2h. Steel Buffer Beam
+      const pBeamBL = project(-1.48, 0.82, zNose + 0.1);
+      const pBeamBR = project(1.48, 0.82, zNose + 0.1);
+      const pBeamTL = project(-1.48, 1.05, zNose + 0.1);
+      const pBeamTR = project(1.48, 1.05, zNose + 0.1);
+      if (pBeamBL && pBeamBR && pBeamTL && pBeamTR) {
+        ctx.fillStyle = '#1e1b18'; // dark heavy steel buffer beam
         ctx.beginPath();
-        ctx.arc(pBufferL.x, pBufferL.y, Math.max(3, 9 * pBufferL.scale * 10), 0, Math.PI * 2);
-        ctx.arc(pBufferR.x, pBufferR.y, Math.max(3, 9 * pBufferR.scale * 10), 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#94a3b8';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      }
-
-      // 2i. Front Cowcatcher / Cattle Guard Grille (Red & White chevrons)
-      const pCattleL = project(-1.45, 0.25, zNose + 0.2);
-      const pCattleR = project(1.45, 0.25, zNose + 0.2);
-      const pCattleT = project(0, 0.75, zNose);
-      if (pCattleL && pCattleR && pCattleT) {
-        ctx.fillStyle = '#dc2626';
-        ctx.beginPath();
-        ctx.moveTo(pCattleL.x, pCattleL.y);
-        ctx.lineTo(pCattleT.x, pCattleT.y);
-        ctx.lineTo(pCattleR.x, pCattleR.y);
+        ctx.moveTo(pBeamBL.x, pBeamBL.y);
+        ctx.lineTo(pBeamBR.x, pBeamBR.y);
+        ctx.lineTo(pBeamTR.x, pBeamTR.y);
+        ctx.lineTo(pBeamTL.x, pBeamTL.y);
         ctx.closePath();
         ctx.fill();
-
-        // White diagonal safety stripes
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(pCattleL.x + 10, pCattleL.y);
-        ctx.lineTo(pCattleT.x, pCattleT.y);
-        ctx.moveTo(pCattleR.x - 10, pCattleR.y);
-        ctx.lineTo(pCattleT.x, pCattleT.y);
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1;
         ctx.stroke();
       }
 
-      // 2j. Rooftop Pantograph & 25kV Electric Spark
-      const pPantoBase = project(0, 4.15, zNose - 5.5);
+      // Buffers (Twin Round Side Discs)
+      const pBufL = project(-1.05, 0.94, zNose + 0.35);
+      const pBufR = project(1.05, 0.94, zNose + 0.35);
+      if (pBufL && pBufR) {
+        const r = Math.max(3, Math.min(11, 0.12 * pBufL.scale));
+        [pBufL, pBufR].forEach(pb => {
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(pb.x, pb.y, r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#94a3b8';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        });
+      }
+
+      // Center Knuckle CBC Coupler
+      const pCoupler = project(0, 0.92, zNose + 0.4);
+      if (pCoupler) {
+        const cW = Math.max(4, Math.min(14, 0.14 * pCoupler.scale));
+        const cH = Math.max(4, Math.min(12, 0.12 * pCoupler.scale));
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(pCoupler.x - cW * 0.5, pCoupler.y - cH * 0.5, cW, cH);
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(pCoupler.x - cW * 0.5, pCoupler.y - cH * 0.5, cW, cH);
+      }
+
+      // 2i. Cowcatcher / Cattle Guard Pilot Grille (wedge slatted steel pilot below buffer beam)
+      const pCowTopL = project(-1.30, 0.82, zNose);
+      const pCowTopR = project(1.30, 0.82, zNose);
+      const pCowBotL = project(-1.18, 0.28, zNose + 0.25);
+      const pCowBotR = project(1.18, 0.28, zNose + 0.25);
+      const pCowTip = project(0, 0.28, zNose + 0.45);
+
+      if (pCowTopL && pCowTopR && pCowBotL && pCowBotR && pCowTip) {
+        // Pilot Grille Base
+        ctx.fillStyle = '#991b1b'; // Darker red body
+        ctx.beginPath();
+        ctx.moveTo(pCowTopL.x, pCowTopL.y);
+        ctx.lineTo(pCowTopR.x, pCowTopR.y);
+        ctx.lineTo(pCowBotR.x, pCowBotR.y);
+        ctx.lineTo(pCowTip.x, pCowTip.y);
+        ctx.lineTo(pCowBotL.x, pCowBotL.y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#7f1d1d';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // White Diagonal Safety Hazard Stripes
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = Math.max(1.5, Math.min(3.5, 0.035 * pCowTopL.scale));
+        const numStripes = 6;
+        for (let sIdx = 1; sIdx <= numStripes; sIdx++) {
+          const tFrac = sIdx / (numStripes + 1);
+          const topX = pCowTopL.x + (pCowTopR.x - pCowTopL.x) * tFrac;
+          const topY = pCowTopL.y;
+          const botX = topX + (topX < pCowTip.x ? 8 : -8);
+          const botY = pCowTip.y;
+          ctx.beginPath();
+          ctx.moveTo(topX, topY);
+          ctx.lineTo(botX, botY);
+          ctx.stroke();
+        }
+      }
+
+      // 2j. Rooftop Pantograph contacting 25kV OHE contact wire
+      const pPantoBase = project(0, 4.10, zNose - 5.5);
       if (pPantoBase) {
         if (state.pantographUp) {
-          const pPantoContact = project(0, 5.25, zNose - 5.5);
-          const pPantoKnee = project(0.4, 4.7, zNose - 5.5);
+          const pPantoContact = project(0, 5.30, zNose - 5.5);
+          const pPantoKnee = project(0.4, 4.75, zNose - 5.5);
 
           if (pPantoContact && pPantoKnee) {
-            ctx.strokeStyle = '#dc2626'; // Red articulated arms
-            ctx.lineWidth = Math.max(2, 4 * pPantoBase.scale * 10);
+            ctx.strokeStyle = '#dc2626'; // Articulated red arm
+            ctx.lineWidth = Math.max(2, Math.min(6, 0.06 * pPantoBase.scale));
             ctx.beginPath();
             ctx.moveTo(pPantoBase.x, pPantoBase.y);
             ctx.lineTo(pPantoKnee.x, pPantoKnee.y);
@@ -1178,30 +1541,31 @@ export class Renderer25D {
 
             // Copper contact shoe
             ctx.strokeStyle = '#f59e0b';
-            ctx.lineWidth = Math.max(2.5, 6 * pPantoBase.scale * 10);
+            ctx.lineWidth = Math.max(2.5, Math.min(8, 0.09 * pPantoBase.scale));
+            const shoeW = Math.max(12, Math.min(36, 0.35 * pPantoBase.scale));
             ctx.beginPath();
-            ctx.moveTo(pPantoContact.x - 16 * pPantoBase.scale * 10, pPantoContact.y);
-            ctx.lineTo(pPantoContact.x + 16 * pPantoBase.scale * 10, pPantoContact.y);
+            ctx.moveTo(pPantoContact.x - shoeW * 0.5, pPantoContact.y);
+            ctx.lineTo(pPantoContact.x + shoeW * 0.5, pPantoContact.y);
             ctx.stroke();
 
             // Electric spark flash at contact wire when accelerating
-            if (state.speedKmh > 15 && state.throttlePercent > 20 && Math.random() < 0.12) {
+            if (state.speedKmh > 10 && state.throttlePercent > 20 && Math.random() < 0.10) {
               ctx.fillStyle = '#ffffff';
-              ctx.shadowColor = '#00f0ff';
-              ctx.shadowBlur = 20;
+              ctx.shadowColor = '#38bdf8';
+              ctx.shadowBlur = 16;
               ctx.beginPath();
-              ctx.arc(pPantoContact.x, pPantoContact.y, 8, 0, Math.PI * 2);
+              ctx.arc(pPantoContact.x, pPantoContact.y, 6, 0, Math.PI * 2);
               ctx.fill();
               ctx.shadowBlur = 0;
             }
           }
         } else {
-          // Folded flat on roof
+          // Pantograph folded down on roof
           ctx.strokeStyle = '#dc2626';
           ctx.lineWidth = 3;
           ctx.beginPath();
-          ctx.moveTo(pPantoBase.x - 12, pPantoBase.y);
-          ctx.lineTo(pPantoBase.x + 12, pPantoBase.y);
+          ctx.moveTo(pPantoBase.x - 14, pPantoBase.y);
+          ctx.lineTo(pPantoBase.x + 14, pPantoBase.y);
           ctx.stroke();
         }
       }
@@ -1210,75 +1574,231 @@ export class Renderer25D {
     ctx.restore();
   }
 
+  /**
+   * Driver Cab Cockpit View (First-Person)
+   * Detailed WAP-7 cockpit windscreen pillars, dashboard console, twin wipers, and dials.
+   */
   drawCabCockpit(ctx, w, h, state, dt, weather) {
     ctx.save();
 
-    // Left & Right Cab Pillars (WAP-7 Windscreen Architecture)
+    // 1. Windshield Glass Reflections & Edge Tinting
+    const glassGrad = ctx.createLinearGradient(0, 0, 0, h * 0.58);
+    glassGrad.addColorStop(0, 'rgba(15, 23, 42, 0.35)');
+    glassGrad.addColorStop(0.18, 'rgba(2, 132, 199, 0.06)');
+    glassGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = glassGrad;
+    ctx.fillRect(0, 0, w, h * 0.58);
+
+    // 2. Windshield Wipers (parked at bottom in clear weather, sweeping in rain)
+    if (weather === 'rain') {
+      this.wiperAngle += dt * 3.8 * this.wiperDirection;
+      if (this.wiperAngle > 1.15) {
+        this.wiperAngle = 1.15;
+        this.wiperDirection = -1;
+      } else if (this.wiperAngle < -0.20) {
+        this.wiperAngle = -0.20;
+        this.wiperDirection = 1;
+      }
+    } else {
+      // Parked smoothly at bottom edge
+      this.wiperAngle = -0.15;
+    }
+
+    // Draw twin heavy-duty wipers
+    [w * 0.28, w * 0.72].forEach(bx => {
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      const by = h * 0.58;
+      const len = h * 0.38;
+      const ex = bx + Math.sin(this.wiperAngle) * len;
+      const ey = by - Math.cos(this.wiperAngle) * len;
+      ctx.moveTo(bx, by);
+      ctx.lineTo(ex, ey);
+      ctx.stroke();
+
+      // Wiper blade perpendicular bar
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 3;
+      const bAng = this.wiperAngle + Math.PI / 2;
+      const bLen = 30;
+      ctx.beginPath();
+      ctx.moveTo(ex - Math.cos(bAng) * bLen, ey - Math.sin(bAng) * bLen);
+      ctx.lineTo(ex + Math.cos(bAng) * bLen, ey + Math.sin(bAng) * bLen);
+      ctx.stroke();
+    });
+
+    // 3. Cab Structural Windscreen Pillars
+    // Left A-pillar
     ctx.fillStyle = '#0f172a';
     ctx.beginPath();
     ctx.moveTo(0, 0);
-    ctx.lineTo(w * 0.14, 0);
-    ctx.lineTo(w * 0.20, h * 0.72);
-    ctx.lineTo(0, h * 0.72);
+    ctx.lineTo(w * 0.12, 0);
+    ctx.lineTo(w * 0.15, h * 0.58);
+    ctx.lineTo(0, h * 0.58);
     ctx.closePath();
     ctx.fill();
 
+    // Right A-pillar
     ctx.beginPath();
     ctx.moveTo(w, 0);
-    ctx.lineTo(w * 0.86, 0);
-    ctx.lineTo(w * 0.80, h * 0.72);
-    ctx.lineTo(w, h * 0.72);
+    ctx.lineTo(w * 0.88, 0);
+    ctx.lineTo(w * 0.85, h * 0.58);
+    ctx.lineTo(w, h * 0.58);
     ctx.closePath();
     ctx.fill();
 
-    // Center Windshield Beam
-    ctx.fillRect(w * 0.485, 0, w * 0.03, h * 0.72);
+    // Center divider pillar (slim with rubber seal)
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(w * 0.494, 0, w * 0.012, h * 0.58);
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(w * 0.494, 0, w * 0.012, h * 0.58);
 
-    // Cab Roof Trim
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(0, 0, w, h * 0.08);
+    // Cab Roof Ceiling
+    const roofGrad = ctx.createLinearGradient(0, 0, 0, h * 0.10);
+    roofGrad.addColorStop(0, '#020617');
+    roofGrad.addColorStop(0.7, '#0f172a');
+    roofGrad.addColorStop(1, '#1e293b');
+    ctx.fillStyle = roofGrad;
+    ctx.fillRect(0, 0, w, h * 0.085);
 
-    // Windshield Wipers in Rain
-    if (weather === 'rain') {
-      this.wiperAngle += dt * 3.8 * this.wiperDirection;
-      if (this.wiperAngle > 1.2) {
-        this.wiperAngle = 1.2;
-        this.wiperDirection = -1;
-      } else if (this.wiperAngle < -0.2) {
-        this.wiperAngle = -0.2;
-        this.wiperDirection = 1;
+    // Twin Dark Green Acrylic Sun Visors
+    ctx.fillStyle = 'rgba(5, 46, 22, 0.55)'; // Deep emerald sunshade tint
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1.5;
+    [w * 0.14, w * 0.52].forEach(vx => {
+      ctx.fillRect(vx, h * 0.06, w * 0.34, h * 0.08);
+      ctx.strokeRect(vx, h * 0.06, w * 0.34, h * 0.08);
+    });
+
+    // 4. Loco Pilot Driver Console Desk (from h * 0.58 to bottom)
+    const deskGrad = ctx.createLinearGradient(0, h * 0.58, 0, h);
+    deskGrad.addColorStop(0, '#1e293b');
+    deskGrad.addColorStop(0.12, '#0f172a');
+    deskGrad.addColorStop(0.50, '#090d16');
+    deskGrad.addColorStop(1.0, '#020617');
+
+    ctx.fillStyle = deskGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.58);
+    ctx.lineTo(w, h * 0.58);
+    ctx.lineTo(w, h);
+    ctx.lineTo(0, h);
+    ctx.closePath();
+    ctx.fill();
+
+    // Console Chamfer Bezel Accent Line
+    ctx.strokeStyle = '#0284c7';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.58);
+    ctx.lineTo(w, h * 0.58);
+    ctx.stroke();
+
+    // 5. Working Cockpit Instruments & Analog Gauges
+    const drawGauge = (cx, cy, r, val, minV, maxV, label, unit, colorNeedle = '#ef4444') => {
+      ctx.fillStyle = '#020617';
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      const dialGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, r - 3);
+      dialGrad.addColorStop(0, '#1e293b');
+      dialGrad.addColorStop(1, '#090d16');
+      ctx.fillStyle = dialGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r - 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      const startAngle = -Math.PI * 0.75;
+      const endAngle = Math.PI * 0.75;
+      const numTicks = 8;
+      for (let t = 0; t <= numTicks; t++) {
+        const ang = startAngle + (t / numTicks) * (endAngle - startAngle);
+        const x1 = cx + Math.cos(ang) * (r - 6);
+        const y1 = cy + Math.sin(ang) * (r - 6);
+        const x2 = cx + Math.cos(ang) * (r - 12);
+        const y2 = cy + Math.sin(ang) * (r - 12);
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
       }
 
-      ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 6;
-      [w * 0.28, w * 0.72].forEach(bx => {
-        ctx.beginPath();
-        const by = h * 0.72;
-        const len = h * 0.38;
-        const ex = bx + Math.sin(this.wiperAngle) * len;
-        const ey = by - Math.cos(this.wiperAngle) * len;
-        ctx.moveTo(bx, by);
-        ctx.lineTo(ex, ey);
-        ctx.stroke();
-      });
-    }
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = `bold ${Math.max(7, Math.round(r * 0.22))}px 'Inter', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(label, cx, cy + r * 0.40);
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = `600 ${Math.max(6, Math.round(r * 0.16))}px 'JetBrains Mono', monospace`;
+      ctx.fillText(unit, cx, cy + r * 0.62);
 
-    // Driver Console Dashboard Bench
-    const consoleGrad = ctx.createLinearGradient(0, h * 0.72, 0, h);
-    consoleGrad.addColorStop(0, '#1e293b');
-    consoleGrad.addColorStop(0.2, '#0f172a');
-    consoleGrad.addColorStop(1.0, '#020617');
+      const clampedVal = Math.max(minV, Math.min(maxV, val));
+      const valFrac = (clampedVal - minV) / (maxV - minV);
+      const needleAngle = startAngle + valFrac * (endAngle - startAngle);
+      ctx.strokeStyle = colorNeedle;
+      ctx.lineWidth = 2;
+      ctx.shadowColor = colorNeedle;
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(needleAngle) * (r - 8), cy + Math.sin(needleAngle) * (r - 8));
+      ctx.stroke();
+      ctx.shadowBlur = 0;
 
-    ctx.fillStyle = consoleGrad;
-    ctx.fillRect(0, h * 0.72, w, h * 0.28);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    };
 
-    // Console Dial Lights & Tractive Meter
+    const gaugeY = h * 0.67;
+
+    // Gauge 1: Speedometer (0 - 160 km/h)
+    drawGauge(w * 0.38, gaugeY, 36, state.speedKmh || 0, 0, 160, 'SPEED', 'KM/H', '#f87171');
+
+    // Gauge 2: Duplex Air Brake Pressure (BP: 0 - 6 bar)
+    const bpPressure = state.brakesApplied ? Math.max(0, 5.0 - ((state.brakePercent || 0) / 100) * 5.0) : 5.0;
+    drawGauge(w * 0.62, gaugeY, 36, bpPressure, 0, 6, 'BRAKE', 'BP BAR', '#4ade80');
+
+    // Gauge 3: 25kV OHE Voltage Meter (0 - 30 kV)
+    const oheKv = state.pantographUp ? 25.0 : 0.0;
+    drawGauge(w * 0.24, gaugeY, 26, oheKv, 0, 30, 'OHE', '25 kV', '#facc15');
+
+    // Gauge 4: Traction Motor Current (0 - 1000 A)
+    const motorAmps = ((state.throttlePercent || 0) / 100) * (state.speedKmh > 5 ? 750 : 350);
+    drawGauge(w * 0.76, gaugeY, 26, motorAmps, 0, 1000, 'MOTOR', 'AMPS', '#38bdf8');
+
+    // Center Console Display: Traction Notch & WAP-7 Loco Plate
+    const notchVal = Math.round(((state.throttlePercent || 0) / 100) * 32);
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(w * 0.46, gaugeY - 26, w * 0.08, 22);
     ctx.strokeStyle = '#0284c7';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(0, h * 0.72);
-    ctx.lineTo(w, h * 0.72);
-    ctx.stroke();
+    ctx.lineWidth = 1;
+    ctx.strokeRect(w * 0.46, gaugeY - 26, w * 0.08, 22);
+
+    ctx.fillStyle = '#22c55e';
+    ctx.font = "bold 11px 'JetBrains Mono', monospace";
+    ctx.textAlign = 'center';
+    ctx.fillText(`NOTCH N${notchVal}`, w * 0.50, gaugeY - 11);
+
+    // Brass Plaque
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(w * 0.43, gaugeY + 4, w * 0.14, 16);
+    ctx.strokeStyle = '#fef08a';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(w * 0.43, gaugeY + 4, w * 0.14, 16);
+
+    ctx.fillStyle = '#fef08a';
+    ctx.font = "bold 8px 'Inter', sans-serif";
+    ctx.fillText('CLW • WAP-7 30201', w * 0.50, gaugeY + 15);
+    ctx.textAlign = 'left';
 
     ctx.restore();
   }

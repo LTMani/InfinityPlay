@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="bgGlow" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#0e172a" />
+      <stop offset="60%" stop-color="#070b14" />
+      <stop offset="100%" stop-color="#020408" />
+    </radialGradient>
+
+    <!-- Gold Accent Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="35%" stop-color="#fbbf24" />
+      <stop offset="70%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#92400e" />
+    </linearGradient>
+
+    <!-- WAP-7 Crimson Livery Gradient -->
+    <linearGradient id="wapRed" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#dc2626" />
+      <stop offset="50%" stop-color="#b91c1c" />
+      <stop offset="100%" stop-color="#7f1d1d" />
+    </linearGradient>
+
+    <!-- Locomotive Roof Gradient -->
+    <linearGradient id="roofGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#475569" />
+      <stop offset="50%" stop-color="#64748b" />
+      <stop offset="100%" stop-color="#334155" />
+    </linearGradient>
+
+    <!-- High-Beam Volumetric Glow -->
+    <radialGradient id="headlightBeam" cx="50%" cy="0%" r="80%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+      <stop offset="30%" stop-color="#fef08a" stop-opacity="0.6" />
+      <stop offset="70%" stop-color="#38bdf8" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Glow Filter -->
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Electric Spark Filter -->
+    <filter id="electricSpark" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base Frame -->
+  <rect x="12" y="12" width="488" height="488" rx="100" fill="url(#bgGlow)" stroke="url(#goldGrad)" stroke-width="4" />
+  <rect x="20" y="20" width="472" height="472" rx="92" fill="none" stroke="rgba(0, 240, 255, 0.25)" stroke-width="1.5" />
+
+  <!-- Background Catenary Overhead Wires -->
+  <g opacity="0.3" stroke="#94a3b8" stroke-width="1.5">
+    <line x1="50" y1="90" x2="462" y2="90" />
+    <line x1="120" y1="90" x2="256" y2="60" stroke="#00f0ff" stroke-width="2" />
+    <line x1="392" y1="90" x2="256" y2="60" stroke="#00f0ff" stroke-width="2" />
+  </g>
+
+  <!-- 2.5D Track Perspective &amp; Ballast -->
+  <polygon points="216,280 296,280 430,470 82,470" fill="#1e293b" opacity="0.85" />
+  
+  <!-- Wooden Sleepers (Ties) -->
+  <line x1="205" y1="310" x2="307" y2="310" stroke="#334155" stroke-width="5" />
+  <line x1="185" y1="345" x2="327" y2="345" stroke="#334155" stroke-width="7" />
+  <line x1="160" y1="385" x2="352" y2="385" stroke="#334155" stroke-width="9" />
+  <line x1="130" y1="430" x2="382" y2="430" stroke="#334155" stroke-width="11" />
+  <line x1="95" y1="475" x2="417" y2="475" stroke="#334155" stroke-width="14" />
+
+  <!-- Steel Rails -->
+  <line x1="225" y1="280" x2="115" y2="480" stroke="#00f0ff" stroke-width="5" filter="url(#neonGlow)" />
+  <line x1="287" y1="280" x2="397" y2="480" stroke="#00f0ff" stroke-width="5" filter="url(#neonGlow)" />
+
+  <!-- Headlight Volumetric Beam -->
+  <polygon points="256,180 60,480 452,480" fill="url(#headlightBeam)" opacity="0.4" />
+
+  <!-- 25kV Overhead Pantograph (High Voltage) -->
+  <g stroke="#dc2626" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <line x1="230" y1="120" x2="256" y2="70" />
+    <line x1="282" y1="120" x2="256" y2="70" />
+    <line x1="220" y1="70" x2="292" y2="70" stroke="#f8fafc" stroke-width="5" />
+    <!-- Electric Sparks -->
+    <path d="M256,70 L252,55 L262,50 L256,38" stroke="#00f0ff" stroke-width="3" filter="url(#electricSpark)" />
+    <circle cx="256" cy="70" r="4" fill="#ffffff" filter="url(#electricSpark)" />
+  </g>
+
+  <!-- WAP-7 Locomotive Body -->
+  <!-- Roof Cap -->
+  <path d="M190,140 Q256,125 322,140 L315,160 L197,160 Z" fill="url(#roofGrad)" />
+  
+  <!-- Main Cab Upper Section -->
+  <polygon points="197,160 315,160 335,245 177,245" fill="url(#wapRed)" />
+
+  <!-- Dual Windshield Windows -->
+  <polygon points="204,166 250,166 248,206 195,206" fill="#0f172a" stroke="#475569" stroke-width="2" />
+  <polygon points="262,166 308,166 317,206 264,206" fill="#0f172a" stroke="#475569" stroke-width="2" />
+  
+  <!-- Windshield Sun Visors -->
+  <rect x="204" y="166" width="46" height="6" fill="#065f46" opacity="0.8" />
+  <rect x="262" y="166" width="46" height="6" fill="#065f46" opacity="0.8" />
+
+  <!-- Windshield Wipers -->
+  <line x1="220" y1="206" x2="235" y2="185" stroke="#94a3b8" stroke-width="2" />
+  <line x1="280" y1="206" x2="295" y2="185" stroke="#94a3b8" stroke-width="2" />
+
+  <!-- Locomotive Lower Body -->
+  <polygon points="177,245 335,245 342,325 170,325" fill="#991b1b" stroke="#7f1d1d" stroke-width="2" />
+
+  <!-- Golden Chevron Cheatline -->
+  <polygon points="174,250 256,290 338,250 335,264 256,304 177,264" fill="url(#goldGrad)" filter="url(#neonGlow)" />
+
+  <!-- Indian National Flag (Tiranga) on Nose -->
+  <g transform="translate(236, 238)">
+    <rect x="0" y="0" width="40" height="7" fill="#ff9933" rx="1" />
+    <rect x="0" y="7" width="40" height="7" fill="#ffffff" />
+    <rect x="0" y="14" width="40" height="7" fill="#138808" rx="1" />
+    <!-- Ashoka Chakra -->
+    <circle cx="20" cy="10.5" r="3" fill="none" stroke="#000080" stroke-width="0.8" />
+    <circle cx="20" cy="10.5" r="0.8" fill="#000080" />
+  </g>
+
+  <!-- WAP-7 Locomotive Lettering -->
+  <text x="256" y="232" fill="#ffffff" font-family="'Inter', sans-serif" font-weight="900" font-size="10" text-anchor="middle" letter-spacing="1">WAP-7 • 30201</text>
+
+  <!-- Central High-Beam Headlight -->
+  <circle cx="256" cy="148" r="9" fill="#ffffff" stroke="#fef08a" stroke-width="2" filter="url(#neonGlow)" />
+  <circle cx="256" cy="148" r="4" fill="#ffffff" />
+
+  <!-- Twin Lower Marker Lamps -->
+  <circle cx="198" cy="272" r="7" fill="#ffffff" stroke="#fbbf24" stroke-width="1.5" filter="url(#neonGlow)" />
+  <circle cx="314" cy="272" r="7" fill="#ffffff" stroke="#fbbf24" stroke-width="1.5" filter="url(#neonGlow)" />
+
+  <!-- Red Pilot Cowcatcher with White Hazard Stripes -->
+  <g transform="translate(180, 325)">
+    <!-- Base Plate -->
+    <polygon points="0,0 152,0 134,44 18,44" fill="#b91c1c" stroke="#7f1d1d" stroke-width="2" />
+    <!-- White Hazard Stripes -->
+    <line x1="28" y1="2" x2="22" y2="42" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" />
+    <line x1="48" y1="2" x2="44" y2="42" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" />
+    <line x1="68" y1="2" x2="66" y2="42" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" />
+    <line x1="84" y1="2" x2="86" y2="42" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" />
+    <line x1="104" y1="2" x2="108" y2="42" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" />
+    <line x1="124" y1="2" x2="130" y2="42" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" />
+    <!-- Center CBC Knuckle Coupler -->
+    <rect x="66" y="24" width="20" height="24" rx="4" fill="#1e293b" stroke="#475569" stroke-width="2" />
+    <circle cx="76" cy="36" r="3.5" fill="#64748b" />
+  </g>
+
+  <!-- Bottom Brand Title Plaque -->
+  <g transform="translate(36, 395)">
+    <!-- Plaque Background -->
+    <rect x="0" y="0" width="440" height="84" rx="20" fill="rgba(15, 23, 42, 0.94)" stroke="url(#goldGrad)" stroke-width="2" filter="url(#neonGlow)" />
+    
+    <!-- Indian Railways Top Tagline -->
+    <text x="220" y="26" fill="#00f0ff" font-family="'Inter', sans-serif" font-weight="800" font-size="11" text-anchor="middle" letter-spacing="3">INDIAN RAILWAYS SIMULATOR</text>
+    
+    <!-- Main Title -->
+    <text x="220" y="55" fill="#ffffff" font-family="'Inter', sans-serif" font-weight="900" font-size="24" text-anchor="middle" letter-spacing="1">RAILWAY COMMANDER</text>
+    
+    <!-- Bottom Notch / Traction Subtitle -->
+    <text x="220" y="73" fill="#fbbf24" font-family="'JetBrains Mono', monospace" font-weight="700" font-size="11" text-anchor="middle" letter-spacing="1.5">⚡ WAP-7 RAJDHANI EXPRESS ⚡</text>
+  </g>
+</svg>
