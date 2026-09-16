@@ -110,13 +110,23 @@
         vehicle._aiTravelDirection = this._determineDirection(vehicle, currentRoad);
       }
 
-      // Check for vehicle ahead (safe distance)
-      const vehicleAhead = this._checkVehicleAhead(vehicle, this._vehicles, cfg);
-      if (vehicleAhead) {
-        this._handleFollowing(vehicle, vehicleAhead, cfg, currentRoad);
-      } else {
-        // No vehicle ahead, maintain normal speed
-        this._maintainSpeed(vehicle, currentRoad, cfg);
+      // Phase 10A Task 5: AI state is authoritative. A vehicle that is
+      // "waiting" at an intersection/roundabout must NOT receive normal
+      // traveling speed commands. Only the intersection/roundabout handler
+      // is allowed to write targetSpeed for a waiting vehicle. This prevents
+      // _maintainSpeed/_handleFollowing from clobbering the stop command and
+      // causing state oscillation.
+      const isWaiting = vehicle._aiState === 'waiting';
+
+      if (!isWaiting) {
+        // Check for vehicle ahead (safe distance)
+        const vehicleAhead = this._checkVehicleAhead(vehicle, this._vehicles, cfg);
+        if (vehicleAhead) {
+          this._handleFollowing(vehicle, vehicleAhead, cfg, currentRoad);
+        } else {
+          // No vehicle ahead, maintain normal speed
+          this._maintainSpeed(vehicle, currentRoad, cfg);
+        }
       }
 
       // Check for player bus proximity
@@ -392,7 +402,25 @@
 
     _handleStandardIntersection(vehicle, intersection, map, cfg) {
       if (vehicle._aiState === 'waiting') {
+        // Already waiting — keep the vehicle stopped and advance the wait
+        // timer using the real dt so timing is frame-rate independent.
         vehicle.targetSpeed = 0;
+        vehicle._aiWaitTimer += vehicle._dt || 0.016;
+
+        const minWait = cfg.minStopTime || 1.0;
+        const maxWait = cfg.maxStopTime || 3.0;
+
+        if (vehicle._aiWaitTimer >= minWait + Math.random() * (maxWait - minWait)) {
+          vehicle._aiState = 'traveling';
+          vehicle._intersectionDecisionMade = false;
+          vehicle._aiWaitTimer = 0;
+
+          if (vehicle._aiTurnTarget) {
+            vehicle._aiRoad = vehicle._aiTurnTarget;
+            vehicle._aiTravelDirection = 1;
+            vehicle._aiTurnTarget = null;
+          }
+        }
         return;
       }
 
@@ -424,30 +452,27 @@
         vehicle._aiState = 'waiting';
         vehicle._aiWaitTimer = 0;
       }
-
-      // Continue waiting
-      vehicle._aiWaitTimer += 0.016;
-      const minWait = cfg.minStopTime || 1.0;
-      const maxWait = cfg.maxStopTime || 3.0;
-
-      if (vehicle._aiWaitTimer >= minWait + Math.random() * (maxWait - minWait)) {
-        vehicle._aiState = 'traveling';
-        vehicle._intersectionDecisionMade = false;
-        vehicle._aiWaitTimer = 0;
-
-        if (vehicle._aiTurnTarget) {
-          vehicle._aiRoad = vehicle._aiTurnTarget;
-          vehicle._aiTravelDirection = 1;
-          vehicle._aiTurnTarget = null;
-        }
-      }
     },
 
-    _handleRoundabout(vehicle, roundabout, map, cfg) {
-      if (vehicle._aiState === 'waiting') {
-        // In roundabout, maintain circulation speed
-        const minSpeed = cfg.minCirculationSpeed || 15;
-        vehicle.targetSpeed = Math.max(minSpeed, vehicle.speed || 0);
+_handleRoundabout(vehicle, roundabout, map, cfg) {
+      if (vehicle._aiState === "waiting") {
+        // Already waiting at the roundabout exit — keep stopped and advance
+        // the wait timer using the real dt.
+        vehicle.targetSpeed = 0;
+        vehicle._aiWaitTimer += vehicle._dt || 0.016;
+
+        const minWait = cfg.minStopTime || 1.0;
+        const maxWait = cfg.maxStopTime || 3.0;
+
+        if (vehicle._aiWaitTimer >= minWait + Math.random() * (maxWait - minWait)) {
+          vehicle._aiState = "traveling";
+          vehicle._aiWaitTimer = 0;
+          if (vehicle._aiTurnTarget) {
+            vehicle._aiRoad = vehicle._aiTurnTarget;
+            vehicle._aiTravelDirection = 1;
+            vehicle._aiTurnTarget = null;
+          }
+        }
         return;
       }
 
@@ -457,12 +482,16 @@
         if (connections.length > 0) {
           const exitIdx = connections[0];
           vehicle._aiTurnTarget = this._findRoadById(map, exitIdx);
-          vehicle._aiState = 'waiting';
+          vehicle._aiState = "waiting";
           vehicle._roundaboutExitChecked = true;
+          // Stop at the roundabout exit and wait before taking it.
+          vehicle.targetSpeed = 0;
+          vehicle._aiWaitTimer = 0;
+          return;
         }
       }
 
-      // Maintain speed in roundabout
+      // Maintain circulation speed while in the roundabout
       const minSpeed = cfg.minCirculationSpeed || 15;
       vehicle.targetSpeed = Math.max(minSpeed, Math.min(vehicle.maxSpeed * 0.6, vehicle.maxSpeed));
 

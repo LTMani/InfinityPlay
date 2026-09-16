@@ -136,8 +136,13 @@
   };
 
   Passenger.prototype.isBored = function () {
-    return this.anger >= 100;
-  };
+      // Deterministic boolean. Safely handles missing/default anger values
+      // (e.g. after deserialize) by treating them as 0. A passenger is
+      // "bored" when their anger has maxed out (anger >= 100), which happens
+      // once waitTime reaches/exceeds patience.
+      const anger = (typeof this.anger === 'number') ? this.anger : 0;
+      return anger >= 100;
+    };
 
   Passenger.prototype.getFare = function (distance) {
     return Math.round(distance * 0.25 * this.fareMultiplier);

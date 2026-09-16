@@ -49,6 +49,9 @@
     this.fuelLevel = this.fuelCapacity;
     this.fuelEfficiency = busType ? busType.fuelEfficiency : 3.5;
     this.isLowFuel = false;
+    // Phase 10A Task 3: authoritative per-trip fuel accounting.
+    // This is the single source of truth for actual fuel consumed.
+    this.fuelUsed = 0;
 
     // Damage system
     this.condition = 100;    // 0-100%, health of bus
@@ -173,10 +176,15 @@
     }
 
     // Fuel consumption (scaled, reverse uses less fuel)
+    // Phase 10A Task 3: this is the SINGLE authoritative fuel depletion.
+    // The actual amount consumed (after clamping to zero) is recorded on
+    // bus.fuelUsed so TripSystem can read it without re-simulating.
     const speedMag = Math.abs(this.speed);
     const fuelMultiplier = this.reverseMode ? 0.5 : 1.0;
     const fuelConsumption = (speedMag / this.fuelEfficiency) * 0.0278 * dt * fuelMultiplier;
+    const fuelLevelBefore = this.fuelLevel;
     this.fuelLevel = Math.max(0, this.fuelLevel - fuelConsumption);
+    this.fuelUsed += fuelLevelBefore - this.fuelLevel;
 
     if (this.fuelLevel <= this.fuelCapacity * 0.1) {
       this.isLowFuel = true;
@@ -372,6 +380,7 @@
     this.tripStartTime = performance.now();
     this.tripDistance = 0;
     this.tripRevenue = 0;
+    this.fuelUsed = 0;
   };
 
   Bus.prototype.completeTrip = function () {

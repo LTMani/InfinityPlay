@@ -179,16 +179,70 @@
   Player.deserialize = function (data) {
     if (!data || typeof data !== 'object') return new Player();
     const player = new Player(data);
-    if (Array.isArray(player.garage) && Bus && typeof Bus.deserialize === 'function') {
-      player.garage = player.garage
-        .map(entry => {
-          if (!entry || typeof entry !== 'object') return null;
-          if (entry instanceof Bus) return entry;
-          if (entry.busTypeId) return Bus.deserialize(entry);
-          return null;
-        })
-        .filter(bus => bus !== null);
+
+    // Phase 10A Task 7: reconstruct real Bus instances from serialized
+    // plain objects. Without this, deserialized garage entries are plain
+    // objects and lose all prototype methods (update, refuel, serialize,
+    // startTrip, fuel accounting, etc.).
+    const Bus = (typeof window !== 'undefined' && window.BusSim && window.BusSim.Bus) ||
+      (typeof require !== 'undefined' ? require('./Bus') : null);
+    if (Bus && player.garage) {
+      player.garage = player.garage.map((entry) => {
+        if (!entry) return null;
+        // Already a Bus instance (e.g. imported in-memory objects)
+        if (typeof entry.update === 'function' && typeof entry.refuel === 'function') {
+          return entry;
+        }
+        const bus = new Bus(entry.x || 0, entry.y || 0, entry.busTypeId || 'pallevelugu');
+        // Restore all serialized fields safely
+        if (entry.id) bus.id = entry.id;
+        if (entry.busNumber) bus.busNumber = entry.busNumber;
+        if (entry.operatorId) bus.operatorId = entry.operatorId;
+        if (entry.serviceType) bus.serviceType = entry.serviceType;
+        if (entry.destinationBoard) bus.destinationBoard = entry.destinationBoard;
+        if (entry.customization) bus.customization = entry.customization;
+        if (entry.fleetNumber) bus.fleetNumber = entry.fleetNumber;
+        if (entry.color) bus.color = entry.color;
+        if (entry.livery) bus.livery = entry.livery;
+        if (entry.value !== undefined) bus.value = entry.value;
+        if (entry.fuelLevel !== undefined) bus.fuelLevel = entry.fuelLevel;
+        if (entry.fuelCapacity !== undefined) bus.fuelCapacity = entry.fuelCapacity;
+        if (entry.fuelEfficiency !== undefined) bus.fuelEfficiency = entry.fuelEfficiency;
+        if (entry.fuelUsed !== undefined) bus.fuelUsed = entry.fuelUsed;
+        if (entry.condition !== undefined) bus.condition = entry.condition;
+        if (entry.damage !== undefined) bus.damage = entry.damage;
+        if (entry.isDamaged !== undefined) bus.isDamaged = entry.isDamaged;
+        if (entry.isLowFuel !== undefined) bus.isLowFuel = entry.isLowFuel;
+        if (entry.passengersOnBoard !== undefined) bus.passengersOnBoard = entry.passengersOnBoard;
+        if (entry.tripDistance !== undefined) bus.tripDistance = entry.tripDistance;
+        if (entry.tripRevenue !== undefined) bus.tripRevenue = entry.tripRevenue;
+        if (entry._aiState) bus._aiState = entry._aiState;
+        if (entry._aiRoad) bus._aiRoad = entry._aiRoad;
+        if (entry._aiTravelDirection !== undefined) bus._aiTravelDirection = entry._aiTravelDirection;
+        if (entry._aiWaitTimer !== undefined) bus._aiWaitTimer = entry._aiWaitTimer;
+        if (entry._aiTurnTarget) bus._aiTurnTarget = entry._aiTurnTarget;
+        if (entry._aiTurnDirection) bus._aiTurnDirection = entry._aiTurnDirection;
+        if (entry._intersectionDecisionMade !== undefined) bus._intersectionDecisionMade = entry._intersectionDecisionMade;
+        if (entry._roundaboutExitChecked !== undefined) bus._roundaboutExitChecked = entry._roundaboutExitChecked;
+        if (entry._isAIBus !== undefined) bus._isAIBus = entry._isAIBus;
+        if (entry._aiTarget) bus._aiTarget = entry._aiTarget;
+        if (entry._currentSpeedLimit !== undefined) bus._currentSpeedLimit = entry._currentSpeedLimit;
+        if (entry._dt !== undefined) bus._dt = entry._dt;
+        if (entry.active !== undefined) bus.active = entry.active;
+        return bus;
+      });
     }
+
+    // Sync activeBusId to a valid bus if the saved id no longer exists
+    if (player.garage && player.garage.length > 0) {
+      const stillExists = player.garage.some(b => b && b.id === player.activeBusId);
+      if (!stillExists) {
+        player.activeBusId = player.garage[0].id;
+      }
+    } else {
+      player.activeBusId = null;
+    }
+
     return player;
   };
 

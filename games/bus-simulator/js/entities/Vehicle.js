@@ -38,8 +38,33 @@
     this.airResistance = 0.0008;
     this.rollingResistance = 0.012;
 
+    // Phase 10A Task 4: road friction multiplier (1.0 = dry/grip).
+    // Consumed by the existing traction path in update(); clear weather
+    // leaves it at 1.0 so current physics behavior is unchanged.
+    this.roadFrictionMultiplier = 1.0;
+
     this.color = '#e5e7eb';
     this.livery = { primary: '#dc2626', secondary: '#ffffff' };
+
+    // Phase 10B Task 8: transmission state owned by TransmissionSystem.
+    // Vehicle exposes a getTransmission() hook so the physics path can
+    // consult gear/RPM without duplicating transmission logic.
+    this._transmission = null;
+
+    // Phase 10B Task 9: suspension state owned by SuspensionSystem.
+    // Vehicle exposes getSuspension()/setSuspension() hooks so the physics
+    // path can consult compression/roll/pitch without duplicating logic.
+    this._suspension = null;
+
+    // Phase 10B Task 10: brake state owned by BrakeSystem.
+    this._brake = null;
+
+    // Phase 10B Task 11: tire state owned by TireSystem.
+    this._tires = null;
+
+    // Phase 10B Task 12: road surface state owned by RoadSurfaceSystem.
+    this._roadSurface = null;
+    this._roadSurfaceName = 'asphalt';
   }
 
   if (Entity) {
@@ -49,34 +74,108 @@
     Vehicle.prototype = {};
   }
 
+  Vehicle.prototype.getTransmission = function () {
+    return this._transmission || null;
+  };
+
+  Vehicle.prototype.setTransmission = function (state) {
+    this._transmission = state;
+  };
+
+  Vehicle.prototype.getSuspension = function () {
+    return this._suspension || null;
+  };
+
+  Vehicle.prototype.setSuspension = function (state) {
+    this._suspension = state;
+  };
+
+  Vehicle.prototype.getBrake = function () {
+    return this._brake || null;
+  };
+
+  Vehicle.prototype.setBrake = function (state) {
+    this._brake = state;
+  };
+
+  Vehicle.prototype.getTires = function () {
+    return this._tires || null;
+  };
+
+  Vehicle.prototype.setTires = function (state) {
+    this._tires = state;
+  };
+
+  Vehicle.prototype.getRoadSurface = function () {
+    return this._roadSurface || null;
+  };
+
+  Vehicle.prototype.setRoadSurface = function (state) {
+    this._roadSurface = state;
+  };
+
   Vehicle.prototype.update = function (dt) {
     if (!this.active) return;
     this._dt = dt;
 
-    // Speed interpolation toward target speed (negative = reverse)
+    // Phase 10B Task 8: transmission integration hook.
+    // TransmissionSystem owns gear/RPM state; Vehicle consults it to gate
+    // available drive torque. Neutral produces no drive; reverse only drives
+    // backward. When no transmission is attached (legacy/traffic vehicles),
+    // behavior is unchanged (full drive).
+    const transmission = (typeof this.getTransmission === 'function')
+      ? this.getTransmission()
+      : (this._transmission || null);
+    let driveTorque = 1.0;
+    if (transmission) {
+      if (transmission.gearMode === 'neutral') {
+        driveTorque = 0;
+      } else if (transmission.gearMode === 'reverse') {
+        driveTorque = (this.targetSpeed < 0 || this.speed < 0) ? 1.0 : 0;
+      } else {
+        // Drive: scale by gear ratio (lower gear = more torque)
+        const ratio = transmission.gearRatios && transmission.gearRatios[transmission.currentGear - 1]
+          ? transmission.gearRatios[transmission.currentGear - 1]
+          : 1.0;
+        driveTorque = Math.max(0.1, Math.min(1, 1 / ratio));
+      }
+    }
+
+    // Speed interpolation toward target speed (negative = reverse).
+    // Road friction scales traction: slippery weather reduces grip so the
+    // vehicle accelerates/decelerates more slowly. Clear weather (1.0)
+    // leaves this term unchanged.
+    const friction = this.roadFrictionMultiplier;
     if (this.targetSpeed > 0) {
       if (this.speed < this.targetSpeed) {
-        this.speed += this.acceleration * dt * 3.6;
+        this.speed += this.acceleration * friction * dt * 3.6 * driveTorque;
         if (this.speed > this.targetSpeed) this.speed = this.targetSpeed;
       }
     } else if (this.targetSpeed < 0) {
       if (this.speed > this.targetSpeed) {
-        this.speed -= this.acceleration * 0.5 * dt * 3.6;
+        this.speed -= this.acceleration * 0.5 * friction * dt * 3.6 * driveTorque;
         if (this.speed < this.targetSpeed) this.speed = this.targetSpeed;
       }
     } else {
       // Target is zero - apply deceleration
       if (this.speed > 0) {
-        this.speed = Math.max(0, this.speed - this.brakeDeceleration * dt * 3.6);
+        this.speed = Math.max(0, this.speed - this.brakeDeceleration * friction * dt * 3.6);
       } else if (this.speed < 0) {
-        this.speed = Math.min(0, this.speed + this.brakeDeceleration * dt * 3.6);
+        this.speed = Math.min(0, this.speed + this.brakeDeceleration * friction * dt * 3.6);
         if (this.speed > 0) this.speed = 0;
       }
     }
 
-    // Apply resistance
+    // Apply resistance. Road friction scales the traction-dependent
+    // rolling-resistance term: lower friction (rain/storm) reduces grip so
+    // the vehicle slides more. Clear weather (1.0) leaves this unchanged.
+    // Phase 10B Task 12: road surface rolling resistance is multiplied in
+    // here. RoadSurfaceSystem owns surface data; Vehicle consults it.
     const speedMag = Math.abs(this.speed);
-    this.speed *= (1 - this.airResistance * speedMag * dt - this.rollingResistance * dt);
+    const surfaceRoll = (this._roadSurface && typeof this._roadSurface.rollingResistance === 'number')
+      ? this._roadSurface.rollingResistance : this.rollingResistance;
+    this.speed *= (1 - this.airResistance * speedMag * dt
+      - surfaceRoll * friction * dt);
     if (speedMag < 0.1 && this.targetSpeed === 0) this.speed = 0;
     if (Math.abs(this.speed) < 0.05) this.speed = 0;
 

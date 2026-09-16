@@ -210,6 +210,13 @@
         entity.x = point.x;
         entity.y = point.y;
         entity._currentSpeedLimit = road.speedLimit;
+        // Phase 10B Task 12: propagate the road's surface name onto the
+        // entity so RoadSurfaceSystem can look up the surface properties.
+        // RoadSystem owns road network data; RoadSurfaceSystem owns the
+        // surface-property table.
+        if (typeof road.surface === 'string') {
+          entity.roadSurface = road.surface;
+        }
       }
     },
 

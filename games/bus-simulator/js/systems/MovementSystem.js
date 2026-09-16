@@ -162,6 +162,48 @@
 
       if (!bus.canMove()) return;
 
+      // Phase 10B Task 8: update the active bus's transmission state before
+      // the physics step. TransmissionSystem owns gear/RPM; MovementSystem
+      // remains responsible for vehicle movement.
+      const transmissionSystem = this.modules.TransmissionSystem;
+      if (transmissionSystem && typeof transmissionSystem.updateVehicle === 'function') {
+        transmissionSystem.updateVehicle(bus, dt);
+      }
+
+      // Phase 10B Task 9: update suspension state before the physics step.
+      const suspensionSystem = this.modules.SuspensionSystem;
+      if (suspensionSystem && typeof suspensionSystem.updateVehicle === 'function') {
+        suspensionSystem.updateVehicle(bus, dt);
+      }
+
+      // Phase 10B Task 10: feed brake/handbrake inputs into the bus so the
+      // BrakeSystem (the single authoritative braking owner) can read them
+      // during its update. MovementSystem no longer runs the old
+      // BrakingSystem in parallel.
+      bus._brakeInput = inputState.brake;
+      bus._handbrake = inputState.handbrake > 0;
+      const brakeSystem = this.modules.BrakeSystem;
+      if (brakeSystem && typeof brakeSystem.updateVehicle === 'function') {
+        brakeSystem.updateVehicle(bus, dt);
+      }
+
+      // Phase 10B Task 11: update tire wear/grip state before the physics
+      // step. TireSystem owns tire wear/grip; it never writes movement
+      // physics — it only provides grip state that other systems consult.
+      const tireSystem = this.modules.TireSystem;
+      if (tireSystem && typeof tireSystem.updateVehicle === 'function') {
+        tireSystem.updateVehicle(bus, dt);
+      }
+
+      // Phase 10B Task 12: update road-surface state before the physics
+      // step. RoadSurfaceSystem owns road-surface data; it never writes
+      // movement physics — it only provides grip/wear/rolling-resistance
+      // state that other systems consult.
+      const roadSurfaceSystem = this.modules.RoadSurfaceSystem;
+      if (roadSurfaceSystem && typeof roadSurfaceSystem.updateVehicle === 'function') {
+        roadSurfaceSystem.updateVehicle(bus, dt);
+      }
+
       // Reverse detection: brake when stopped enters reverse mode
       if (inputState.brake > 0 && Math.abs(bus.speed) < 2 && !bus.reverseMode) {
         bus.reverseMode = true;
@@ -179,20 +221,23 @@
         this.acceleration.apply(bus, inputState.throttle, dt);
       }
 
-      // Braking (handbrake takes priority)
+      // Braking is now handled by BrakeSystem (Task 10). The old
+      // BrakingSystem.apply/release calls are removed so there is exactly
+      // one authoritative braking path.
       if (inputState.handbrake > 0) {
-        bus.speed *= Math.pow(0.80, dt * 60);
-        bus.targetSpeed = 0;
         EventManager.emit('handbrakeApplied', { speed: bus.speed });
-      } else if (inputState.brake > 0) {
-        const brakeInput = inputState.brake;
-        this.braking.apply(bus, brakeInput, dt);
-      } else if (bus.targetSpeed > 0 && inputState.throttle === 0) {
-        this.braking.release(bus);
       }
 
       // Steering
       this.steering.apply(bus, inputState.steering, dt);
+
+      // Phase 10A Task 4: apply weather road friction to the bus before the
+      // physics step. This is the single integration point; clear weather
+      // yields 1.0 so existing driving feel is preserved.
+      const weatherSystem = this.modules.WeatherSystem;
+      bus.roadFrictionMultiplier = weatherSystem
+        ? weatherSystem.getRoadFrictionMultiplier()
+        : 1.0;
 
       // Apply speed cap from road
       const roadSpeedLimit = bus._currentSpeedLimit || bus.maxSpeed;
