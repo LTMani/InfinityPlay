@@ -44,6 +44,8 @@
       this.rafTimerId = null;
       this.lastFrameTime = 0;
 
+      this.championshipPhase = 1;
+
       // UI Callbacks
       this.onMoleSpawn = null;
       this.onMoleRetreat = null;
@@ -54,6 +56,7 @@
       this.onLivesUpdate = null;
       this.onLevelComplete = null;
       this.onGameOver = null;
+      this.onPhaseChange = null;
     }
 
     /**
@@ -77,8 +80,63 @@
       this.startTime = Date.now();
       this.state = GAME_STATES.PLAYING;
 
+      if (this.currentLevel && this.currentLevel.isLevel100) {
+        this.championshipPhase = 1;
+        if (this.onPhaseChange) {
+          const cfg = this.getChampionshipPhaseConfig(0);
+          this.onPhaseChange(cfg.phase, cfg.name, cfg.subtext);
+        }
+      }
+
       this.startSpawning();
       this.startTimerLoop();
+    }
+
+    /**
+     * Get dynamic phase configuration for Level 100 Championship
+     */
+    getChampionshipPhaseConfig(elapsedSec) {
+      if (elapsedSec < 15) {
+        return {
+          phase: 1,
+          name: 'PHASE 1: SPEED CALIBRATION',
+          subtext: 'High-speed target acquisition! Rapid spawns active.',
+          spawnInterval: 480,
+          visibleDuration: 650,
+          maxActiveMoles: 2,
+          allowedTypes: ['normal', 'golden', 'speed']
+        };
+      } else if (elapsedSec < 30) {
+        return {
+          phase: 2,
+          name: 'PHASE 2: HAZARD SURGE',
+          subtext: 'DANGER! Bomb moles and Armored moles breach the arena!',
+          spawnInterval: 400,
+          visibleDuration: 580,
+          maxActiveMoles: 3,
+          allowedTypes: ['normal', 'golden', 'speed', 'armored', 'bomb']
+        };
+      } else if (elapsedSec < 45) {
+        return {
+          phase: 3,
+          name: 'PHASE 3: CHAOS SWARM',
+          subtext: 'Quadruple simultaneous emergence! Trick moles active!',
+          spawnInterval: 340,
+          visibleDuration: 500,
+          maxActiveMoles: 4,
+          allowedTypes: ['normal', 'golden', 'speed', 'armored', 'trick', 'bonus', 'bomb']
+        };
+      } else {
+        return {
+          phase: 4,
+          name: 'FINAL PHASE: SINGULARITY OVERDRIVE',
+          subtext: 'MAXIMUM OVERDRIVE! 5 SIMULTANEOUS TARGETS ACROSS 20 HOLES!',
+          spawnInterval: 270,
+          visibleDuration: 420,
+          maxActiveMoles: 5,
+          allowedTypes: ['normal', 'golden', 'speed', 'armored', 'trick', 'bonus', 'bomb']
+        };
+      }
     }
 
     /**
@@ -160,8 +218,20 @@
     attemptSpawn() {
       if (this.state !== GAME_STATES.PLAYING) return;
 
+      let maxAllowed = this.currentLevel ? this.currentLevel.maxActiveMoles : 2;
+      let allowed = this.currentLevel ? this.currentLevel.allowedTypes : ['normal'];
+      let baseVisible = this.currentLevel ? this.currentLevel.visibleDuration : 1400;
+
+      // Dynamic phase scaling for Level 100 Championship
+      if (this.currentLevel && this.currentLevel.isLevel100) {
+        const elapsed = this.totalDuration - this.timeRemaining;
+        const phaseCfg = this.getChampionshipPhaseConfig(elapsed);
+        maxAllowed = phaseCfg.maxActiveMoles;
+        allowed = phaseCfg.allowedTypes;
+        baseVisible = phaseCfg.visibleDuration;
+      }
+
       const activeCount = this.holes.filter(h => h.isOccupied).length;
-      const maxAllowed = this.currentLevel ? this.currentLevel.maxActiveMoles : 2;
       if (activeCount >= maxAllowed) return;
 
       // Find available unoccupied holes
@@ -169,12 +239,10 @@
       if (freeHoles.length === 0) return;
 
       const chosenHole = freeHoles[Math.floor(Math.random() * freeHoles.length)];
-      const allowed = this.currentLevel ? this.currentLevel.allowedTypes : ['normal'];
       const moleType = window.MoleManager.pickRandomType(allowed);
       const moleDef = window.MoleManager.getDef(moleType);
 
       // Calculate visible duration
-      const baseVisible = this.currentLevel ? this.currentLevel.visibleDuration : 1400;
       const visibleMs = Math.round(baseVisible / moleDef.speedMultiplier);
 
       chosenHole.isOccupied = true;
@@ -198,6 +266,11 @@
     }
 
     getDynamicSpawnInterval() {
+      if (this.currentLevel && this.currentLevel.isLevel100) {
+        const elapsed = this.totalDuration - this.timeRemaining;
+        const phaseCfg = this.getChampionshipPhaseConfig(elapsed);
+        return phaseCfg.spawnInterval;
+      }
       let interval = this.currentLevel ? this.currentLevel.spawnInterval : 1000;
       if (this.mode === 'endless') {
         const elapsedSec = (Date.now() - this.startTime) / 1000;
@@ -388,6 +461,19 @@
         this.timeRemaining -= delta;
         if (this.onTick) {
           this.onTick(Math.max(0, this.timeRemaining), this.totalDuration);
+        }
+
+        // Check for Level 100 Championship Phase Transition
+        if (this.currentLevel && this.currentLevel.isLevel100) {
+          const elapsed = this.totalDuration - this.timeRemaining;
+          const phaseCfg = this.getChampionshipPhaseConfig(elapsed);
+          if (phaseCfg.phase !== this.championshipPhase) {
+            this.championshipPhase = phaseCfg.phase;
+            window.SoundEngine.playMilestone();
+            if (this.onPhaseChange) {
+              this.onPhaseChange(phaseCfg.phase, phaseCfg.name, phaseCfg.subtext);
+            }
+          }
         }
 
         if (this.timeRemaining <= 3.0 && this.timeRemaining > 0.1 && Math.floor(this.timeRemaining * 10) % 5 === 0) {
