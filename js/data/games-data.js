@@ -62,6 +62,25 @@ const gamesData = [
     playMode: 'embed'
   },
   {
+    id: 'color-match',
+    name: 'Color Match: Spectrum Arena',
+    category: 'Puzzle',
+    rating: 5.0,
+    plays: 17300,
+    playsFormatted: '17.3K',
+    rank: 1,
+    badge: 'NEW',
+    isTop: true,
+    thumbnail: 'assets/games/thumb_color_match.svg',
+    topThumbnail: 'assets/games/top_color_match.svg',
+    description: 'A high-speed chromatic reaction arena featuring 100 playable levels across 10 worlds, cognitive Stroop interference, luminance judging, and sub-second trials.',
+    tags: ['Puzzle', 'Color Match', 'Reflex', 'Stroop', 'Brain Teaser', 'Reaction', 'Speed'],
+    releaseDate: '2026-09-16',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/color-match/index.html',
+    playMode: 'embed'
+  },
+  {
     id: 'highway-tycoon',
     name: 'Highway Oasis Tycoon',
     category: 'Simulation',
