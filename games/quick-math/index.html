@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Quick Math: Infinity Challenge - InfinityPlay</title>
+  <meta name="description" content="A premium mathematics reaction arena featuring rapid mental arithmetic, 100 playable levels across 10 worlds, streak multipliers, and realistic presentation.">
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+
+  <!-- Ambient Math Particles Canvas -->
+  <canvas id="bgCanvas" class="bg-canvas" aria-hidden="true"></canvas>
+
+  <!-- Global Perfect Banner Notification -->
+  <div id="perfectBannerToast" class="perfect-toast hidden" aria-live="polite">
+    <div class="toast-content">
+      <span class="toast-crown">✨</span>
+      <div class="toast-text">
+        <span class="toast-main">PERFECT! 100% ACCURACY</span>
+        <span class="toast-sub">+50% BONUS XP & CREDITS AWARDED</span>
+      </div>
+      <span class="toast-crown">✨</span>
+    </div>
+  </div>
+
+  <!-- Primary Application Wrapper -->
+  <div class="app-container" id="gameContainer">
+
+    <!-- Top Tactical Bar -->
+    <header class="app-header">
+      <div class="header-brand">
+        <img src="assets/images/logo.svg" alt="Quick Math Logo" class="header-logo" width="28" height="28">
+        <span class="header-title">QUICK MATH <span class="badge-sub">INFINITY</span></span>
+      </div>
+
+      <div class="header-actions">
+        <button class="icon-btn" id="btnHeaderMute" title="Toggle Sound" aria-label="Toggle Sound">🔊</button>
+        <button class="icon-btn" id="btnHeaderPause" title="Pause Game" aria-label="Pause Game">⏸</button>
+        <a href="../../index.html" class="exit-btn" id="btnHeaderExit" title="Exit to InfinityPlay Portal">EXIT PORTAL ✕</a>
+      </div>
+    </header>
+
+
+    <!-- ======================================================================
+         1. MAIN MENU SCREEN
+         ====================================================================== -->
+    <section class="screen active" id="screenMenu">
+      <div class="menu-hero">
+        <div class="hero-logo-box">
+          <img src="assets/images/logo.svg" alt="Quick Math: Infinity Challenge" class="menu-big-logo" width="88" height="88">
+        </div>
+        <h1 class="game-title">QUICK MATH</h1>
+        <p class="game-subtitle">INFINITY CHALLENGE</p>
+        <p class="game-tagline">Master 100 Levels across 10 Worlds, rapid arithmetic, and tactical deduction.</p>
+      </div>
+
+      <!-- Primary Action Buttons -->
+      <div class="menu-actions">
+        <button class="menu-btn primary glow" id="btnMenuStart">
+          <span class="btn-icon">⚡</span>
+          <span class="btn-text">PLAY CAMPAIGN (100 LEVELS)</span>
+        </button>
+        <button class="menu-btn secondary" id="btnMenuModes">
+          <span class="btn-icon">🎮</span>
+          <span class="btn-text">ARCADE MODES</span>
+        </button>
+        <div class="menu-btn-row">
+          <button class="menu-btn tertiary" id="btnMenuLeaderboard">
+            <span class="btn-icon">👑</span>
+            <span>LEADERBOARD</span>
+          </button>
+          <button class="menu-btn tertiary" id="btnMenuAchievements">
+            <span class="btn-icon">🏆</span>
+            <span>AWARDS</span>
+          </button>
+          <button class="menu-btn tertiary" id="btnMenuSettings">
+            <span class="btn-icon">⚙️</span>
+            <span>SETTINGS</span>
+          </button>
+        </div>
+        <button class="menu-btn subtle" id="btnMenuHowToPlay">
+          <span>ℹ️ HOW TO PLAY & SHORTCUTS</span>
+        </button>
+      </div>
+    </section>
+
+
+    <!-- ======================================================================
+         2. MODE SELECTION SCREEN (Arcade Modes)
+         ====================================================================== -->
+    <section class="screen" id="screenModeSelect">
+      <div class="section-title-bar">
+        <button class="btn-back btn-back-menu" title="Return to Main Menu">← Back</button>
+        <h2 class="screen-heading">SELECT ARCADE MODE</h2>
+      </div>
+
+      <div class="modes-grid">
+        <!-- Mode 1: Time Attack -->
+        <div class="mode-card" id="btnModeTimeAttack">
+          <div class="mode-icon-box amber">⏱️</div>
+          <div class="mode-info">
+            <h3 class="mode-name">TIME ATTACK</h3>
+            <p class="mode-desc">60 seconds on the clock. Speed multipliers rewarded. Answer as fast as physically possible.</p>
+          </div>
+          <span class="mode-badge amber">60 SECONDS</span>
+        </div>
+
+        <!-- Mode 2: Survival -->
+        <div class="mode-card" id="btnModeSurvival">
+          <div class="mode-icon-box red">❤️</div>
+          <div class="mode-info">
+            <h3 class="mode-name">SURVIVAL</h3>
+            <p class="mode-desc">3 lives. Every mistake or timeout costs 1 heart. Three strikes and you are out.</p>
+          </div>
+          <span class="mode-badge red">3 LIVES</span>
+        </div>
+
+        <!-- Mode 3: Endless -->
+        <div class="mode-card" id="btnModeEndless">
+          <div class="mode-icon-box purple">♾️</div>
+          <div class="mode-info">
+            <h3 class="mode-name">ENDLESS</h3>
+            <p class="mode-desc">No round limits. Continuously scaling mathematical complexity until you fail.</p>
+          </div>
+          <span class="mode-badge purple">NO LIMIT</span>
+        </div>
+
+        <!-- Mode 4: Daily Challenge -->
+        <div class="mode-card" id="btnModeDaily">
+          <div class="mode-icon-box emerald">📅</div>
+          <div class="mode-info">
+            <h3 class="mode-name">DAILY CHALLENGE</h3>
+            <p class="mode-desc">A global, deterministic 10-question set generated identically each calendar day.</p>
+          </div>
+          <span class="mode-badge emerald">TODAY'S RUN</span>
+        </div>
+
+        <!-- Mode 5: Post-Level 100 Infinity Mode -->
+        <div class="mode-card locked-mode" id="btnModeInfinity">
+          <div class="mode-icon-box gold">👑</div>
+          <div class="mode-info">
+            <h3 class="mode-name">INFINITY MODE</h3>
+            <p class="mode-desc" id="infinityModeDesc">Procedurally escalating grandmaster gauntlet. Unlocks after Level 100.</p>
+          </div>
+          <span class="mode-badge gold" id="infinityModeBadge">🔒 LOCKED</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ======================================================================
+         3. LEVEL SELECT SCREEN (100 Playable Levels across 10 Worlds)
+         ====================================================================== -->
+    <section class="screen" id="screenLevelSelect">
+      <div class="section-title-bar">
+        <button class="btn-back btn-back-menu" title="Return to Main Menu">← Back</button>
+        <div class="level-select-header-info">
+          <h2 class="screen-heading">CAMPAIGN WORLD MAP</h2>
+          <div class="player-economy-badge" id="playerEconomyBadge">
+            <span class="economy-item xp-item" title="Player XP"><span class="economy-icon">⚡</span> <span id="playerTotalXP">0</span> XP</span>
+            <span class="economy-item credits-item" title="Player Credits"><span class="economy-icon">💎</span> <span id="playerTotalCredits">0</span> Credits</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- World Navigation Carousel Header -->
+      <div class="world-nav-carousel">
+        <button class="btn-world-nav" id="btnWorldPrev" aria-label="Previous World">‹</button>
+        <div class="world-banner" id="worldBanner">
+          <div class="world-badge" id="worldBadge">WORLD 1 OF 10</div>
+          <h3 class="world-title" id="worldTitle">🌱 WORLD 1 — NUMBER BASICS</h3>
+          <p class="world-subtitle" id="worldSubtitle">Single-Digit Foundations & Rapid Recognition</p>
+          
+          <!-- World Progress -->
+          <div class="world-progress-container">
+            <div class="world-progress-labels">
+              <span id="worldProgressLevels">Levels: 0 / 10 Complete</span>
+              <span id="worldProgressStars">⭐ 0 / 30 Stars</span>
+            </div>
+            <div class="world-progress-track">
+              <div class="world-progress-fill" id="worldProgressBar" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-world-nav" id="btnWorldNext" aria-label="Next World">›</button>
+      </div>
+
+      <!-- Quick World Jump Tabs -->
+      <div class="world-tabs-bar" id="worldTabsBar">
+        <!-- Rendered dynamically: W1 .. W10 -->
+      </div>
+
+      <!-- Serpentine Level Map (10 Levels: Row 1 = 1-5, Row 2 = 10-6) -->
+      <div class="serpentine-map-wrapper">
+        <div class="serpentine-level-grid" id="levelsGrid">
+          <!-- Rendered dynamically by main.js -->
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ======================================================================
+         4. ACTIVE GAMEPLAY SCREEN
+         ====================================================================== -->
+    <section class="screen" id="screenGame">
+      
+      <!-- Top Tactical HUD -->
+      <div class="game-hud">
+        <div class="hud-box">
+          <span class="hud-label" id="hudQuestionLabel">QUESTION</span>
+          <span class="hud-val" id="hudQuestionCount">Q 01 / 10</span>
+        </div>
+
+        <div class="hud-box score-box">
+          <span class="hud-label">SCORE</span>
+          <span class="hud-val gold" id="hudScoreValue">0</span>
+        </div>
+
+        <div class="hud-box streak-box">
+          <span class="hud-label">STREAK</span>
+          <span class="hud-val cyan" id="hudStreakValue">—</span>
+        </div>
+
+        <div class="hud-box multiplier-box">
+          <span class="hud-label">MULTIPLIER</span>
+          <span class="hud-val purple" id="hudMultiplierValue">1.0×</span>
+        </div>
+
+        <div class="hud-box lives-box" id="hudLivesBox" style="display: none;">
+          <span class="hud-label">LIVES</span>
+          <span class="hud-val red" id="hudLivesValue">❤️❤️❤️</span>
+        </div>
+
+        <div class="hud-box timer-box">
+          <span class="hud-label">TIME</span>
+          <span class="hud-val emerald" id="hudTimeValue">10.0s</span>
+        </div>
+      </div>
+
+      <!-- Question Timer Bar -->
+      <div class="timer-bar-wrapper">
+        <div class="timer-bar" id="timerBar" style="width: 100%;"></div>
+      </div>
+
+      <!-- Central Math Arena Card -->
+      <main class="question-arena">
+        <div class="question-card" id="questionCard">
+          <div class="question-tag-row">
+            <span class="tag-badge" id="questionOpBadge">ADDITION</span>
+            <span class="tag-level" id="questionLevelBadge">LEVEL 1</span>
+          </div>
+
+          <div class="question-display" id="questionText">12 + 15 = ?</div>
+
+          <div class="question-feedback-text" id="questionFeedback"></div>
+        </div>
+
+        <!-- 4 Tactile 3D Answer Buttons -->
+        <div class="answer-buttons-grid" id="answerButtonsGrid">
+          <button class="answer-btn" data-index="0" aria-label="Option 1">
+            <span class="btn-hotkey">1</span>
+            <span class="btn-value">—</span>
+          </button>
+          <button class="answer-btn" data-index="1" aria-label="Option 2">
+            <span class="btn-hotkey">2</span>
+            <span class="btn-value">—</span>
+          </button>
+          <button class="answer-btn" data-index="2" aria-label="Option 3">
+            <span class="btn-hotkey">3</span>
+            <span class="btn-value">—</span>
+          </button>
+          <button class="answer-btn" data-index="3" aria-label="Option 4">
+            <span class="btn-hotkey">4</span>
+            <span class="btn-value">—</span>
+          </button>
+        </div>
+      </main>
+
+      <!-- Bottom Keyboard Hints -->
+      <footer class="game-footer-hints">
+        <span>Use keys <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> to answer</span>
+        <span>•</span>
+        <span><kbd>P</kbd> Pause</span>
+        <span>•</span>
+        <span><kbd>R</kbd> Restart</span>
+      </footer>
+    </section>
+
+  </div>
+
+
+  <!-- ======================================================================
+       MODAL 1: RESULT SCREEN
+       ====================================================================== -->
+  <div class="modal-overlay" id="modalResult" role="dialog" aria-modal="true" aria-labelledby="resTitle">
+    <div class="modal-card">
+      <h2 class="modal-title" id="resTitle">ROUND COMPLETE</h2>
+
+      <!-- Stars Display (for Classic / Level Mode) -->
+      <div class="stars-row" id="resStarsContainer"></div>
+
+      <!-- Perfect Level Banner inside result card -->
+      <div class="res-perfect-banner hidden" id="resPerfectBanner">
+        <span>👑 PERFECT — 100% ACCURACY 👑</span>
+      </div>
+
+      <!-- Rewards Earned Box -->
+      <div class="res-rewards-box" id="resRewardsBox">
+        <span class="res-rewards-label">REWARDS EARNED</span>
+        <div class="res-rewards-items">
+          <span class="reward-pill xp"><span class="icon">⚡</span> +<span id="resXP">0</span> XP</span>
+          <span class="reward-pill credits"><span class="icon">💎</span> +<span id="resCredits">0</span> Credits</span>
+        </div>
+      </div>
+
+      <div class="results-stats-grid">
+        <div class="stat-cell">
+          <span class="stat-label">FINAL SCORE</span>
+          <span class="stat-val gold" id="resScore">0</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-label">ACCURACY</span>
+          <span class="stat-val cyan" id="resAccuracy">0%</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-label">CORRECT</span>
+          <span class="stat-val emerald" id="resCorrect">0</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-label">WRONG</span>
+          <span class="stat-val red" id="resWrong">0</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-label">TIMED OUT</span>
+          <span class="stat-val" id="resTimedOut">0</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-label">BEST STREAK</span>
+          <span class="stat-val cyan" id="resBestStreak">0</span>
+        </div>
+        <div class="stat-cell wide">
+          <span class="stat-label">AVG ANSWER TIME</span>
+          <span class="stat-val" id="resAvgTime">0.0s</span>
+        </div>
+      </div>
+
+      <div class="modal-actions-row">
+        <button class="modal-btn" id="btnResMenu">WORLD MAP</button>
+        <button class="modal-btn" id="btnResPlayAgain">PLAY AGAIN</button>
+        <button class="modal-btn primary" id="btnResNextLevel" style="display: none;">NEXT LEVEL ▶</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       MODAL 2: PAUSE SCREEN
+       ====================================================================== -->
+  <div class="modal-overlay" id="modalPause" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+    <div class="modal-card small">
+      <h2 class="modal-title" id="pauseTitle">GAME PAUSED</h2>
+      <p class="modal-desc">Gameplay and timer are completely suspended.</p>
+
+      <div class="modal-actions-stack">
+        <button class="modal-btn primary" id="btnPauseResume">RESUME PLAY (Esc)</button>
+        <button class="modal-btn" id="btnPauseRestart">RESTART ROUND (R)</button>
+        <button class="modal-btn" id="btnPauseMenu">MAIN MENU</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       MODAL 3: LOCAL LEADERBOARD
+       ====================================================================== -->
+  <div class="modal-overlay" id="modalLeaderboard" role="dialog" aria-modal="true" aria-labelledby="lbTitle">
+    <div class="modal-card wide">
+      <div class="modal-header-row">
+        <h2 class="modal-title" id="lbTitle">LOCAL LEADERBOARD</h2>
+        <button class="modal-close-btn" title="Close Leaderboard">✕</button>
+      </div>
+      <p class="modal-desc">Top performances recorded on this browser.</p>
+
+      <div class="table-container">
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>RANK</th>
+              <th>PLAYER</th>
+              <th>SCORE</th>
+              <th>ACCURACY</th>
+              <th>MODE / LEVEL</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardTableBody">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       MODAL 4: ACHIEVEMENTS
+       ====================================================================== -->
+  <div class="modal-overlay" id="modalAchievements" role="dialog" aria-modal="true" aria-labelledby="achTitle">
+    <div class="modal-card wide">
+      <div class="modal-header-row">
+        <h2 class="modal-title" id="achTitle">ACHIEVEMENTS</h2>
+        <button class="modal-close-btn" title="Close Achievements">✕</button>
+      </div>
+      <p class="modal-desc">Earn trophies through fast calculation and tactical precision across 100 levels.</p>
+
+      <div class="achievements-list" id="achievementsList">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       MODAL 5: SETTINGS
+       ====================================================================== -->
+  <div class="modal-overlay" id="modalSettings" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal-card small">
+      <div class="modal-header-row">
+        <h2 class="modal-title" id="settingsTitle">SETTINGS</h2>
+        <button class="modal-close-btn" title="Close Settings">✕</button>
+      </div>
+
+      <div class="settings-rows">
+        <div class="setting-item">
+          <label for="settingSound">Sound Effects</label>
+          <input type="checkbox" id="settingSound" checked>
+        </div>
+        <div class="setting-item">
+          <label for="settingMusic">Harmonic Ambiance</label>
+          <input type="checkbox" id="settingMusic" checked>
+        </div>
+        <div class="setting-item">
+          <label for="settingMotion">Visual FX & Particles</label>
+          <input type="checkbox" id="settingMotion" checked>
+        </div>
+        <div class="setting-item text">
+          <label for="settingPlayerName">Player Alias</label>
+          <input type="text" id="settingPlayerName" maxlength="16" placeholder="Player">
+        </div>
+      </div>
+
+      <div class="modal-actions-row">
+        <button class="modal-btn subtle-danger" id="btnResetData">RESET PROGRESS</button>
+        <button class="modal-btn primary" id="btnSaveSettings">SAVE SETTINGS</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       MODAL 6: HOW TO PLAY
+       ====================================================================== -->
+  <div class="modal-overlay" id="modalHowToPlay" role="dialog" aria-modal="true" aria-labelledby="htpTitle">
+    <div class="modal-card">
+      <div class="modal-header-row">
+        <h2 class="modal-title" id="htpTitle">HOW TO PLAY</h2>
+        <button class="modal-close-btn" title="Close Instructions">✕</button>
+      </div>
+
+      <div class="instructions-content">
+        <div class="htp-step">
+          <span class="step-num">1</span>
+          <div>
+            <strong>100 Levels Across 10 Worlds</strong>
+            <p>From Number Basics in World 1 up to the Infinity Championship in World 10. Complete each level with $\ge 1$ star to unlock the next.</p>
+          </div>
+        </div>
+
+        <div class="htp-step">
+          <span class="step-num">2</span>
+          <div>
+            <strong>React Instantly</strong>
+            <p>Select the correct answer from the 4 options via touch/click or keyboard keys <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd>.</p>
+          </div>
+        </div>
+
+        <div class="htp-step">
+          <span class="step-num">3</span>
+          <div>
+            <strong>Maximize Multipliers & Perfects</strong>
+            <p>Answering fast awards up to <strong>+100 Speed Bonus</strong>. Maintain streaks for up to <strong>3.0× score multiplier</strong>. 100% accuracy awards <strong>+50% Bonus XP & Credits</strong>.</p>
+          </div>
+        </div>
+
+        <div class="htp-step">
+          <span class="step-num">4</span>
+          <div>
+            <strong>Special Challenge Milestones</strong>
+            <p>Encounter Time Trials (Level 10), No Mistake 1-Strike Fails (Level 40), Double Speed (Level 60), Logic Math (World 8), and the 20-Question Infinity Championship (Level 100).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       MODAL 7: LEVEL 100 INFINITY CHAMPIONSHIP CELEBRATION
+       ====================================================================== -->
+  <div class="modal-overlay" id="modalChampionship" role="dialog" aria-modal="true" aria-labelledby="champTitle">
+    <div class="modal-card gold-championship-card">
+      <div class="champ-crown">👑</div>
+      <h2 class="modal-title gold" id="champTitle">INFINITY CHAMPION</h2>
+      <p class="champ-subtitle">LEVEL 100 COMPLETED — THE ULTIMATE GAUNTLET CONQUERED</p>
+      
+      <div class="champ-banner">
+        <span>♾️ INFINITY MODE UNLOCKED</span>
+      </div>
+
+      <div class="results-stats-grid">
+        <div class="stat-cell">
+          <span class="stat-label">FINAL SCORE</span>
+          <span class="stat-val gold" id="champScore">0</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-label">ACCURACY</span>
+          <span class="stat-val cyan" id="champAccuracy">100%</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-label">BEST STREAK</span>
+          <span class="stat-val emerald" id="champStreak">20</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-label">AVG TIME</span>
+          <span class="stat-val" id="champTime">0.0s</span>
+        </div>
+      </div>
+
+      <div class="modal-actions-row">
+        <button class="modal-btn" id="btnChampMenu">WORLD MAP</button>
+        <button class="modal-btn primary gold" id="btnChampInfinity">PLAY INFINITY MODE ♾️</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Game Scripts in strict dependency order -->
+  <script src="js/save.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/questions.js"></script>
+  <script src="js/scoring.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

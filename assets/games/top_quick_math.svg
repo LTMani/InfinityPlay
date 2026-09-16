@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600">
+  <defs>
+    <radialGradient id="topBgGlow" cx="50%" cy="35%" r="80%">
+      <stop offset="0%" stop-color="#16203d"/>
+      <stop offset="45%" stop-color="#0a0e1c"/>
+      <stop offset="100%" stop-color="#03050a"/>
+    </radialGradient>
+
+    <filter id="topGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <linearGradient id="topCyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+
+    <linearGradient id="topGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+
+    <linearGradient id="topGlassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e2846" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#0b1020" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="600" fill="url(#topBgGlow)"/>
+
+  <!-- Mathematical Grid & Wireframe Floor -->
+  <g opacity="0.1" stroke="#38bdf8" stroke-width="1.2">
+    <line x1="0" y1="360" x2="1200" y2="360"/>
+    <line x1="0" y1="410" x2="1200" y2="410"/>
+    <line x1="0" y1="470" x2="1200" y2="470"/>
+    <line x1="0" y1="540" x2="1200" y2="540"/>
+    <line x1="600" y1="300" x2="0" y2="600"/>
+    <line x1="600" y1="300" x2="200" y2="600"/>
+    <line x1="600" y1="300" x2="400" y2="600"/>
+    <line x1="600" y1="300" x2="800" y2="600"/>
+    <line x1="600" y1="300" x2="1000" y2="600"/>
+    <line x1="600" y1="300" x2="1200" y2="600"/>
+  </g>
+
+  <!-- Ambient Light Bursts -->
+  <circle cx="300" cy="180" r="220" fill="#00f0ff" opacity="0.07" filter="blur(60px)"/>
+  <circle cx="900" cy="220" r="240" fill="#a855f7" opacity="0.08" filter="blur(70px)"/>
+
+  <!-- Background Math Symbols -->
+  <g opacity="0.18" font-family="'JetBrains Mono', monospace" font-size="36" font-weight="800" fill="#64748b">
+    <text x="80" y="120">∑</text>
+    <text x="1100" y="140">∞</text>
+    <text x="120" y="320">∫ e^x</text>
+    <text x="1060" y="340">√256</text>
+    <text x="240" y="90">x² + y² = r²</text>
+    <text x="920" y="100">π ≈ 3.14159</text>
+  </g>
+
+  <!-- 3D Console In Perspective -->
+  <g transform="translate(300, 70)">
+    <rect x="0" y="0" width="600" height="340" rx="24" fill="url(#topGlassGrad)" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.4"/>
+    <line x1="30" y1="2" x2="570" y2="2" stroke="#ffffff" stroke-width="2" stroke-opacity="0.5" stroke-linecap="round"/>
+
+    <!-- Console Header -->
+    <rect x="30" y="24" width="540" height="40" rx="10" fill="#080c18" stroke="#ffffff" stroke-width="1" stroke-opacity="0.08"/>
+    <circle cx="55" cy="44" r="6" fill="#ef4444" opacity="0.8"/>
+    <circle cx="75" cy="44" r="6" fill="#f59e0b" opacity="0.8"/>
+    <circle cx="95" cy="44" r="6" fill="#10b981" opacity="0.8"/>
+
+    <text x="300" y="50" font-family="'Inter', sans-serif" font-size="13" font-weight="800" fill="#00f0ff" text-anchor="middle" letter-spacing="4">TACTICAL ARITHMETIC REACTION ARENA</text>
+
+    <!-- Formula Screen -->
+    <rect x="30" y="78" width="540" height="110" rx="14" fill="#050711" stroke="#00f0ff" stroke-width="2" stroke-opacity="0.5"/>
+    <text x="300" y="146" font-family="'JetBrains Mono', monospace" font-size="46" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="3" filter="url(#topGlow)">48 + 27 = ?</text>
+
+    <!-- Timer Line -->
+    <rect x="30" y="200" width="540" height="8" rx="4" fill="#1e293b"/>
+    <rect x="30" y="200" width="380" height="8" rx="4" fill="url(#topCyanGrad)"/>
+
+    <!-- 4 Tactile Buttons -->
+    <g transform="translate(30, 222)">
+      <!-- 1 -->
+      <g>
+        <rect x="0" y="0" width="125" height="54" rx="10" fill="#1b233a" stroke="#475569" stroke-width="1.2"/>
+        <text x="62" y="34" font-family="'JetBrains Mono', monospace" font-size="22" font-weight="700" fill="#94a3b8" text-anchor="middle">65</text>
+      </g>
+      <!-- 2 (Active Correct) -->
+      <g transform="translate(138, 0)">
+        <rect x="0" y="0" width="125" height="54" rx="10" fill="#065f46" stroke="#10b981" stroke-width="2.2"/>
+        <text x="62" y="34" font-family="'JetBrains Mono', monospace" font-size="22" font-weight="900" fill="#34d399" text-anchor="middle">75</text>
+      </g>
+      <!-- 3 -->
+      <g transform="translate(276, 0)">
+        <rect x="0" y="0" width="125" height="54" rx="10" fill="#1b233a" stroke="#475569" stroke-width="1.2"/>
+        <text x="62" y="34" font-family="'JetBrains Mono', monospace" font-size="22" font-weight="700" fill="#94a3b8" text-anchor="middle">85</text>
+      </g>
+      <!-- 4 -->
+      <g transform="translate(414, 0)">
+        <rect x="0" y="0" width="126" height="54" rx="10" fill="#1b233a" stroke="#475569" stroke-width="1.2"/>
+        <text x="63" y="34" font-family="'JetBrains Mono', monospace" font-size="22" font-weight="700" fill="#94a3b8" text-anchor="middle">71</text>
+      </g>
+    </g>
+
+    <!-- Speed Bonus Badge -->
+    <g transform="translate(420, 160)">
+      <rect x="0" y="0" width="160" height="30" rx="15" fill="#064e3b" stroke="#10b981" stroke-width="1.5"/>
+      <text x="80" y="20" font-family="'Inter', sans-serif" font-size="12" font-weight="800" fill="#6ee7b7" text-anchor="middle" letter-spacing="1">⚡ SPEED BONUS +100</text>
+    </g>
+  </g>
+
+  <!-- Big Title Banner -->
+  <g transform="translate(600, 480)">
+    <text x="0" y="0" font-family="'Inter', sans-serif" font-size="44" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="2">QUICK MATH</text>
+    <text x="0" y="38" font-family="'Inter', sans-serif" font-size="20" font-weight="800" fill="url(#topGoldGrad)" text-anchor="middle" letter-spacing="6">INFINITY CHALLENGE</text>
+    <text x="0" y="70" font-family="'Inter', sans-serif" font-size="14" font-weight="600" fill="#94a3b8" text-anchor="middle" letter-spacing="1">Master High-Speed Calculation &amp; Cognitive Reaction Time</text>
+  </g>
+</svg>
+

@@ -43,6 +43,25 @@ const gamesData = [
     playMode: 'embed'
   },
   {
+    id: 'quick-math',
+    name: 'Quick Math: Infinity Challenge',
+    category: 'Puzzle',
+    rating: 5.0,
+    plays: 16800,
+    playsFormatted: '16.8K',
+    rank: 1,
+    badge: 'NEW',
+    isTop: true,
+    thumbnail: 'assets/games/thumb_quick_math.svg',
+    topThumbnail: 'assets/games/top_quick_math.svg',
+    description: 'A premium mathematics reaction arena featuring rapid mental arithmetic, 5 game modes, 10 progressive difficulty tiers, streak multipliers, and realistic tactile presentation.',
+    tags: ['Puzzle', 'Math', 'Brain Teaser', 'Speed', 'Reaction', 'Arcade'],
+    releaseDate: '2026-09-16',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/quick-math/index.html',
+    playMode: 'embed'
+  },
+  {
     id: 'highway-tycoon',
     name: 'Highway Oasis Tycoon',
     category: 'Simulation',
