@@ -35,6 +35,7 @@
       coins: 0,
       colorBlindMode: false,
       soundMuted: false,
+      infinityModeUnlocked: false,
       endlessHighScore: 0,
       survivalHighScore: 0,
       timeAttackHighScore: 0,
@@ -105,6 +106,11 @@
       // Unlock next level
       if (levelId >= this.state.unlockedLevel) {
         this.state.unlockedLevel = Math.max(this.state.unlockedLevel, levelId + 1);
+      }
+
+      // Unlock Infinity Mode upon completing Level 100 Championship
+      if (levelId >= 100) {
+        this.state.infinityModeUnlocked = true;
       }
 
       // Rewards

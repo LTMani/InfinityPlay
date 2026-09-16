@@ -137,7 +137,7 @@
 
       // If level is mixed challenge archetype
       if (challengeType === 'mixed') {
-        const mixedPool = ['exact_match', 'visual_only', 'stroop_name', 'stroop_ink', 'brightest', 'darkest', 'odd_one', 'memory_flash'];
+        const mixedPool = ['exact_match', 'visual_only', 'similar_shades', 'stroop_name', 'stroop_ink', 'brightest', 'darkest', 'odd_one', 'memory_flash'];
         challengeType = mixedPool[Math.floor(Math.random() * mixedPool.length)];
       }
 
@@ -192,6 +192,16 @@
           correctIndex = options.findIndex(c => c.id === targetColor.id);
           prompt = 'VISUAL FREQUENCY ONLY';
           instructionSub = 'Match by visual hue (no name label)';
+          break;
+        }
+
+        case 'similar_shades': {
+          targetColor = CS.getRandom();
+          const distractors = CS.getSimilarShades(targetColor, optionsCount - 1);
+          options = [targetColor, ...distractors].sort(() => 0.5 - Math.random());
+          correctIndex = options.findIndex(c => c.id === targetColor.id);
+          prompt = 'SIMILAR SHADES: FINE DISCRIMINATION';
+          instructionSub = 'Select the exact matching hue among adjacent tones';
           break;
         }
 
@@ -319,10 +329,11 @@
     }
 
     handleCorrect(reactionTimeMs, chosenColor, tileElement) {
-      // Points calculation
-      const basePoints = 100;
+      // Points calculation with level scoreMultiplier
+      const mult = (this.currentLevel && this.currentLevel.scoreMultiplier) ? this.currentLevel.scoreMultiplier : 1.0;
+      const basePoints = Math.round(100 * mult);
       const speedRatio = Math.max(0, (this.totalTimeLimit - (reactionTimeMs / 1000)) / this.totalTimeLimit);
-      const speedBonus = Math.round(speedRatio * 150);
+      const speedBonus = Math.round(speedRatio * 150 * mult);
       const roundScore = (basePoints + speedBonus) * this.combo;
 
       this.score += roundScore;
@@ -448,11 +459,14 @@
         : 0;
 
       let stars = 1;
-      if (this.currentLevel) {
-        if (this.score >= this.currentLevel.minScore3Stars) {
+      if (this.currentLevel && this.currentLevel.starRequirements) {
+        const req = this.currentLevel.starRequirements;
+        if (this.score >= req.threeStars) {
           stars = 3;
-        } else if (this.score >= this.currentLevel.minScore3Stars * 0.65) {
+        } else if (this.score >= req.twoStars) {
           stars = 2;
+        } else {
+          stars = 1;
         }
       } else {
         // Arcade / Daily star evaluation
@@ -463,7 +477,10 @@
       let saveResult = null;
       if (this.mode === 'classic' && this.currentLevel) {
         saveResult = window.SaveManager.completeLevel(this.currentLevel.id, this.score, stars, elapsedSec);
-        if (this.currentLevel.isMilestone) {
+        if (this.currentLevel.id === 100) {
+          window.SaveManager.unlockInfinityMode();
+          window.SoundEngine.playMilestone();
+        } else if (this.currentLevel.isMilestone) {
           window.SoundEngine.playMilestone();
         } else {
           window.SoundEngine.playLevelComplete();
