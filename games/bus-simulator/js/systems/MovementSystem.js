@@ -44,11 +44,9 @@
   };
 
   const BrakingSystem = {
-    _brakePressure: 0,
     _hardBrake: false,
 
     apply(bus, brakeInput, dt) {
-      this._brakePressure = brakeInput;
       this._hardBrake = brakeInput > 0.5;
 
       if (this._hardBrake) {
@@ -64,19 +62,21 @@
       }
 
       EventManager.emit('brakingApplied', {
-        pressure: this._brakePressure,
+        pressure: 0,
         speed: bus.speed,
         hardBrake: this._hardBrake
       });
     },
 
     release(bus) {
-      this._brakePressure = 0;
       this._hardBrake = false;
     },
 
     getPressure() {
-      return this._brakePressure;
+      // Legacy accessor retained for compatibility. AirBrakeSystem is
+      // the single authoritative owner of air pressure; this returns 0
+      // because the old BrakingSystem no longer tracks pressure.
+      return 0;
     }
   };
 
@@ -202,6 +202,15 @@
       const roadSurfaceSystem = this.modules.RoadSurfaceSystem;
       if (roadSurfaceSystem && typeof roadSurfaceSystem.updateVehicle === 'function') {
         roadSurfaceSystem.updateVehicle(bus, dt);
+      }
+
+      // Phase 10B Task 13: update air-brake pressure state before the
+      // physics step. AirBrakeSystem owns air-pressure state; it never
+      // writes brake force or deceleration — it only exposes a pressure
+      // ratio that BrakeSystem multiplies into its existing force calc.
+      const airBrakeSystem = this.modules.AirBrakeSystem;
+      if (airBrakeSystem && typeof airBrakeSystem.updateVehicle === 'function') {
+        airBrakeSystem.updateVehicle(bus, dt);
       }
 
       // Reverse detection: brake when stopped enters reverse mode

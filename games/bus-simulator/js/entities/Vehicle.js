@@ -65,6 +65,11 @@
     // Phase 10B Task 12: road surface state owned by RoadSurfaceSystem.
     this._roadSurface = null;
     this._roadSurfaceName = 'asphalt';
+
+    // Phase 10B Task 13: air-brake pressure state owned by
+    // AirBrakeSystem. Vehicle exposes getAirBrake()/setAirBrake() hooks
+    // so the physics path can consult pressure without duplicating it.
+    this._airBrake = null;
   }
 
   if (Entity) {
@@ -112,6 +117,14 @@
 
   Vehicle.prototype.setRoadSurface = function (state) {
     this._roadSurface = state;
+  };
+
+  Vehicle.prototype.getAirBrake = function () {
+    return this._airBrake || null;
+  };
+
+  Vehicle.prototype.setAirBrake = function (state) {
+    this._airBrake = state;
   };
 
   Vehicle.prototype.update = function (dt) {

@@ -81,6 +81,13 @@ state.roadFriction = (typeof vehicle.roadFrictionMultiplier === 'number')
       ? vehicle.getRoadSurface() : null;
     state.brakingGrip = (surface && typeof surface.brakingGripMultiplier === 'number')
       ? surface.brakingGripMultiplier : 1.0;
+    // Phase 10B Task 13: consult the air-brake pressure ratio.
+    // AirBrakeSystem owns air-pressure state; BrakeSystem only reads the
+    // single pressure-ratio value it multiplies into its force calc.
+    const airBrake = (typeof vehicle.getAirBrake === 'function')
+      ? vehicle.getAirBrake() : null;
+    state.airPressureRatio = (airBrake && typeof airBrake.pressureRatio === 'number')
+      ? airBrake.pressureRatio : 1.0;
     // Suspension wheel-load (optional integration)
     const susp = (typeof vehicle.getSuspension === 'function') ? vehicle.getSuspension() : null;
     if (susp) {
@@ -124,7 +131,8 @@ state.roadFriction = (typeof vehicle.roadFrictionMultiplier === 'number')
     const totalInput = Math.min(1, brakeInput + handbrakeForce);
     const speedFactor = Math.min(1, Math.abs(state.speed || 0) / 40);
     const loadFactor = this._computeLoadFactor(state);
-    const rawForce = state.maxBrakeForce * totalInput * speedFactor * loadFactor * fadeFactor;
+    const rawForce = state.maxBrakeForce * totalInput * speedFactor * loadFactor * fadeFactor
+      * state.airPressureRatio;
 
 // ---- ABS modulation ----
     // Simulate wheel slip: higher slip when brake force exceeds available grip.
@@ -212,6 +220,8 @@ state.roadFriction = (typeof vehicle.roadFrictionMultiplier === 'number')
       handbrake: false,
       steering: 0,
       roadFriction: 1.0,
+      brakingGrip: 1.0,
+      airPressureRatio: 1.0,
       frontLoad: 0,
       rearLoad: 0,
       brakeForce: 0,
@@ -307,9 +317,11 @@ state.roadFriction = (typeof vehicle.roadFrictionMultiplier === 'number')
           brakeInput: 0,
           handbrake: false,
           steering: 0,
-          roadFriction: 1.0,
-          frontLoad: 0,
-          rearLoad: 0,
+roadFriction: 1.0,
+      brakingGrip: 1.0,
+      airPressureRatio: 1.0,
+      frontLoad: 0,
+      rearLoad: 0,
           brakeForce: 0,
           frontBrakeForce: 0,
           rearBrakeForce: 0,
