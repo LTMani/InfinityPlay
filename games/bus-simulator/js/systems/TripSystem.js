@@ -60,10 +60,10 @@
       // Track distance
       this.tripDistance += (bus.speed / 3.6) * dt;
 
-      // Track fuel used
-      const fuelRate = bus.fuelEfficiency ? (bus.speed / (bus.fuelEfficiency || 3.0)) * 0.0278
-        : 0;
-      this.fuelUsed += fuelRate * dt;
+      // Phase 10A Task 3: TripSystem no longer simulates fuel independently.
+      // Bus.update() is the single authoritative fuel consumer; it records the
+      // ACTUAL amount depleted on bus.fuelUsed. TripSystem simply observes it.
+      this.fuelUsed = bus.fuelUsed || 0;
 
       // Track tolls
       const tollSystem = this._checkTollGate(bus);
@@ -108,6 +108,12 @@
     completeTrip() {
       const route = this.currentTrip;
       if (!route) return null;
+
+      // Phase 10A Task 3: re-sync fuelUsed from the bus so the final tick's
+      // actual consumption (which may not have propagated to TripSystem yet)
+      // is included in the expense calculation.
+      const bus = this.modules.GameInitSystem ? this.modules.GameInitSystem.getActiveBus() : null;
+      if (bus) this.fuelUsed = bus.fuelUsed || 0;
 
       // Calculate revenue
       const ticketSystem = this.modules.TicketSystem;

@@ -34,9 +34,14 @@
   const RouteSystem = window.BusSim.RouteSystem;
   const TripSystem = window.BusSim.TripSystem;
   const OperatorSystem = window.BusSim.OperatorSystem;
-  const GarageConfig = window.BusSim.GarageConfig;
-  const GarageSystem = window.BusSim.GarageSystem;
-  const SaveLoadSystem = window.BusSim.SaveLoadSystem;
+const GarageConfig = window.BusSim.GarageConfig;
+    const GarageSystem = window.BusSim.GarageSystem;
+    const SaveLoadSystem = window.BusSim.SaveLoadSystem;
+    const TransmissionSystem = window.BusSim.TransmissionSystem;
+    const SuspensionSystem = window.BusSim.SuspensionSystem;
+    const BrakeSystem = window.BusSim.BrakeSystem;
+    const TireSystem = window.BusSim.TireSystem;
+    const RoadSurfaceSystem = window.BusSim.RoadSurfaceSystem;
 
   // UI
   const UIManager = window.BusSim.UIManager;
@@ -98,6 +103,11 @@
         ['GarageConfig', GarageConfig],
         ['GameInitSystem', GameInitSystem],
         ['GarageSystem', GarageSystem],
+        ['TransmissionSystem', TransmissionSystem],
+        ['SuspensionSystem', SuspensionSystem],
+        ['BrakeSystem', BrakeSystem],
+        ['TireSystem', TireSystem],
+        ['RoadSurfaceSystem', RoadSurfaceSystem],
         ['InputSystem', InputSystem],
         ['MovementSystem', MovementSystem],
         ['CameraSystem', CameraSystem],

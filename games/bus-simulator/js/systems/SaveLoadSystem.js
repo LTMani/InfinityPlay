@@ -51,6 +51,63 @@
         if (data.player) {
           const player = Player.deserialize(data.player);
 
+          // Restore bus state
+          if (player.garage && data.buses) {
+            // Buses are already in player.garage from Player.deserialize
+          }
+
+          // Phase 10B Task 8: re-attach transmission state to restored Bus
+          // instances by id so gear/RPM survive save/load.
+          const transmissionSystem = this.modules
+            ? this.modules.TransmissionSystem
+            : null;
+          if (transmissionSystem && typeof transmissionSystem.attachTransmission === 'function') {
+            if (player.garage) {
+              for (const bus of player.garage) {
+                transmissionSystem.attachTransmission(bus);
+              }
+            }
+          }
+
+          // Phase 10B Task 9: re-attach suspension state to restored Bus
+          // instances by id so compression/roll/pitch survive save/load.
+          const suspensionSystem = this.modules
+            ? this.modules.SuspensionSystem
+            : null;
+          if (suspensionSystem && typeof suspensionSystem.attachSuspension === 'function') {
+            if (player.garage) {
+              for (const bus of player.garage) {
+                suspensionSystem.attachSuspension(bus);
+              }
+            }
+          }
+
+          // Phase 10B Task 10: re-attach brake state to restored Bus
+          // instances by id so brakeTemp/fade/ABS survive save/load.
+          const brakeSystem = this.modules
+            ? this.modules.BrakeSystem
+            : null;
+          if (brakeSystem && typeof brakeSystem.attachBrake === 'function') {
+            if (player.garage) {
+              for (const bus of player.garage) {
+                brakeSystem.attachBrake(bus);
+              }
+            }
+          }
+
+          // Phase 10B Task 11: re-attach tire state to restored Bus
+          // instances by id so wear/grip survive save/load.
+          const tireSystem = this.modules
+            ? this.modules.TireSystem
+            : null;
+          if (tireSystem && typeof tireSystem.attachTires === 'function') {
+            if (player.garage) {
+              for (const bus of player.garage) {
+                tireSystem.attachTires(bus);
+              }
+            }
+          }
+
           // Load subsystem states
           // Store for later restoration — systems may not be initialized yet
           // (loadPlayer runs during GameInitSystem.init, before GarageSystem.init).
@@ -153,6 +210,7 @@
       const systemsToSerialize = [
         'DayNightSystem', 'WeatherSystem', 'RouteSystem', 'TripSystem',
         'FuelSystem', 'DamageSystem', 'MaintenanceSystem', 'GarageSystem',
+        'TransmissionSystem', 'SuspensionSystem', 'BrakeSystem', 'TireSystem',
         'TicketSystem', 'PassengerSystem', 'AchievementSystem',
         'ProgressionSystem', 'MissionSystem', 'NavigationSystem',
         'BoardingSystem', 'DropOffSystem'
@@ -173,6 +231,7 @@
       const systemsToRestore = [
         'DayNightSystem', 'WeatherSystem', 'RouteSystem', 'TripSystem',
         'FuelSystem', 'DamageSystem', 'MaintenanceSystem', 'GarageSystem',
+        'TransmissionSystem', 'SuspensionSystem', 'BrakeSystem', 'TireSystem',
         'TicketSystem', 'PassengerSystem', 'AchievementSystem',
         'ProgressionSystem', 'MissionSystem', 'NavigationSystem',
         'BoardingSystem', 'DropOffSystem'
@@ -243,6 +302,16 @@
         } else {
           // No system data — sync GarageSystem to the imported Player
           this._syncGarageSystemToPlayer();
+        }
+
+        // Phase 10A Task 7: restore garage configuration safely with a
+        // fallback when the imported save has no/legacy garageConfig.
+        if (data.garageConfig && GarageConfig && typeof GarageConfig.deserialize === 'function') {
+          GarageConfig.deserialize(data.garageConfig);
+        } else if (GarageConfig && typeof GarageConfig.init === 'function') {
+          // Legacy/missing config: re-init to defaults so the garage UI has
+          // a valid configuration instead of a null/undefined state.
+          GarageConfig.init(this.modules);
         }
 
         EventManager.emit('saveImported', { success: true });
