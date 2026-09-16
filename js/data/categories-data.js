@@ -69,7 +69,7 @@ const categoriesData = [
     slug: 'Arcade',
     icon: 'assets/categories/cat_arcade_art.png',
     fullCard: 'assets/categories/cat_arcade_full.png',
-    gameCount: 0,
+    gameCount: 1,
     gradient: 'linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(109, 40, 217, 0.05))',
     borderColor: 'rgba(139, 92, 246, 0.3)'
   },

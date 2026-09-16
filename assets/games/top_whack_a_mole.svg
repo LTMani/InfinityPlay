@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 450" width="1200" height="450">
+  <defs>
+    <linearGradient id="woodBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d1508"/>
+      <stop offset="35%" stop-color="#45230c"/>
+      <stop offset="70%" stop-color="#231206"/>
+      <stop offset="100%" stop-color="#120803"/>
+    </linearGradient>
+
+    <radialGradient id="stageGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.35"/>
+      <stop offset="60%" stop-color="#ea580c" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="goldText" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb"/>
+      <stop offset="30%" stop-color="#fef08a"/>
+      <stop offset="70%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+
+    <radialGradient id="holeDepth" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#050302"/>
+      <stop offset="70%" stop-color="#1c0f08"/>
+      <stop offset="100%" stop-color="#3d2112"/>
+    </radialGradient>
+
+    <filter id="woodShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="10" stdDeviation="15" flood-color="#000000" flood-opacity="0.7"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1200" height="450" fill="url(#woodBg)"/>
+  <circle cx="600" cy="225" r="450" fill="url(#stageGlow)"/>
+
+  <!-- Grass & Ground Trim -->
+  <path d="M0,380 Q300,360 600,375 T1200,380 L1200,450 L0,450 Z" fill="#14532d" opacity="0.6"/>
+  <path d="M0,395 Q300,380 600,390 T1200,395 L1200,450 L0,450 Z" fill="#166534" opacity="0.8"/>
+
+  <!-- Left Mole Hole & Cute Mole -->
+  <g transform="translate(240, 260)">
+    <!-- Hole Soil Rim -->
+    <ellipse cx="0" cy="50" rx="90" ry="35" fill="#1c0f08" stroke="#78350f" stroke-width="6"/>
+    <ellipse cx="0" cy="50" rx="80" ry="28" fill="url(#holeDepth)"/>
+    
+    <!-- Pop-up Mole Body -->
+    <path d="M-45,45 C-45,-25 -35,-55 0,-55 C35,-55 45,-25 45,45 Z" fill="#78350f"/>
+    <!-- Snout -->
+    <ellipse cx="0" cy="-10" rx="28" ry="18" fill="#fde68a"/>
+    <!-- Nose -->
+    <ellipse cx="0" cy="-16" rx="10" ry="7" fill="#1c1917"/>
+    <!-- Cute Eyes -->
+    <circle cx="-16" cy="-30" r="7" fill="#1c1917"/>
+    <circle cx="-14" cy="-32" r="2.5" fill="#ffffff"/>
+    <circle cx="16" cy="-30" r="7" fill="#1c1917"/>
+    <circle cx="18" cy="-32" r="2.5" fill="#ffffff"/>
+    <!-- Hard Hat -->
+    <path d="M-36,-42 C-36,-65 -20,-75 0,-75 C20,-75 36,-65 36,-42 Z" fill="#eab308"/>
+    <rect x="-42" y="-44" width="84" height="8" rx="4" fill="#ca8a04"/>
+    <circle cx="0" cy="-58" r="8" fill="#fef08a" stroke="#ca8a04" stroke-width="2"/>
+    <!-- Paws -->
+    <ellipse cx="-40" cy="35" rx="14" ry="9" fill="#fde68a"/>
+    <ellipse cx="40" cy="35" rx="14" ry="9" fill="#fde68a"/>
+  </g>
+
+  <!-- Right Mole Hole & Golden Mole -->
+  <g transform="translate(960, 260)">
+    <ellipse cx="0" cy="50" rx="90" ry="35" fill="#1c0f08" stroke="#78350f" stroke-width="6"/>
+    <ellipse cx="0" cy="50" rx="80" ry="28" fill="url(#holeDepth)"/>
+    
+    <!-- Pop-up Golden Mole Body -->
+    <path d="M-45,45 C-45,-25 -35,-55 0,-55 C35,-55 45,-25 45,45 Z" fill="#d97706"/>
+    <ellipse cx="0" cy="-10" rx="28" ry="18" fill="#fef08a"/>
+    <ellipse cx="0" cy="-16" rx="10" ry="7" fill="#78350f"/>
+    <circle cx="-16" cy="-30" r="7" fill="#78350f"/>
+    <circle cx="-14" cy="-32" r="2.5" fill="#ffffff"/>
+    <circle cx="16" cy="-30" r="7" fill="#78350f"/>
+    <circle cx="18" cy="-32" r="2.5" fill="#ffffff"/>
+    <!-- Crown -->
+    <polygon points="-28,-50 -32,-75 -12,-60 0,-80 12,-60 32,-75 28,-50" fill="#facc15" stroke="#ca8a04" stroke-width="2"/>
+    <circle cx="0" cy="-78" r="4" fill="#ef4444"/>
+    <!-- Paws -->
+    <ellipse cx="-40" cy="35" rx="14" ry="9" fill="#fef08a"/>
+    <ellipse cx="40" cy="35" rx="14" ry="9" fill="#fef08a"/>
+  </g>
+
+  <!-- Center Mallet Hammer in Mid-Swing -->
+  <g transform="translate(600, 150) rotate(-18)" filter="url(#woodShadow)">
+    <!-- Handle -->
+    <rect x="-10" y="30" width="20" height="150" rx="8" fill="#d97706" stroke="#92400e" stroke-width="3"/>
+    <rect x="-8" y="140" width="16" height="35" rx="5" fill="#b45309"/>
+    <!-- Mallet Head -->
+    <rect x="-55" y="-35" width="110" height="70" rx="14" fill="#78350f" stroke="#451a03" stroke-width="4"/>
+    <!-- Brass Rings / End Caps -->
+    <rect x="-55" y="-35" width="16" height="70" rx="6" fill="#f59e0b"/>
+    <rect x="39" y="-35" width="16" height="70" rx="6" fill="#f59e0b"/>
+    <!-- Impact Starburst Spark -->
+    <g transform="translate(-65, 0)">
+      <polygon points="0,-25 6,-7 25,0 6,7 0,25 -6,7 -25,0 -6,-7" fill="#fef08a"/>
+      <polygon points="0,-15 4,-4 15,0 4,4 0,15 -4,4 -15,0 -4,-4" fill="#ffffff"/>
+    </g>
+  </g>
+
+  <!-- Banner Typography -->
+  <text x="600" y="320" font-family="'Impact', 'Arial Black', sans-serif" font-size="56" font-weight="900" fill="url(#goldText)" text-anchor="middle" letter-spacing="4" filter="url(#woodShadow)">
+    WHACK-A-MOLE
+  </text>
+  <text x="600" y="360" font-family="'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="800" fill="#fde047" text-anchor="middle" letter-spacing="6">
+    FAST HANDS • 100 LEVELS • 10 WORLDS
+  </text>
+
+  <!-- Badges -->
+  <g transform="translate(600, 405)">
+    <rect x="-210" y="-15" width="125" height="28" rx="14" fill="#78350f" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="-147" y="4" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#fef08a" text-anchor="middle">7 MOLE TYPES</text>
+
+    <rect x="-70" y="-15" width="140" height="28" rx="14" fill="#14532d" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="0" y="4" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#86efac" text-anchor="middle">5 GAME MODES</text>
+
+    <rect x="85" y="-15" width="125" height="28" rx="14" fill="#831843" stroke="#f43f5e" stroke-width="1.5"/>
+    <text x="147" y="4" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#fbcfe8" text-anchor="middle">INFINITY MODE</text>
+  </g>
+</svg>
+

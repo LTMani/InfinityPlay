@@ -1,0 +1,134 @@
+/**
+ * Whack-a-Mole: Arcade Edition - Responsive Stylesheet
+ * Mobile, tablet, touch optimization, and viewport adaptations.
+ */
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px;
+  }
+
+  .app-header {
+    padding: 10px 14px;
+    margin-bottom: 12px;
+  }
+
+  .hub-label {
+    display: none;
+  }
+
+  .header-title {
+    font-size: 1.15rem;
+  }
+
+  .hero-title {
+    font-size: 1.85rem;
+  }
+
+  .player-stat-bar {
+    gap: 8px;
+  }
+
+  .stat-pill {
+    padding: 6px 12px;
+    gap: 8px;
+  }
+
+  .stat-val {
+    font-size: 1rem;
+  }
+
+  .menu-btn-primary {
+    padding: 14px 20px;
+    font-size: 1.15rem;
+  }
+
+  .game-hud {
+    padding: 8px 12px;
+  }
+
+  .hud-value {
+    font-size: 1.15rem;
+  }
+
+  .board-wood-frame {
+    padding: 14px;
+    transform: rotateX(8deg);
+  }
+
+  .game-board {
+    gap: 10px;
+  }
+
+  .levels-serpentine-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .hero-tagline {
+    font-size: 0.85rem;
+  }
+
+  .player-stat-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .stat-pill {
+    justify-content: center;
+  }
+
+  .menu-btn-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .board-wood-frame {
+    padding: 10px;
+    border-width: 6px;
+    transform: none; /* Flatten 3D tilt on small screens for maximum tap surface */
+  }
+
+  .game-board {
+    gap: 8px;
+  }
+
+  .levels-serpentine-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .manual-mole-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Touch optimization */
+@media (hover: none) and (pointer: coarse) {
+  .board-hole {
+    min-height: 72px; /* Substantial touch target */
+  }
+
+  .board-hole:active .hole-rim {
+    transform: scale(0.96);
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .screen-shake {
+    animation: none !important;
+  }
+}
+

@@ -81,6 +81,25 @@ const gamesData = [
     playMode: 'embed'
   },
   {
+    id: 'whack-a-mole',
+    name: 'Whack-a-Mole: Arcade Edition',
+    category: 'Arcade',
+    rating: 5.0,
+    plays: 22400,
+    playsFormatted: '22.4K',
+    rank: 1,
+    badge: 'NEW 3D',
+    isTop: true,
+    thumbnail: 'assets/games/thumb_whack_a_mole.png',
+    topThumbnail: 'assets/games/top_whack_a_mole.svg',
+    description: 'A classic 3D arcade Whack-a-Mole experience featuring 100 playable levels across 10 worlds, 7 unique mole species, combo multipliers, and an epic Level 100 Championship.',
+    tags: ['Arcade', 'Action', 'Reflex', 'Speed', 'Casual', 'Classic'],
+    releaseDate: '2026-09-16',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/whack-a-mole/index.html',
+    playMode: 'embed'
+  },
+  {
     id: 'highway-tycoon',
     name: 'Highway Oasis Tycoon',
     category: 'Simulation',
