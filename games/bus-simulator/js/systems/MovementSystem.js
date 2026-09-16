@@ -213,6 +213,20 @@
         airBrakeSystem.updateVehicle(bus, dt);
       }
 
+      // Phase 10B Task 14: update engine temperature/coolant state before
+      // the physics step. EngineTemperatureSystem owns engine temperature;
+      // it never writes acceleration or fuel — it only exposes a
+      // performance multiplier and overheating state that other systems
+      // consult.
+      const engineTempSystem = this.modules.EngineTemperatureSystem;
+      if (engineTempSystem && typeof engineTempSystem.updateVehicle === 'function') {
+        engineTempSystem.updateVehicle(bus, dt);
+        // Apply overheating damage through the existing damage mechanism.
+        if (typeof engineTempSystem.applyOverheatDamage === 'function') {
+          engineTempSystem.applyOverheatDamage(bus, dt);
+        }
+      }
+
       // Reverse detection: brake when stopped enters reverse mode
       if (inputState.brake > 0 && Math.abs(bus.speed) < 2 && !bus.reverseMode) {
         bus.reverseMode = true;

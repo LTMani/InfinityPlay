@@ -121,6 +121,20 @@
             }
           }
 
+          // Phase 10B Task 14: re-attach engine temperature state to
+          // restored Bus instances by id so temperature/coolant survive
+          // save/load.
+          const engineTempSystem = this.modules
+            ? this.modules.EngineTemperatureSystem
+            : null;
+          if (engineTempSystem && typeof engineTempSystem.attachTemp === 'function') {
+            if (player.garage) {
+              for (const bus of player.garage) {
+                engineTempSystem.attachTemp(bus);
+              }
+            }
+          }
+
           // Load subsystem states
           // Store for later restoration — systems may not be initialized yet
           // (loadPlayer runs during GameInitSystem.init, before GarageSystem.init).
@@ -224,7 +238,7 @@
         'DayNightSystem', 'WeatherSystem', 'RouteSystem', 'TripSystem',
         'FuelSystem', 'DamageSystem', 'MaintenanceSystem', 'GarageSystem',
         'TransmissionSystem', 'SuspensionSystem', 'BrakeSystem', 'TireSystem',
-        'AirBrakeSystem',
+        'AirBrakeSystem', 'EngineTemperatureSystem',
         'TicketSystem', 'PassengerSystem', 'AchievementSystem',
         'ProgressionSystem', 'MissionSystem', 'NavigationSystem',
         'BoardingSystem', 'DropOffSystem'

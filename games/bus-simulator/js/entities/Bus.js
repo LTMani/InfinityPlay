@@ -198,6 +198,18 @@
     }
     this.isDamaged = this.damage > 10;
 
+    // Phase 10B Task 14: engine-temperature performance derating.
+    // EngineTemperatureSystem owns temperature state; Bus only reads the
+    // single performance multiplier it exposes. No acceleration or fuel
+    // math is duplicated here.
+    const engineTemp = (typeof this.getEngineTemp === 'function') ? this.getEngineTemp() : null;
+    const tempPerf = (engineTemp && typeof engineTemp.performanceMultiplier === 'number')
+      ? engineTemp.performanceMultiplier : 1.0;
+    if (tempPerf < 1.0) {
+      const baseSpeed = (this.busType ? this.busType.speed : 65);
+      this.maxSpeed = Math.min(this.maxSpeed || baseSpeed, baseSpeed * tempPerf);
+    }
+
     // Degradation of condition
     this.condition = Math.max(0, 100 - this.damage);
 

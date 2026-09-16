@@ -70,6 +70,12 @@
     // AirBrakeSystem. Vehicle exposes getAirBrake()/setAirBrake() hooks
     // so the physics path can consult pressure without duplicating it.
     this._airBrake = null;
+
+    // Phase 10B Task 14: engine temperature/coolant state owned by
+    // EngineTemperatureSystem. Vehicle exposes getEngineTemp()/setEngineTemp()
+    // hooks so the physics path can consult temperature without duplicating
+    // it. EngineTemperatureSystem never writes acceleration or fuel.
+    this._engineTemp = null;
   }
 
   if (Entity) {
@@ -125,6 +131,14 @@
 
   Vehicle.prototype.setAirBrake = function (state) {
     this._airBrake = state;
+  };
+
+  Vehicle.prototype.getEngineTemp = function () {
+    return this._engineTemp || null;
+  };
+
+  Vehicle.prototype.setEngineTemp = function (state) {
+    this._engineTemp = state;
   };
 
   Vehicle.prototype.update = function (dt) {
