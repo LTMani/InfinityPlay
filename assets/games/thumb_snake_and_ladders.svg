@@ -1,0 +1,197 @@
+<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="tableRadialSL" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#141c2b"/>
+      <stop offset="60%" stop-color="#0b101c"/>
+      <stop offset="100%" stop-color="#05070d"/>
+    </radialGradient>
+
+    <!-- Board Base Gradient -->
+    <linearGradient id="boardBaseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#090d16"/>
+    </linearGradient>
+
+    <!-- Cell Inset Light & Dark -->
+    <linearGradient id="cellGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#0f243d"/>
+    </linearGradient>
+    <linearGradient id="cellGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18273d"/>
+      <stop offset="100%" stop-color="#0a1320"/>
+    </linearGradient>
+
+    <!-- Golden Ladder Gradient -->
+    <linearGradient id="goldLadderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="35%" stop-color="#eab308"/>
+      <stop offset="70%" stop-color="#ca8a04"/>
+      <stop offset="100%" stop-color="#713f12"/>
+    </linearGradient>
+
+    <!-- Snake Skin Gradient -->
+    <linearGradient id="snakeSkinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="40%" stop-color="#16a34a"/>
+      <stop offset="80%" stop-color="#14532d"/>
+      <stop offset="100%" stop-color="#052e16"/>
+    </linearGradient>
+
+    <!-- Dice 3D Gradients -->
+    <linearGradient id="diceTopGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <linearGradient id="diceFrontGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#b91c1c"/>
+      <stop offset="100%" stop-color="#7f1d1d"/>
+    </linearGradient>
+    <linearGradient id="diceRightGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#991b1b"/>
+      <stop offset="100%" stop-color="#450a0a"/>
+    </linearGradient>
+
+    <!-- Drop Shadows -->
+    <filter id="slBoardShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.85"/>
+    </filter>
+    <filter id="glowGold" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#eab308" flood-opacity="0.6"/>
+    </filter>
+    <filter id="glowGreen" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#22c55e" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Table Background -->
+  <rect width="320" height="180" fill="url(#tableRadialSL)"/>
+
+  <!-- Ambient Glow -->
+  <circle cx="160" cy="80" r="100" fill="#10b981" opacity="0.06"/>
+  <circle cx="250" cy="50" r="70" fill="#f59e0b" opacity="0.05"/>
+
+  <!-- Board Miniature Base -->
+  <g filter="url(#slBoardShadow)" transform="translate(85, 12)">
+    <!-- Board Base Plate -->
+    <rect x="0" y="0" width="150" height="144" rx="14" fill="url(#boardBaseGrad)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+    <rect x="4" y="4" width="142" height="136" rx="10" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1"/>
+
+    <!-- 5x5 Grid Sample Tiles -->
+    <!-- Row 1 -->
+    <rect x="8" y="8" width="25" height="23" rx="4" fill="url(#cellGrad1)"/>
+    <rect x="35" y="8" width="25" height="23" rx="4" fill="url(#cellGrad2)"/>
+    <rect x="62" y="8" width="25" height="23" rx="4" fill="url(#cellGrad1)"/>
+    <rect x="89" y="8" width="25" height="23" rx="4" fill="url(#cellGrad2)"/>
+    <rect x="116" y="8" width="25" height="23" rx="4" fill="url(#cellGrad1)"/>
+    <!-- Row 2 -->
+    <rect x="8" y="33" width="25" height="23" rx="4" fill="url(#cellGrad2)"/>
+    <rect x="35" y="33" width="25" height="23" rx="4" fill="url(#cellGrad1)"/>
+    <rect x="62" y="33" width="25" height="23" rx="4" fill="url(#cellGrad2)"/>
+    <rect x="89" y="33" width="25" height="23" rx="4" fill="url(#cellGrad1)"/>
+    <rect x="116" y="33" width="25" height="23" rx="4" fill="url(#cellGrad2)"/>
+    <!-- Row 3 -->
+    <rect x="8" y="58" width="25" height="23" rx="4" fill="url(#cellGrad1)"/>
+    <rect x="35" y="58" width="25" height="23" rx="4" fill="url(#cellGrad2)"/>
+    <rect x="62" y="58" width="25" height="23" rx="4" fill="url(#cellGrad1)"/>
+    <rect x="89" y="58" width="25" height="23" rx="4" fill="url(#cellGrad2)"/>
+    <rect x="116" y="58" width="25" height="23" rx="4" fill="url(#cellGrad1)"/>
+    <!-- Row 4 -->
+    <rect x="8" y="83" width="25" height="23" rx="4" fill="url(#cellGrad2)"/>
+    <rect x="35" y="83" width="25" height="23" rx="4" fill="url(#cellGrad1)"/>
+    <rect x="62" y="83" width="25" height="23" rx="4" fill="url(#cellGrad2)"/>
+    <rect x="89" y="83" width="25" height="23" rx="4" fill="url(#cellGrad1)"/>
+    <rect x="116" y="83" width="25" height="23" rx="4" fill="url(#cellGrad2)"/>
+    <!-- Row 5 -->
+    <rect x="8" y="108" width="25" height="23" rx="4" fill="url(#cellGrad1)"/>
+    <rect x="35" y="108" width="25" height="23" rx="4" fill="url(#cellGrad2)"/>
+    <rect x="62" y="108" width="25" height="23" rx="4" fill="url(#cellGrad1)"/>
+    <rect x="89" y="108" width="25" height="23" rx="4" fill="url(#cellGrad2)"/>
+    <rect x="116" y="108" width="25" height="23" rx="4" fill="url(#cellGrad1)"/>
+
+    <!-- Ladder 1 (From cell (1,4) to cell (3,1)) -->
+    <g filter="url(#glowGold)">
+      <!-- Left rail -->
+      <line x1="28" y1="120" x2="68" y2="20" stroke="url(#goldLadderGrad)" stroke-width="3" stroke-linecap="round"/>
+      <!-- Right rail -->
+      <line x1="38" y1="124" x2="78" y2="24" stroke="url(#goldLadderGrad)" stroke-width="3" stroke-linecap="round"/>
+      <!-- Rungs -->
+      <line x1="30" y1="108" x2="40" y2="112" stroke="url(#goldLadderGrad)" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="38" y1="88" x2="48" y2="92" stroke="url(#goldLadderGrad)" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="46" y1="68" x2="56" y2="72" stroke="url(#goldLadderGrad)" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="54" y1="48" x2="64" y2="52" stroke="url(#goldLadderGrad)" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="62" y1="28" x2="72" y2="32" stroke="url(#goldLadderGrad)" stroke-width="2.2" stroke-linecap="round"/>
+    </g>
+
+    <!-- Snake 1 (From top right to middle bottom) -->
+    <g filter="url(#glowGreen)">
+      <!-- Snake Body -->
+      <path d="M 125,20 C 95,28 135,55 105,75 C 80,92 110,115 85,122" 
+            fill="none" stroke="url(#snakeSkinGrad)" stroke-width="5" stroke-linecap="round"/>
+      <path d="M 125,20 C 95,28 135,55 105,75 C 80,92 110,115 85,122" 
+            fill="none" stroke="#86efac" stroke-width="1.2" stroke-dasharray="3,4" stroke-linecap="round"/>
+      <!-- Snake Head at 125, 20 -->
+      <circle cx="127" cy="18" r="5" fill="#16a34a"/>
+      <circle cx="128" cy="16.5" r="1.2" fill="#ffffff"/>
+      <circle cx="128" cy="19.5" r="1.2" fill="#ffffff"/>
+      <!-- Tongue -->
+      <path d="M 132,18 L 136,17 M 132,18 L 136,19" stroke="#ef4444" stroke-width="1"/>
+    </g>
+
+    <!-- Player Token 1 (Cyan Diamond) -->
+    <g transform="translate(68, 14)">
+      <circle cx="6" cy="6" r="6.5" fill="#06b6d4" stroke="#ffffff" stroke-width="1.5"/>
+      <circle cx="6" cy="6" r="3" fill="#a5f3fc"/>
+    </g>
+
+    <!-- Player Token 2 (Red Ruby) -->
+    <g transform="translate(30, 114)">
+      <circle cx="6" cy="6" r="6.5" fill="#ef4444" stroke="#ffffff" stroke-width="1.5"/>
+      <circle cx="6" cy="6" r="3" fill="#fca5a5"/>
+    </g>
+  </g>
+
+  <!-- 3D Glowing Red Dice at Right -->
+  <g transform="translate(245, 82) scale(0.95)">
+    <!-- Dice Drop Shadow -->
+    <ellipse cx="14" cy="46" rx="24" ry="7" fill="#000000" opacity="0.65"/>
+    
+    <!-- Top Face (Skewed) -->
+    <polygon points="12,0 36,-10 48,6 24,16" fill="url(#diceTopGrad)" stroke="rgba(255,255,255,0.4)" stroke-width="0.8"/>
+    <!-- Top Face Pips (3 pips) -->
+    <circle cx="20" cy="5" r="1.8" fill="#ffffff"/>
+    <circle cx="30" cy="3" r="1.8" fill="#ffffff"/>
+    <circle cx="40" cy="1" r="1.8" fill="#ffffff"/>
+
+    <!-- Left/Front Face -->
+    <polygon points="12,0 24,16 24,44 12,28" fill="url(#diceFrontGrad)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+    <!-- Front Face Pips (6 pips) -->
+    <circle cx="16" cy="7" r="1.5" fill="#ffffff"/>
+    <circle cx="20" cy="12" r="1.5" fill="#ffffff"/>
+    <circle cx="16" cy="16" r="1.5" fill="#ffffff"/>
+    <circle cx="20" cy="21" r="1.5" fill="#ffffff"/>
+    <circle cx="16" cy="25" r="1.5" fill="#ffffff"/>
+    <circle cx="20" cy="30" r="1.5" fill="#ffffff"/>
+
+    <!-- Right Face -->
+    <polygon points="24,16 48,6 48,34 24,44" fill="url(#diceRightGrad)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+    <!-- Right Face Pips (5 pips) -->
+    <circle cx="30" cy="22" r="1.6" fill="#ffffff"/>
+    <circle cx="42" cy="17" r="1.6" fill="#ffffff"/>
+    <circle cx="36" cy="27" r="1.6" fill="#ffffff"/>
+    <circle cx="30" cy="32" r="1.6" fill="#ffffff"/>
+    <circle cx="42" cy="27" r="1.6" fill="#ffffff"/>
+  </g>
+
+  <!-- Left Accent Token (Gold Trophy / Star Token) -->
+  <g transform="translate(35, 75)">
+    <ellipse cx="16" cy="36" rx="16" ry="5" fill="#000000" opacity="0.5"/>
+    <circle cx="16" cy="16" r="14" fill="url(#goldLadderGrad)" stroke="#ffffff" stroke-width="2"/>
+    <path d="M 16,6 L 19,13 L 26,13 L 20,17 L 22,24 L 16,20 L 10,24 L 12,17 L 6,13 L 13,13 Z" fill="#713f12"/>
+  </g>
+
+  <!-- Bottom Title Label -->
+  <text x="160" y="168" font-family="'Inter', -apple-system, sans-serif" font-size="11" font-weight="900" fill="#cbd5e1" text-anchor="middle" letter-spacing="0.14em">SNAKE &amp; LADDERS : BOARD ARENA</text>
+</svg>
