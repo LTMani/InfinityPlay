@@ -76,6 +76,38 @@
         });
       }
 
+      // Phase 10B Task 14: overheating / low-coolant recommendation.
+      // MaintenanceSystem only READS engine temperature state via the
+      // existing vehicle hook; it does NOT own, reset, or duplicate
+      // temperature calculations. EngineTemperatureSystem remains the
+      // sole owner of temperature/coolant behavior.
+      const engineTemp = (typeof bus.getEngineTemp === 'function') ? bus.getEngineTemp() : null;
+      if (engineTemp) {
+        if (engineTemp.criticalOverheat) {
+          recommendations.push({
+            type: 'overheat_repair',
+            severity: 'critical',
+            description: 'Critical engine overheating - immediate service required',
+            cost: Math.round((100 - bus.condition) * 150) + 12000
+          });
+        } else if (engineTemp.overheating) {
+          recommendations.push({
+            type: 'overheat_repair',
+            severity: 'moderate',
+            description: 'Engine overheating detected - cooling system inspection',
+            cost: 8000
+          });
+        }
+        if (engineTemp.coolantLevel < 50) {
+          recommendations.push({
+            type: 'coolant_topup',
+            severity: engineTemp.coolantLevel < 25 ? 'critical' : 'moderate',
+            description: `Low coolant level (${Math.round(engineTemp.coolantLevel)}%)`,
+            cost: engineTemp.coolantLevel < 25 ? 3000 : 1500
+          });
+        }
+      }
+
       if (recommendations.length === 0) return null;
 
       return {

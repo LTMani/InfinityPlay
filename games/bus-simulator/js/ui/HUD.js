@@ -353,6 +353,26 @@
       ctx.fillStyle = '#ffffff';
       ctx.fillText(`🔧 ${Math.round(condPct * 100)}%`, condX + 4, barY + 13);
 
+      // Phase 10B Task 14: engine temperature gauge.
+      // EngineTemperatureSystem owns temperature state; HUD only reads
+      // the existing vehicle hook. No temperature math is duplicated.
+      const engineTemp = (typeof bus.getEngineTemp === 'function') ? bus.getEngineTemp() : null;
+      if (engineTemp) {
+        const tempX = 440;
+        const tempPct = Math.max(0, Math.min(1,
+          (engineTemp.engineTemperature - engineTemp.normalTemperature)
+          / (engineTemp.criticalTemperature - engineTemp.normalTemperature)));
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(tempX, barY, 120, 18);
+        ctx.fillStyle = engineTemp.criticalOverheat ? '#ef4444'
+          : (engineTemp.overheating ? '#f97316'
+            : (tempPct > 0.5 ? '#fbbf24' : '#10b981'));
+        ctx.fillRect(tempX, barY, 120 * tempPct, 18);
+        ctx.strokeRect(tempX, barY, 120, 18);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(`🌡 ${Math.round(engineTemp.engineTemperature)}°C`, tempX + 4, barY + 13);
+      }
+
       // Passengers
       const passX = 440;
       ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
