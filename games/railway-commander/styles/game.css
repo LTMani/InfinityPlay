@@ -116,6 +116,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-left: 140px;
 }
 
 .hud-icon-btn {
@@ -528,8 +529,8 @@ html, body {
 
 /* Emergency Stop Hexagonal Button */
 .btn-emergency-stop-hex {
-  width: 66px;
-  height: 66px;
+  width: 74px;
+  height: 74px;
   background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 50%, #991b1b 100%);
   clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
   border: none;
@@ -541,6 +542,7 @@ html, body {
   box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
   transition: transform 0.12s ease, filter 0.12s ease;
   flex-shrink: 0;
+  padding: 0;
 }
 
 .btn-emergency-stop-hex:hover {
@@ -554,16 +556,19 @@ html, body {
 }
 
 .hex-text {
-  font-size: 0.65rem;
+  font-size: 0.52rem;
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.15;
   text-align: center;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  pointer-events: none;
 }
 
 .hex-text strong {
-  font-size: 0.75rem;
+  font-size: 0.70rem;
   color: #fee2e2;
+  letter-spacing: 0.5px;
 }
 
 /* Auxiliary Function Dock */
@@ -821,6 +826,27 @@ html, body {
 @keyframes cardIn {
   0% { transform: scale(0.92) translateY(20px); opacity: 0; }
   100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.game-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -6px;
+  margin-bottom: -2px;
+}
+
+.game-main-logo {
+  width: 128px;
+  height: 128px;
+  border-radius: 26px;
+  filter: drop-shadow(0 0 24px rgba(0, 240, 255, 0.45));
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+}
+
+.game-main-logo:hover {
+  transform: scale(1.06) rotate(1deg);
+  filter: drop-shadow(0 0 35px rgba(251, 191, 36, 0.65));
 }
 
 .card-brand-badge {

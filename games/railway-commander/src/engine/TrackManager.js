@@ -142,14 +142,38 @@ export class TrackManager {
     }
 
     // 4. Station Platform Crowds & Indian Railway Life (Coolies, passengers, chai stalls)
+    // 4a. Departure Station Platform (Platform 1 - Arakkonam / Chennai Junction)
+    this.scenery.push(
+      // Walking commuter in white shirt & dark trousers (matching reference image)
+      { type: 'passenger', position: 1.5, dist: 3.5, shirtColor: '#f8fafc' },
+      // Foreground Coolie in traditional scarlet red kurta carrying brass trunk on head
+      { type: 'coolie', position: -1.2, dist: 2.7, trunkColor: '#b45309' },
+      // Passenger in orange shirt with briefcase/bag
+      { type: 'passenger', position: -4.0, dist: 3.8, shirtColor: '#ea580c' },
+      // Passenger in blue shirt with rolling suitcase
+      { type: 'passenger', position: -7.5, dist: 3.4, shirtColor: '#0284c7' },
+      // Station luggage push trolley stacked with parcels
+      { type: 'trolley', position: -12.0, dist: 4.4 },
+      // Traditional Indian Railway Chai & Snack Stall on right edge
+      { type: 'tea_stall', position: -18.0, dist: 5.2 },
+      // Commuter waiting near chai stall
+      { type: 'passenger', position: -20.5, dist: 4.6, shirtColor: '#eab308' },
+      // Second Coolie carrying blue trunk
+      { type: 'coolie', position: -26.0, dist: 2.9, trunkColor: '#0369a1' },
+      // Walking commuter near station concourse
+      { type: 'passenger', position: -33.0, dist: 4.0, shirtColor: '#f8fafc' },
+      // Parked opposing passenger rake on parallel left track (Blue ICF Coaches)
+      { type: 'parked_train', position: -55.0, endPosition: 45.0, side: -1, dist: 3.8 }
+    );
+
+    // 4b. Arrival Station Platforms (e.g. Arakkonam Junction)
     for (const st of this.stations) {
       const platLength = st.platformLength || 160;
       const platStart = st.stopPosition - platLength * 0.72;
       const platEnd = st.stopPosition + platLength * 0.28;
-      const platSideX = 1.95; // right side platform
+      const platSideX = 1.95;
 
-      // Coolies in red kurtas carrying heavy metal trunk boxes on their heads
-      for (let pz = platStart + 12; pz < platEnd - 8; pz += 26) {
+      for (let pz = platStart + 10; pz < platEnd - 6; pz += 20) {
         this.scenery.push({
           type: 'coolie',
           position: pz,
@@ -159,8 +183,7 @@ export class TrackManager {
         });
       }
 
-      // Commuters & Passengers walking along the platform with bags
-      for (let pz = platStart + 6; pz < platEnd - 4; pz += 16) {
+      for (let pz = platStart + 4; pz < platEnd - 4; pz += 12) {
         this.scenery.push({
           type: 'passenger',
           position: pz,
@@ -170,43 +193,26 @@ export class TrackManager {
         });
       }
 
-      // Indian Railway Chai & Snack Stalls ("CHAI / SNACKS")
       this.scenery.push({
         type: 'tea_stall',
-        position: platStart + 35,
+        position: platStart + 25,
         side: 1,
-        dist: platSideX + 3.1
+        dist: platSideX + 3.2
       });
-      if (platEnd - platStart > 110) {
-        this.scenery.push({
-          type: 'tea_stall',
-          position: platStart + 105,
-          side: 1,
-          dist: platSideX + 3.1
-        });
-      }
 
-      // Station Luggage Trolleys & wheelbarrows
       this.scenery.push({
         type: 'trolley',
-        position: platStart + 20,
-        side: 1,
-        dist: platSideX + 2.2
-      });
-      this.scenery.push({
-        type: 'trolley',
-        position: platStart + 80,
+        position: platStart + 15,
         side: 1,
         dist: platSideX + 2.2
       });
 
-      // Parked Opposing Passenger Rake / Coaches on Left Track (as seen in screenshot)
       this.scenery.push({
         type: 'parked_train',
-        position: platStart - 30,
-        endPosition: platEnd + 30,
+        position: platStart - 20,
+        endPosition: platEnd + 20,
         side: -1,
-        dist: 3.4
+        dist: 3.8
       });
     }
   }
