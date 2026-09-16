@@ -281,6 +281,38 @@
     }
 
     /**
+     * Show Championship Phase Transition Banner
+     */
+    showPhaseBanner(phase, title, subtitle = '') {
+      let banner = document.getElementById('hudPhaseBanner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'hudPhaseBanner';
+        banner.className = 'hud-phase-banner';
+        const arena = document.getElementById('gameBoardWrapper') || document.getElementById('gameScreen');
+        if (arena) arena.appendChild(banner);
+      }
+      banner.innerHTML = `
+        <div class="phase-banner-content phase-${phase}">
+          <div class="phase-badge">STAGE ${phase}/4</div>
+          <h3 class="phase-title">${title}</h3>
+          <p class="phase-subtext">${subtitle}</p>
+        </div>
+      `;
+      banner.classList.remove('hidden', 'fade-out');
+      banner.classList.add('visible');
+
+      if (this.phaseBannerTimer) clearTimeout(this.phaseBannerTimer);
+      this.phaseBannerTimer = setTimeout(() => {
+        banner.classList.add('fade-out');
+        setTimeout(() => {
+          banner.classList.remove('visible', 'fade-out');
+          banner.classList.add('hidden');
+        }, 500);
+      }, 2600);
+    }
+
+    /**
      * Serpentine 10-World Level Selection Screen
      */
     renderWorldMap(onLevelSelect) {
