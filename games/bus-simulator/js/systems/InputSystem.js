@@ -73,6 +73,12 @@
         case 'toggleLights':
           if (InputManager.isKeyJustPressed(ControlsConfig.toggleLights)) return 1;
           return 0;
+        case 'interiorLights':
+          if (InputManager.isKeyJustPressed(ControlsConfig.interiorLights)) return 1;
+          return 0;
+        case 'wipers':
+          if (InputManager.isKeyJustPressed(ControlsConfig.wipers)) return 1;
+          return 0;
         case 'toggleView':
           return InputManager.isKeyJustPressed(ControlsConfig.toggleView) ? 1 : 0;
         default:

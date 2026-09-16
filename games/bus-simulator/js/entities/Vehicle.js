@@ -76,6 +76,11 @@
     // hooks so the physics path can consult temperature without duplicating
     // it. EngineTemperatureSystem never writes acceleration or fuel.
     this._engineTemp = null;
+
+    // Phase 10B Task 15: battery/electrical state owned by ElectricalSystem.
+    // Vehicle exposes getElectrical()/setElectrical() hooks so the physics
+    // path can consult battery/charge without duplicating it.
+    this._electrical = null;
   }
 
   if (Entity) {
@@ -139,6 +144,14 @@
 
   Vehicle.prototype.setEngineTemp = function (state) {
     this._engineTemp = state;
+  };
+
+  Vehicle.prototype.getElectrical = function () {
+    return this._electrical || null;
+  };
+
+  Vehicle.prototype.setElectrical = function (state) {
+    this._electrical = state;
   };
 
   Vehicle.prototype.update = function (dt) {

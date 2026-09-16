@@ -157,7 +157,11 @@
         throttle: inputSystem.getThrottle(),
         brake: inputSystem.getAction('brake'),
         steering: inputSystem.getSteering(),
-        handbrake: inputSystem.getAction('handbrake')
+        handbrake: inputSystem.getAction('handbrake'),
+        lights: inputSystem.getAction('toggleLights'),
+        interiorLights: inputSystem.getAction('interiorLights'),
+        horn: inputSystem.getAction('horn'),
+        wipers: inputSystem.getAction('wipers')
       };
 
       if (!bus.canMove()) return;
@@ -182,6 +186,15 @@
       // BrakingSystem in parallel.
       bus._brakeInput = inputState.brake;
       bus._handbrake = inputState.handbrake > 0;
+
+      // Phase 10B Task 15: feed electrical-load inputs into the bus so the
+      // ElectricalSystem (the single authoritative electrical owner) can
+      // read them during its update. No input mapping is duplicated here;
+      // InputSystem remains the sole owner of key-to-action mapping.
+      bus._headlightsOn = inputState.lights > 0;
+      bus._interiorLightsOn = inputState.interiorLights > 0;
+      bus._hornActive = inputState.horn > 0;
+      bus._wipersOn = inputState.wipers > 0;
       const brakeSystem = this.modules.BrakeSystem;
       if (brakeSystem && typeof brakeSystem.updateVehicle === 'function') {
         brakeSystem.updateVehicle(bus, dt);
@@ -225,6 +238,17 @@
         if (typeof engineTempSystem.applyOverheatDamage === 'function') {
           engineTempSystem.applyOverheatDamage(bus, dt);
         }
+      }
+
+      // Phase 10B Task 15: update battery/electrical state before the
+      // physics step. ElectricalSystem owns battery/alternator state; it
+      // never writes acceleration, fuel, temperature, braking, or steering
+      // — it only exposes battery charge/voltage and canCrank state that
+      // other systems consult. This is the SINGLE ElectricalSystem update
+      // per frame; no other path updates battery state.
+      const electricalSystem = this.modules.ElectricalSystem;
+      if (electricalSystem && typeof electricalSystem.updateVehicle === 'function') {
+        electricalSystem.updateVehicle(bus, dt);
       }
 
       // Reverse detection: brake when stopped enters reverse mode

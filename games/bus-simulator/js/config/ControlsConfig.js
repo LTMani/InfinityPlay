@@ -20,12 +20,17 @@
     steerLeftAlt: 'ArrowLeft',
     steerRightAlt: 'ArrowRight',
 
-    // Gameplay
+// Gameplay
     pause: 'KeyP',
     exitVehicle: 'KeyE',
     horn: 'KeyH',
     toggleLights: 'KeyL',
     toggleView: 'KeyV',
+    // Phase 10B Task 15: wiper and interior-light toggles.
+    // Deliberately non-conflicting keys: KeyW is accelerate, so wipers
+    // use KeyU and interior lights use KeyI.
+    wipers: 'KeyU',
+    interiorLights: 'KeyI',
 
     // UI Navigation
     menuBack: 'Escape',
@@ -61,7 +66,10 @@
         exitVehicle: ['KeyE'],
         menuBack: ['Escape'],
         uiSelect: ['Enter'],
-        uiCancel: ['Escape']
+        uiCancel: ['Escape'],
+        // Phase 10B Task 15
+        wipers: ['KeyU'],
+        interiorLights: ['KeyI']
       };
       return mapping[actionName] || [this[actionName] || actionName];
     }

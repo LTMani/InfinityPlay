@@ -387,6 +387,24 @@
       ctx.textAlign = 'left';
       ctx.fillText(`👥 ${bus.passengersOnBoard}/${bus.passengerCapacity}`, passX + 4, barY + 13);
 
+      // Phase 10B Task 15: battery gauge.
+      // ElectricalSystem owns battery state; HUD only reads the existing
+      // vehicle hook. No battery math is duplicated here.
+      const electrical = (typeof bus.getElectrical === 'function') ? bus.getElectrical() : null;
+      if (electrical) {
+        const batX = 580;
+        const batPct = Math.max(0, Math.min(1, electrical.batteryCharge / 100));
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(batX, barY, 120, 18);
+        ctx.fillStyle = electrical.electricalFailure ? '#ef4444'
+          : (electrical.isDeadBattery ? '#ef4444'
+            : (electrical.isLowBattery ? '#fbbf24' : '#10b981'));
+        ctx.fillRect(batX, barY, 120 * batPct, 18);
+        ctx.strokeRect(batX, barY, 120, 18);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(`🔋 ${Math.round(electrical.batteryCharge)}% ${electrical.batteryVoltage}V`, batX + 4, barY + 13);
+      }
+
       // Boarding indicator
       const boardingSystem = this.modules.BoardingSystem;
       if (boardingSystem && boardingSystem.isBoarding && boardingSystem.isBoarding()) {
