@@ -1,0 +1,222 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <!-- Background Radial Glow -->
+    <radialGradient id="topBgRadial" cx="50%" cy="40%" r="75%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="45%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+
+    <filter id="topGlowCyan" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="topGlowGold" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="topBoardDrop" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#000000" flood-opacity="0.9"/>
+    </filter>
+
+    <!-- Gradients -->
+    <linearGradient id="topBoardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#243048"/>
+      <stop offset="50%" stop-color="#121828"/>
+      <stop offset="100%" stop-color="#090d16"/>
+    </linearGradient>
+
+    <linearGradient id="topLadderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="30%" stop-color="#facc15"/>
+      <stop offset="70%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#854d0e"/>
+    </linearGradient>
+
+    <linearGradient id="topSnakeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#86efac"/>
+      <stop offset="35%" stop-color="#22c55e"/>
+      <stop offset="70%" stop-color="#15803d"/>
+      <stop offset="100%" stop-color="#052e16"/>
+    </linearGradient>
+
+    <linearGradient id="topRedDiceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f87171"/>
+      <stop offset="40%" stop-color="#dc2626"/>
+      <stop offset="100%" stop-color="#991b1b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#topBgRadial)"/>
+
+  <!-- Ambient Light Halos -->
+  <circle cx="280" cy="250" r="220" fill="#10b981" opacity="0.08"/>
+  <circle cx="560" cy="200" r="180" fill="#eab308" opacity="0.06"/>
+  <circle cx="400" cy="100" r="160" fill="#38bdf8" opacity="0.05"/>
+
+  <!-- Isometric Board Grid Assembly -->
+  <g filter="url(#topBoardDrop)" transform="translate(100, 70)">
+    <!-- Base Plate -->
+    <rect x="0" y="0" width="360" height="340" rx="20" fill="url(#topBoardGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+    <rect x="8" y="8" width="344" height="324" rx="14" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="1.5"/>
+
+    <!-- 6x6 Tile Array Sample for Visual Punch -->
+    <!-- Row 1 -->
+    <rect x="16" y="16" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="70" y="16" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="124" y="16" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="178" y="16" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="232" y="16" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="286" y="16" width="50" height="46" rx="6" fill="#f59e0b" opacity="0.25" stroke="#facc15" stroke-width="1.5"/>
+    <text x="311" y="44" font-family="'Inter', sans-serif" font-size="16" font-weight="900" fill="#facc15" text-anchor="middle">100</text>
+
+    <!-- Row 2 -->
+    <rect x="16" y="66" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="70" y="66" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="124" y="66" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="178" y="66" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="232" y="66" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="286" y="66" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+
+    <!-- Row 3 -->
+    <rect x="16" y="116" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="70" y="116" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="124" y="116" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="178" y="116" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="232" y="116" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="286" y="116" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+
+    <!-- Row 4 -->
+    <rect x="16" y="166" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="70" y="166" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="124" y="166" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="178" y="166" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="232" y="166" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="286" y="166" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+
+    <!-- Row 5 -->
+    <rect x="16" y="216" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="70" y="216" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="124" y="216" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="178" y="216" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="232" y="216" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="286" y="216" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+
+    <!-- Row 6 (Bottom) -->
+    <rect x="16" y="266" width="50" height="46" rx="6" fill="#06b6d4" opacity="0.25" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="41" y="294" font-family="'Inter', sans-serif" font-size="16" font-weight="900" fill="#38bdf8" text-anchor="middle">1</text>
+    <rect x="70" y="266" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="124" y="266" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="178" y="266" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+    <rect x="232" y="266" width="50" height="46" rx="6" fill="#1e3a5f" opacity="0.7"/>
+    <rect x="286" y="266" width="50" height="46" rx="6" fill="#142640" opacity="0.7"/>
+
+    <!-- Ladder 1 (From cell (1, 5) up to cell (4, 1)) -->
+    <g filter="url(#topGlowGold)">
+      <line x1="45" y1="260" x2="195" y2="40" stroke="url(#topLadderGrad)" stroke-width="6" stroke-linecap="round"/>
+      <line x1="65" y1="266" x2="215" y2="46" stroke="url(#topLadderGrad)" stroke-width="6" stroke-linecap="round"/>
+      <!-- Rungs -->
+      <line x1="50" y1="240" x2="70" y2="246" stroke="url(#topLadderGrad)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="72" y1="208" x2="92" y2="214" stroke="url(#topLadderGrad)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="94" y1="176" x2="114" y2="182" stroke="url(#topLadderGrad)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="116" y1="144" x2="136" y2="150" stroke="url(#topLadderGrad)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="138" y1="112" x2="158" y2="118" stroke="url(#topLadderGrad)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="160" y1="80" x2="180" y2="86" stroke="url(#topLadderGrad)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="182" y1="48" x2="202" y2="54" stroke="url(#topLadderGrad)" stroke-width="4" stroke-linecap="round"/>
+    </g>
+
+    <!-- Snake 1 (Curving Down from 280, 40 to 140, 240) -->
+    <g filter="url(#topGlowCyan)">
+      <path d="M 270,40 C 210,60 300,120 230,160 C 160,200 240,240 150,250" 
+            fill="none" stroke="url(#topSnakeGrad)" stroke-width="12" stroke-linecap="round"/>
+      <path d="M 270,40 C 210,60 300,120 230,160 C 160,200 240,240 150,250" 
+            fill="none" stroke="#bbf7d0" stroke-width="2.5" stroke-dasharray="6,8" stroke-linecap="round"/>
+      <!-- Snake Head at 270, 40 -->
+      <ellipse cx="274" cy="38" rx="10" ry="8" fill="#15803d" transform="rotate(-15 274 38)"/>
+      <circle cx="277" cy="34" r="2.5" fill="#facc15"/>
+      <circle cx="277" cy="42" r="2.5" fill="#facc15"/>
+      <circle cx="278" cy="34" r="1.2" fill="#000000"/>
+      <circle cx="278" cy="42" r="1.2" fill="#000000"/>
+      <!-- Forked Tongue -->
+      <path d="M 284,38 L 294,36 M 284,38 L 294,40" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+    </g>
+
+    <!-- Player Tokens on Board -->
+    <g transform="translate(195, 26)">
+      <circle cx="10" cy="10" r="12" fill="#06b6d4" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="10" cy="10" r="5" fill="#e0f2fe"/>
+    </g>
+    <g transform="translate(142, 242)">
+      <circle cx="10" cy="10" r="12" fill="#ef4444" stroke="#ffffff" stroke-width="2.5"/>
+      <circle cx="10" cy="10" r="5" fill="#fee2e2"/>
+    </g>
+  </g>
+
+  <!-- Right Side: Big 3D Dynamic Dice Rolling & Title Presentation -->
+  <g transform="translate(490, 80)">
+    <!-- 3D Large Red Dice -->
+    <g transform="translate(50, 40) scale(1.4)">
+      <!-- Drop Shadow -->
+      <ellipse cx="40" cy="105" rx="55" ry="16" fill="#000000" opacity="0.75"/>
+
+      <!-- Top Face -->
+      <polygon points="30,0 90,-25 120,15 60,40" fill="url(#topRedDiceGrad)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+      <!-- Pips on top (Face 3) -->
+      <circle cx="50" cy="12" r="4" fill="#ffffff"/>
+      <circle cx="75" cy="7" r="4" fill="#ffffff"/>
+      <circle cx="100" cy="2" r="4" fill="#ffffff"/>
+
+      <!-- Front-Left Face -->
+      <polygon points="30,0 60,40 60,105 30,65" fill="#b91c1c" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+      <!-- Pips on left (Face 6) -->
+      <circle cx="40" cy="18" r="3.5" fill="#ffffff"/>
+      <circle cx="50" cy="30" r="3.5" fill="#ffffff"/>
+      <circle cx="40" cy="38" r="3.5" fill="#ffffff"/>
+      <circle cx="50" cy="50" r="3.5" fill="#ffffff"/>
+      <circle cx="40" cy="58" r="3.5" fill="#ffffff"/>
+      <circle cx="50" cy="70" r="3.5" fill="#ffffff"/>
+
+      <!-- Front-Right Face -->
+      <polygon points="60,40 120,15 120,80 60,105" fill="#7f1d1d" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+      <!-- Pips on right (Face 5) -->
+      <circle cx="75" cy="55" r="3.8" fill="#ffffff"/>
+      <circle cx="105" cy="42" r="3.8" fill="#ffffff"/>
+      <circle cx="90" cy="65" r="3.8" fill="#ffffff"/>
+      <circle cx="75" cy="78" r="3.8" fill="#ffffff"/>
+      <circle cx="105" cy="65" r="3.8" fill="#ffffff"/>
+    </g>
+
+    <!-- Badge & Headline -->
+    <g transform="translate(10, 240)">
+      <!-- Pill Badge -->
+      <rect x="0" y="0" width="130" height="26" rx="13" fill="rgba(16,185,129,0.2)" stroke="#10b981" stroke-width="1"/>
+      <text x="65" y="17" font-family="'Inter', sans-serif" font-size="11" font-weight="800" fill="#34d399" text-anchor="middle" letter-spacing="0.1em">★ PRO BOARD GAME</text>
+
+      <!-- Main Game Title -->
+      <text x="0" y="60" font-family="'Inter', sans-serif" font-size="34" font-weight="900" fill="#ffffff" letter-spacing="-0.02em">SNAKE &amp; LADDERS</text>
+      
+      <!-- Tagline -->
+      <text x="0" y="88" font-family="'Inter', sans-serif" font-size="15" font-weight="600" fill="#94a3b8">"Roll. Climb. Slide. Win!"</text>
+
+      <!-- Meta Features -->
+      <g transform="translate(0, 110)">
+        <!-- 1-4 Players -->
+        <rect x="0" y="0" width="105" height="28" rx="7" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+        <text x="52" y="18" font-family="'Inter', sans-serif" font-size="11" font-weight="700" fill="#e2e8f0" text-anchor="middle">👥 1-4 PLAYERS</text>
+
+        <!-- Smart AI -->
+        <rect x="115" y="0" width="85" height="28" rx="7" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+        <text x="157" y="18" font-family="'Inter', sans-serif" font-size="11" font-weight="700" fill="#e2e8f0" text-anchor="middle">🤖 SMART AI</text>
+      </g>
+    </g>
+  </g>
+</svg>

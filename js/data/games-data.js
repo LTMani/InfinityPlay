@@ -5,6 +5,25 @@
 
 const gamesData = [
   {
+    id: 'snake-and-ladders',
+    name: 'Snake & Ladders',
+    category: 'Strategy',
+    rating: 5.0,
+    plays: 15400,
+    playsFormatted: '15.4K',
+    rank: 1,
+    badge: 'NEW',
+    isTop: true,
+    thumbnail: 'assets/games/thumb_snake_and_ladders.svg',
+    topThumbnail: 'assets/games/top_snake_and_ladders.svg',
+    description: 'Roll the dice, climb ladders, dodge snakes, and race to 100.',
+    tags: ['Board Game', 'Strategy', 'Casual', 'Multiplayer', 'Classic'],
+    releaseDate: '2026-09-16',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/snake-and-ladders/index.html',
+    playMode: 'embed'
+  },
+  {
     id: 'tic-tac-toe',
     name: 'Tic-Tac-Toe: Ultimate Arena',
     category: 'Puzzle',
