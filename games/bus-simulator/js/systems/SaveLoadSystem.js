@@ -108,6 +108,19 @@
             }
           }
 
+          // Phase 10B Task 13: re-attach air-brake state to restored Bus
+          // instances by id so reservoir pressure survives save/load.
+          const airBrakeSystem = this.modules
+            ? this.modules.AirBrakeSystem
+            : null;
+          if (airBrakeSystem && typeof airBrakeSystem.attachAir === 'function') {
+            if (player.garage) {
+              for (const bus of player.garage) {
+                airBrakeSystem.attachAir(bus);
+              }
+            }
+          }
+
           // Load subsystem states
           // Store for later restoration — systems may not be initialized yet
           // (loadPlayer runs during GameInitSystem.init, before GarageSystem.init).
@@ -211,6 +224,7 @@
         'DayNightSystem', 'WeatherSystem', 'RouteSystem', 'TripSystem',
         'FuelSystem', 'DamageSystem', 'MaintenanceSystem', 'GarageSystem',
         'TransmissionSystem', 'SuspensionSystem', 'BrakeSystem', 'TireSystem',
+        'AirBrakeSystem',
         'TicketSystem', 'PassengerSystem', 'AchievementSystem',
         'ProgressionSystem', 'MissionSystem', 'NavigationSystem',
         'BoardingSystem', 'DropOffSystem'
