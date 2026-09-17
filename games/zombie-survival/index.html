@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Zombie Survival — InfinityPlay</title>
+  <title>Zombie Survival V2 — InfinityPlay</title>
   <meta name="description" content="Battle through 60 campaign levels across 10 worlds with high-tech energy weapons in the ultimate top-down zombie survival game on InfinityPlay.">
 
   <!-- Favicon -->
@@ -28,6 +28,12 @@
 
     <!-- Wave Announcement Banner -->
     <div class="hud-wave-banner" id="hudWaveBanner">WAVE 01</div>
+
+    <!-- Animated 3-2-1-GO Countdown Overlay -->
+    <div class="countdown-overlay" id="countdownOverlay" style="display: none;">
+      <div class="countdown-num" id="countdownNum">3</div>
+      <div class="countdown-label" id="countdownLabel">PREPARE FOR BATTLE</div>
+    </div>
 
     <!-- In-Game HUD -->
     <div id="gameHUD" style="display: none;">
@@ -60,15 +66,26 @@
         <div class="hud-center-stats">
           <div class="hud-wave-title" id="hudWave">WAVE 01</div>
           <div class="hud-objective-text" id="hudObjective">ELIMINATE: 0 / 25</div>
+          <!-- In-game distance objective marker -->
+          <div class="hud-dist-marker" id="hudDistMarker" style="display: none;">
+            <span class="marker-icon">📍</span>
+            <span id="hudDistText">OBJ: 120m</span>
+          </div>
         </div>
 
-        <!-- Right: Score & Ability Status -->
+        <!-- Right: Score, Ability & Minimap -->
         <div class="hud-right-stats">
           <div class="hud-score-box">
             <span class="hud-score-label">SCORE</span>
             <span class="hud-score-value" id="hudScore">0</span>
           </div>
           <div class="hud-ability-badge" id="hudAbilityStatus">DASH READY (SPACE)</div>
+          
+          <!-- Real-Coordinate Minimap -->
+          <div class="hud-minimap-container" id="hudMinimapContainer">
+            <canvas id="hudMinimap" width="130" height="130"></canvas>
+            <div class="hud-minimap-label">RADAR SCAN</div>
+          </div>
         </div>
       </div>
 
@@ -134,13 +151,15 @@
           </div>
         </div>
 
-        <!-- 9 Working Menu Action Buttons -->
+        <!-- Working Menu Action Buttons -->
         <div class="menu-buttons-grid">
           <button class="btn-menu btn-menu-primary" id="btnPlay">▶ PLAY NOW</button>
           <button class="btn-menu" id="btnLevels">🗺️ LEVELS (60)</button>
           <button class="btn-menu" id="btnMissions">🎯 MISSIONS</button>
           <button class="btn-menu" id="btnUpgrades">🧬 UPGRADES</button>
-          <button class="btn-menu" id="btnArsenal">🔫 ARSENAL (9)</button>
+          <button class="btn-menu" id="btnSkillTree">🌳 SKILL TREE</button>
+          <button class="btn-menu" id="btnProfile">👤 PROFILE</button>
+          <button class="btn-menu" id="btnArsenal">🔫 ARSENAL (10)</button>
           <button class="btn-menu" id="btnAchievements">🏆 ACHIEVEMENTS</button>
           <button class="btn-menu" id="btnLeaderboard">📊 LEADERBOARD</button>
           <button class="btn-menu" id="btnSettings">⚙️ SETTINGS</button>
@@ -182,7 +201,7 @@
         <div class="mode-card" data-mode="BOSS_CHALLENGE">
           <span class="mode-badge">EXTREME</span>
           <h3 class="mode-title">5. BOSS CHALLENGE</h3>
-          <p class="mode-desc">Direct encounter with multi-phase sector bosses: Abomination, Cyber-Titan, and Overlord.</p>
+          <p class="mode-desc">Direct encounter with multi-phase sector bosses: The Brute, The Ravager, The Warden, The Mutant, and The Overlord.</p>
         </div>
       </div>
     </div>
@@ -212,7 +231,88 @@
     </div>
 
     <!-- ========================================================================
-         SCREEN: ARSENAL (9 WEAPONS & WORKSHOP)
+         MODAL: LEVEL BRIEFING (MISSION INTEL & LOADOUT CONFIRMATION)
+         ======================================================================== -->
+    <div class="game-screen" id="screenBriefing">
+      <div class="modal-dialog briefing-modal-box">
+        <div class="briefing-header">
+          <span class="briefing-badge" id="briefingWorldTag">SECTOR INTEL</span>
+          <h2 class="briefing-title" id="briefingTitle">Sector 1: Outbreak</h2>
+          <p class="briefing-subtitle" id="briefingDesc">Eliminate infected mutants.</p>
+        </div>
+
+        <div class="briefing-intel-grid">
+          <div class="intel-item">
+            <span class="intel-label">OBJECTIVE</span>
+            <strong id="briefingObjective">ELIMINATE 18 MUTANTS</strong>
+          </div>
+          <div class="intel-item">
+            <span class="intel-label">DIFFICULTY</span>
+            <strong id="briefingDifficulty">RECRUIT</strong>
+          </div>
+          <div class="intel-item">
+            <span class="intel-label">ENVIRONMENT</span>
+            <strong id="briefingEnvironment">DAY • CLEAR</strong>
+          </div>
+          <div class="intel-item">
+            <span class="intel-label">ESTIMATED WAVES</span>
+            <strong id="briefingWaves">2 WAVES</strong>
+          </div>
+        </div>
+
+        <div class="briefing-enemies-box">
+          <span class="intel-label">EXPECTED MUTANTS IN SECTOR</span>
+          <div class="briefing-enemies-badges" id="briefingEnemiesList"></div>
+        </div>
+
+        <div class="briefing-rewards-box">
+          <span class="intel-label">COMPLETION REWARDS</span>
+          <div class="rewards-chips" id="briefingRewards">
+            <span>+185 XP</span>
+            <span>+100 🪙</span>
+          </div>
+        </div>
+
+        <div class="briefing-actions">
+          <button class="btn btn-primary btn-start-mission" id="btnStartMission">▶ COMMENCE MISSION</button>
+          <button class="btn btn-ghost" id="btnBriefingCancel">CANCEL</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================
+         SCREEN: SKILL TREE (SURVIVAL, COMBAT, MOBILITY)
+         ======================================================================== -->
+    <div class="game-screen" id="screenSkillTree">
+      <div class="screen-header">
+        <h2 class="screen-title">SURVIVOR <span>SKILL TREE</span></h2>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <span class="skill-points-counter">⭐ <strong id="skillPointsCount">0</strong> Skill Points</span>
+          <button class="btn btn-ghost btn-back-menu">← Back to Menu</button>
+        </div>
+      </div>
+
+      <div class="skill-tree-layout" id="skillTreeContainer">
+        <!-- Rendered by ui.js -->
+      </div>
+    </div>
+
+    <!-- ========================================================================
+         SCREEN: PLAYER PROFILE & CAREER STATS
+         ======================================================================== -->
+    <div class="game-screen" id="screenProfile">
+      <div class="screen-header">
+        <h2 class="screen-title">OPERATIVE <span>PROFILE</span></h2>
+        <button class="btn btn-ghost btn-back-menu">← Back to Menu</button>
+      </div>
+
+      <div class="profile-container" id="profileContent">
+        <!-- Rendered by ui.js -->
+      </div>
+    </div>
+
+    <!-- ========================================================================
+         SCREEN: ARSENAL (10 WEAPONS & WORKSHOP & MODIFIERS)
          ======================================================================== -->
     <div class="game-screen" id="screenArsenal">
       <div class="screen-header">

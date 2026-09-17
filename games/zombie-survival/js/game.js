@@ -371,7 +371,7 @@ class GameEngine {
       });
     }
 
-    this.effects.initFog(this.camera.bounds, 24);
+    this.effects.init(this.camera.bounds, levelConfig.timeOfDay || 'day', levelConfig.weather || 'clear');
     this.waveManager.startLevel(levelConfig, isEndless);
 
     this.state = 'PLAYING';
@@ -509,7 +509,7 @@ class GameEngine {
     this.effects.update(dt, this.camera.bounds);
     this.camera.update(dt);
 
-    // 9. HUD UI UPDATE
+    // 9. HUD UI UPDATE & OBJECTIVE DISTANCE
     let objProgressText = '';
     if (this.currentLevelConfig.objective === 'SURVIVE') {
       objProgressText = `${Math.ceil(this.levelTimeRemaining || 0)}s left`;
@@ -525,13 +525,33 @@ class GameEngine {
       objProgressText = boss ? `${Math.ceil(boss.hp)} HP` : 'Defeated!';
     }
 
+    let distObjective = null;
+    if (this.currentLevelConfig.objective === 'COLLECT') {
+      const uncollected = this.objectiveBeacons.filter(b => !b.collected);
+      if (uncollected.length > 0) {
+        let minDist = Infinity;
+        for (let b of uncollected) {
+          const d = Math.hypot(b.x - this.player.x, b.y - this.player.y);
+          if (d < minDist) minDist = d;
+        }
+        distObjective = { label: 'BEACON', distance: Math.round(minDist / 10) };
+      }
+    } else if (this.currentLevelConfig.objective === 'ESCAPE') {
+      const exit = this.objectiveBeacons.find(b => b.isExit);
+      if (exit) {
+        const d = Math.hypot(exit.x - this.player.x, exit.y - this.player.y);
+        distObjective = { label: 'EXTRACTION', distance: Math.round(d / 10) };
+      }
+    }
+
     this.ui.updateHUD(
       this.player,
       this.waveManager,
       this.currentLevelConfig,
       this.comboMultiplier,
       this.comboTimer,
-      objProgressText
+      objProgressText,
+      distObjective
     );
   }
 
@@ -634,7 +654,7 @@ class GameEngine {
 
       if (this.player && this.player.alive) {
         if (Collision.circleCircle(ep.x, ep.y, ep.radius, this.player.x, this.player.y, this.player.radius)) {
-          this.player.takeDamage(ep.damage);
+          this.player.takeDamage(ep.damage, ep.angle);
           this.particles.createHitSparks(ep.x, ep.y, ep.angle, '#ef4444', 8);
           this.enemyProjectiles.splice(i, 1);
         }
@@ -699,23 +719,55 @@ class GameEngine {
   spawnPickupsForZombie(zombie) {
     const rates = zombie.dropRates || { coin: 0.5, xp: 0.8, ammo: 0.2, health: 0.1 };
 
-    // Always drop XP gem
+    // XP Gem
     if (Math.random() < rates.xp) {
       this.pickups.push(new Pickup(zombie.x, zombie.y, 'xp', zombie.xp));
     }
 
-    // Coin
+    // Boss Tier Drop: 500+ Coins, Large Medkit, Armor, Ammo & Guaranteed Modifier
+    if (zombie.isBoss) {
+      const bossCoins = Math.round(450 + Math.random() * 300);
+      this.pickups.push(new Pickup(zombie.x + 12, zombie.y, 'coin', bossCoins));
+      this.pickups.push(new Pickup(zombie.x - 12, zombie.y, 'health', 80));
+      this.pickups.push(new Pickup(zombie.x, zombie.y - 14, 'armor', 50));
+      this.pickups.push(new Pickup(zombie.x, zombie.y + 14, 'ammo', 60));
+
+      const allMods = Object.keys(window.WEAPON_MODIFIERS);
+      const owned = (window.Storage.data.inventory && window.Storage.data.inventory.modifiers) || [];
+      const unowned = allMods.filter(m => !owned.includes(m));
+      const modToDrop = unowned.length > 0 ? unowned[Math.floor(Math.random() * unowned.length)] : allMods[Math.floor(Math.random() * allMods.length)];
+      this.pickups.push(new Pickup(zombie.x + 15, zombie.y + 15, 'modifier', modToDrop));
+      return;
+    }
+
+    // Elite Tier Drop: High Coins, Medkit, Armor, 25% chance of Modifier
+    if (zombie.type === 'elite') {
+      const eliteCoins = Math.round(80 + Math.random() * 70);
+      this.pickups.push(new Pickup(zombie.x + 8, zombie.y + 8, 'coin', eliteCoins));
+      this.pickups.push(new Pickup(zombie.x - 8, zombie.y - 8, 'health', 45));
+      this.pickups.push(new Pickup(zombie.x - 8, zombie.y + 8, 'armor', 30));
+      this.pickups.push(new Pickup(zombie.x + 8, zombie.y - 8, 'ammo', 40));
+
+      if (Math.random() < 0.25) {
+        const allMods = Object.keys(window.WEAPON_MODIFIERS);
+        const modToDrop = allMods[Math.floor(Math.random() * allMods.length)];
+        this.pickups.push(new Pickup(zombie.x, zombie.y + 12, 'modifier', modToDrop));
+      }
+      return;
+    }
+
+    // Standard / Tank / Exploder / Healer Drops
     if (Math.random() < rates.coin) {
-      const coinAmt = Math.round(15 + Math.random() * 25);
+      const coinAmt = (zombie.type === 'tank' || zombie.type === 'healer') 
+        ? Math.round(40 + Math.random() * 40)
+        : Math.round(15 + Math.random() * 25);
       this.pickups.push(new Pickup(zombie.x + 8, zombie.y + 8, 'coin', coinAmt));
     }
 
-    // Ammo box
     if (Math.random() < (rates.ammo || 0.15)) {
       this.pickups.push(new Pickup(zombie.x - 8, zombie.y + 8, 'ammo', 30));
     }
 
-    // Health / Armor
     if (Math.random() < (rates.health || 0.08)) {
       this.pickups.push(new Pickup(zombie.x, zombie.y - 8, 'health', 25));
     } else if (Math.random() < (rates.armor || 0.05)) {
@@ -753,6 +805,11 @@ class GameEngine {
           this.player.reserveAmmo += pk.value;
           this.particles.addFloatingText(pk.x, pk.y, `+${pk.value} AMMO`, '#f59e0b', 15);
           window.Sound.playPickup('ammo');
+        } else if (pk.type === 'modifier') {
+          window.Storage.addModifier(pk.value);
+          window.Sound.playLevelComplete();
+          this.particles.addFloatingText(pk.x, pk.y, `MODIFIER: ${pk.value.toUpperCase()}!`, '#ec4899', 16);
+          this.ui.showToast(`Found Modifier: ${pk.value.toUpperCase()}!`, 'success');
         }
 
         this.pickups.splice(i, 1);
@@ -913,8 +970,14 @@ class GameEngine {
     // Restore Camera
     this.camera.restore(this.ctx);
 
-    // Screen-space hit flash overlay
-    this.effects.renderScreenOverlay(this.ctx, this.canvas.width, this.canvas.height);
+    // Screen-space overlays (weather, hit flash, low HP vignette, directional damage)
+    this.effects.renderScreenOverlay(this.ctx, this.canvas.width, this.canvas.height, this.player);
+
+    // Real-coordinate Minimap Radar
+    const minimapCanvas = document.getElementById('hudMinimap');
+    if (minimapCanvas) {
+      this.effects.renderMinimap(minimapCanvas, this.map, this.player, this.zombies, this.objectiveBeacons);
+    }
   }
 
   renderMap(ctx) {
@@ -1062,6 +1125,18 @@ class Pickup {
       ctx.beginPath();
       ctx.arc(0, 0, 8, 0, Math.PI * 2);
       ctx.fill();
+    } else if (this.type === 'modifier') {
+      ctx.fillStyle = '#ec4899';
+      ctx.shadowColor = '#ec4899';
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.arc(0, 0, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 9px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('⚡', 0, 0);
     } else {
       // Ammo
       ctx.fillStyle = '#f59e0b';
