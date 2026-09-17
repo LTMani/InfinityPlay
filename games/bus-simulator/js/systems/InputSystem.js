@@ -79,6 +79,15 @@
         case 'wipers':
           if (InputManager.isKeyJustPressed(ControlsConfig.wipers)) return 1;
           return 0;
+        case 'toggleDoors':
+          if (InputManager.isKeyJustPressed(ControlsConfig.toggleDoors)) return 1;
+          return 0;
+        case 'toggleRearDoor':
+          if (InputManager.isKeyJustPressed(ControlsConfig.toggleRearDoor)) return 1;
+          return 0;
+        case 'toggleDriverDoor':
+          if (InputManager.isKeyJustPressed(ControlsConfig.toggleDriverDoor)) return 1;
+          return 0;
         case 'toggleView':
           return InputManager.isKeyJustPressed(ControlsConfig.toggleView) ? 1 : 0;
         default:

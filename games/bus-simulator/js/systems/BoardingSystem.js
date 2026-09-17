@@ -110,6 +110,19 @@
         return;
       }
 
+      // Phase 10B Task 16: door-open gate.
+      // DoorSystem is the sole owner of door state; BoardingSystem only
+      // reads the canBoard() gate and does not duplicate door logic.
+      const doorSystem = this.modules.DoorSystem;
+      if (doorSystem && typeof doorSystem.canBoard === 'function') {
+        if (!doorSystem.canBoard(bus)) {
+          this._emitFeedback('info', 'Passenger doors are closed.');
+          this._boarding = false;
+          this._boardingPassengers = [];
+          return;
+        }
+      }
+
       const pcfg = PassengerConfig || {};
       const boardingCfg = pcfg.boarding || {};
       const timePerPassenger = boardingCfg.timePerPassenger || 2.5;

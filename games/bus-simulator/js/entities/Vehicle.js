@@ -81,6 +81,11 @@
     // Vehicle exposes getElectrical()/setElectrical() hooks so the physics
     // path can consult battery/charge without duplicating it.
     this._electrical = null;
+
+    // Phase 10B Task 16: passenger/driver door state owned by DoorSystem.
+    // Vehicle exposes getDoors()/setDoors() hooks so the physics path can
+    // consult door-open state without duplicating door logic.
+    this._doors = null;
   }
 
   if (Entity) {
@@ -152,6 +157,14 @@
 
   Vehicle.prototype.setElectrical = function (state) {
     this._electrical = state;
+  };
+
+  Vehicle.prototype.getDoors = function () {
+    return this._doors || null;
+  };
+
+  Vehicle.prototype.setDoors = function (state) {
+    this._doors = state;
   };
 
   Vehicle.prototype.update = function (dt) {

@@ -148,6 +148,19 @@
             }
           }
 
+          // Phase 10B Task 16: re-attach door state to restored Bus
+          // instances by id so door open/progress survive save/load.
+          const doorSystem = this.modules
+            ? this.modules.DoorSystem
+            : null;
+          if (doorSystem && typeof doorSystem.attachDoors === 'function') {
+            if (player.garage) {
+              for (const bus of player.garage) {
+                doorSystem.attachDoors(bus);
+              }
+            }
+          }
+
           // Load subsystem states
           // Store for later restoration — systems may not be initialized yet
           // (loadPlayer runs during GameInitSystem.init, before GarageSystem.init).
@@ -251,7 +264,7 @@
         'DayNightSystem', 'WeatherSystem', 'RouteSystem', 'TripSystem',
         'FuelSystem', 'DamageSystem', 'MaintenanceSystem', 'GarageSystem',
         'TransmissionSystem', 'SuspensionSystem', 'BrakeSystem', 'TireSystem',
-        'AirBrakeSystem', 'EngineTemperatureSystem', 'ElectricalSystem',
+        'AirBrakeSystem', 'EngineTemperatureSystem', 'ElectricalSystem', 'DoorSystem',
         'TicketSystem', 'PassengerSystem', 'AchievementSystem',
         'ProgressionSystem', 'MissionSystem', 'NavigationSystem',
         'BoardingSystem', 'DropOffSystem'

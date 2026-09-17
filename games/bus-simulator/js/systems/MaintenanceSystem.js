@@ -140,6 +140,25 @@
         }
       }
 
+      // Phase 10B Task 16: door inspection recommendation.
+      // MaintenanceSystem only READS door state via the existing vehicle
+      // hook; it does NOT own, reset, or duplicate door logic. DoorSystem
+      // remains the sole owner of door state.
+      const doorState = (typeof bus.getDoors === 'function') ? bus.getDoors() : null;
+      if (doorState && doorState.doors) {
+        for (const key of ['frontDoor', 'rearDoor', 'driverDoor']) {
+          const d = doorState.doors[key];
+          if (d && d.obstructed) {
+            recommendations.push({
+              type: 'door_inspection',
+              severity: 'moderate',
+              description: `${key} obstructed - safety inspection required`,
+              cost: 2000
+            });
+          }
+        }
+      }
+
       if (recommendations.length === 0) return null;
 
       return {

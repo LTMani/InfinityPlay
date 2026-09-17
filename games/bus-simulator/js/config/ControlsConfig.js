@@ -51,6 +51,11 @@
     toggleSpeedo: 'KeyO',
     toggleNav: 'KeyN',
     toggleMap: 'KeyM',
+    // Phase 10B Task 16: door controls.
+    // Deliberately non-conflicting keys: KeyT/R/G are unused.
+    toggleDoors: 'KeyT',
+    toggleRearDoor: 'KeyR',
+    toggleDriverDoor: 'KeyG',
 
     getActionKeys(actionName) {
       const mapping = {
@@ -69,7 +74,11 @@
         uiCancel: ['Escape'],
         // Phase 10B Task 15
         wipers: ['KeyU'],
-        interiorLights: ['KeyI']
+        interiorLights: ['KeyI'],
+        // Phase 10B Task 16
+        toggleDoors: ['KeyT'],
+        toggleRearDoor: ['KeyR'],
+        toggleDriverDoor: ['KeyG']
       };
       return mapping[actionName] || [this[actionName] || actionName];
     }
