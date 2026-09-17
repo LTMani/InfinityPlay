@@ -176,10 +176,25 @@
       // Create intersections
       for (const intDef of data.intersections) {
         if (Intersection) {
+          // Phase 10B Task 17: assign traffic lights using TrafficConfig.
+          // lightProbability controls what fraction of intersections are
+          // signalized. Existing intersection generation behavior is
+          // preserved (id, x, y, name, connectedRoads, type).
+          const trafficConfig = (typeof TrafficConfig !== 'undefined')
+            ? TrafficConfig
+            : (typeof window !== 'undefined' && window.BusSim && window.BusSim.TrafficConfig
+              ? window.BusSim.TrafficConfig
+              : null);
+          const signals = trafficConfig && trafficConfig.signals ? trafficConfig.signals : null;
+          const signalsEnabled = signals ? signals.enabled !== false : true;
+          const lightProbability = signals ? signals.lightProbability : 0.5;
+          const hasLights = signalsEnabled && Math.random() < lightProbability;
+
           const intersection = new Intersection(intDef.id, intDef.x, intDef.y, {
             name: intDef.name || 'Junction',
             connectedRoads: intDef.connectedRoads,
-            type: 'standard'
+            type: 'standard',
+            hasTrafficLights: hasLights
           });
           world.intersections.push(intersection);
           world.pois.push(intersection);

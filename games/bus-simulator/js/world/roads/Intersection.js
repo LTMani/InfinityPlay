@@ -49,20 +49,11 @@
   };
 
   Intersection.prototype.update = function (dt) {
-    // Traffic light simulation (future use)
-    if (this.hasTrafficLights) {
-      this.signalTimer += dt;
-      if (this.signalTimer > 5 && this.signalState === 'green') {
-        this.signalState = 'yellow';
-        this.signalTimer = 0;
-      } else if (this.signalTimer > 2 && this.signalState === 'yellow') {
-        this.signalState = 'red';
-        this.signalTimer = 0;
-      } else if (this.signalTimer > 8 && this.signalState === 'red') {
-        this.signalState = 'green';
-        this.signalTimer = 0;
-      }
-    }
+    // Phase 10B Task 17: signal phase advancement is owned exclusively by
+    // TrafficSignalSystem. Intersection is now a passive data holder for
+    // hasTrafficLights / signalState / signalTimer and does NOT advance
+    // its own phase here. Map.update() still calls this method for non-
+    // signal work (if any) but never mutates signalState/signalTimer.
   };
 
   Intersection.prototype.draw = function (renderer, camera) {
@@ -116,9 +107,38 @@
       type: this.type,
       connectedRoads: this.connectedRoads,
       hasTrafficLights: this.hasTrafficLights,
+      signalState: this.signalState,
+      signalTimer: this.signalTimer,
       radius: this.radius,
       surface: this.surface
     };
+  };
+
+  // Phase 10B Task 17: restore signal state from serialized data.
+  // Backward compatible — saves without signalState/signalTimer keep the
+  // default (red / 0) without corrupting.
+  Intersection.prototype.deserialize = function (data) {
+    if (!data) return;
+    if (typeof data.id === 'string') this.id = data.id;
+    if (typeof data.x === 'number') this.x = data.x;
+    if (typeof data.y === 'number') this.y = data.y;
+    if (typeof data.name === 'string') this.name = data.name;
+    if (typeof data.type === 'string') this.type = data.type;
+    if (Array.isArray(data.connectedRoads)) this.connectedRoads = data.connectedRoads;
+    if (typeof data.hasTrafficLights === 'boolean') this.hasTrafficLights = data.hasTrafficLights;
+    if (typeof data.radius === 'number') this.radius = data.radius;
+    if (typeof data.surface === 'string') this.surface = data.surface;
+    // Signal state is restored defensively: unknown values fall back to red.
+    if (data.signalState === 'red' || data.signalState === 'yellow' || data.signalState === 'green') {
+      this.signalState = data.signalState;
+    } else {
+      this.signalState = 'red';
+    }
+    if (typeof data.signalTimer === 'number' && isFinite(data.signalTimer) && data.signalTimer >= 0) {
+      this.signalTimer = data.signalTimer;
+    } else {
+      this.signalTimer = 0;
+    }
   };
 
   if (typeof window !== 'undefined') {
