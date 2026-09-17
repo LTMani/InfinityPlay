@@ -25,6 +25,8 @@
       this.bindModals();
       this.loadCurrentUser();
       this.bindAvatarPicker();
+      this.handleDirectRouting();
+      window.addEventListener('popstate', (e) => this.handlePopState(e));
 
       console.log('⚡ InfinityPlay platform initialized successfully.');
     },
@@ -87,12 +89,78 @@
           else this.closeAllModals();
         }
       });
+
+      // Forward keyboard events from parent window to embedded game iframe
+      window.addEventListener('keydown', (e) => {
+        const overlay = document.getElementById('infinityGameFrameOverlay');
+        if (overlay && overlay.classList.contains('active')) {
+          const iframe = document.getElementById('gameFrameIframe');
+          if (iframe && iframe.contentWindow) {
+            try {
+              iframe.contentWindow.postMessage({
+                type: 'parentKeyEvent',
+                key: e.key,
+                code: e.code
+              }, '*');
+            } catch (err) {}
+
+            const gameKeys = [
+              'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ',
+              'w', 'a', 's', 'd', 'W', 'A', 'S', 'D',
+              '2', '4', '6', '8', 'Enter', 'p', 'P', 'r', 'R'
+            ];
+            if (gameKeys.includes(e.key)) {
+              e.preventDefault();
+            }
+          }
+        }
+      });
     },
 
     closeAllModals() {
       document.querySelectorAll('.modal-overlay').forEach(modal => {
         modal.classList.remove('active');
       });
+      const overlay = document.getElementById('infinityGameFrameOverlay');
+      if (overlay && overlay.classList.contains('active')) {
+        const exitBtn = document.getElementById('gameFrameExitBtn');
+        if (exitBtn) exitBtn.click();
+      }
+    },
+
+    handlePopState(e) {
+      this.closeAllModals();
+    },
+
+    handleDirectRouting() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        let targetGameId = params.get('game');
+        if (!targetGameId && window.location.hash) {
+          const hashVal = window.location.hash.replace('#', '').trim();
+          if (hashVal.startsWith('game=')) {
+            targetGameId = hashVal.replace('game=', '').trim();
+          } else if (hashVal) {
+            const found = window.InfinityPlay.gamesData.find(g => g.id === hashVal);
+            if (found) targetGameId = hashVal;
+          }
+        }
+
+        if (targetGameId) {
+          const game = window.InfinityPlay.gamesData.find(g => g.id === targetGameId);
+          if (game) {
+            setTimeout(() => {
+              if (params.get('play') === '1' || params.get('autoplay') === '1') {
+                this.launchEmbeddedGame(game);
+              } else {
+                this.launchGameModal(game.id);
+              }
+            }, 120);
+          }
+        }
+      } catch (e) {
+        console.warn('Direct routing parse error:', e);
+      }
     },
 
     /**
@@ -245,7 +313,22 @@
       if (iframe) {
         const cacheBuster = (game.gameUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
         iframe.src = game.gameUrl + cacheBuster;
+        iframe.onload = () => {
+          try {
+            iframe.focus();
+            if (iframe.contentWindow) iframe.contentWindow.focus();
+          } catch (e) {}
+        };
       }
+
+      overlay.onclick = (e) => {
+        if (!e.target.closest('#gameFrameExitBtn')) {
+          try {
+            const f = document.getElementById('gameFrameIframe');
+            if (f && f.contentWindow) f.contentWindow.focus();
+          } catch (err) {}
+        }
+      };
 
       const titleEl = overlay.querySelector('.game-frame-title span:last-child');
       if (titleEl) titleEl.textContent = game.name;

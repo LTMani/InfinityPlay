@@ -4,6 +4,25 @@
 
 const games = [
   {
+    id: 'nokia-snake',
+    name: 'NOKIA SNAKE',
+    category: 'Arcade',
+    rating: 5.0,
+    plays: 25600,
+    playsFormatted: '25.6K',
+    rank: 1,
+    badge: 'RETRO',
+    isTop: true,
+    thumbnail: 'assets/games/thumb_nokia_snake.svg',
+    topThumbnail: 'assets/games/top_nokia_snake.svg',
+    description: 'Relive the classic snake experience. Eat, grow, and beat your high score.',
+    tags: ['Arcade', 'Retro', 'Classic', 'Nokia', 'Snake'],
+    releaseDate: '2026-09-17',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/nokia-snake/index.html',
+    playMode: 'embed'
+  },
+  {
     id: 'snake-and-ladders',
     name: 'Snake & Ladders 3D',
     category: 'Strategy',

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NOKIA SNAKE — InfinityPlay</title>
+  <meta name="description" content="Play the authentic retro Nokia Snake game on InfinityPlay. Classic 20x20 grid, monochrome LCD graphics, and procedural 8-bit sound.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="../../assets/games/thumb_nokia_snake.svg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/nokia-snake.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       TOP APPLICATION HEADER
+       ========================================================================== -->
+  <header class="nokia-top-bar">
+    <div class="brand-wrapper" id="brandHeaderHome">
+      <span class="brand-icon">🐍</span>
+      <div>
+        <h1 class="brand-title">NOKIA SNAKE</h1>
+      </div>
+      <span class="brand-badge">ARCADE RETRO</span>
+    </div>
+
+    <div class="top-actions">
+      <button class="btn-top" id="btnSoundToggle" title="Toggle Sound">🔊</button>
+      <a href="../../index.html" class="btn-top btn-exit" id="btnExitPortal" title="Return to InfinityPlay Portal">✕ Exit</a>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       PHONE CHASSIS & HANDHELD RETRO EXPERIENCE
+       ========================================================================== -->
+  <main class="nokia-main-wrapper">
+    <div class="nokia-phone-casing">
+      
+      <!-- Speaker grill -->
+      <div class="phone-speaker"></div>
+
+      <!-- Retro LCD Bezel -->
+      <div class="lcd-screen-bezel">
+        <div class="lcd-screen-inner">
+
+          <!-- Top LCD Status Bar -->
+          <div class="lcd-header-bar">
+            <div class="lcd-header-left">
+              <span>📶 ■■■■</span>
+            </div>
+            <div class="lcd-header-title">
+              <span>NOKIA 3310</span>
+            </div>
+            <div class="lcd-header-right">
+              <span>🔋 ■■■</span>
+            </div>
+          </div>
+
+          <!-- LCD Viewport (Canvas + Screen Overlays) -->
+          <div class="lcd-viewport" id="lcdViewport">
+            <!-- 20x20 Logical Grid Canvas -->
+            <canvas id="gameCanvas" width="400" height="400" aria-label="Nokia Snake Game Board"></canvas>
+
+            <!-- Retro Scanlines & Pixel Texture Overlay -->
+            <div class="lcd-overlay" id="lcdOverlay"></div>
+
+            <!-- 1. MAIN MENU SCREEN LAYER -->
+            <div class="lcd-screen-layer active" id="screenMenu">
+              <h2 class="retro-title">🐍 NOKIA SNAKE</h2>
+              <p class="retro-tagline">"Classic. Simple. Addictive."</p>
+
+              <div class="menu-high-score-box">
+                HIGH SCORE: <span id="menuHighScore">0000</span>
+              </div>
+
+              <div class="menu-actions-list">
+                <button class="btn-retro btn-retro-primary" id="btnStartGame">
+                  ▶ START GAME
+                </button>
+                <button class="btn-retro" id="btnHowToPlay">
+                  📖 HOW TO PLAY
+                </button>
+                <button class="btn-retro" id="btnSettings">
+                  ⚙ SETTINGS
+                </button>
+                <button class="btn-retro" id="btnStats">
+                  🏆 STATISTICS
+                </button>
+                <div style="font-size: 0.65rem; font-weight: 800; color: var(--lcd-pixel); margin-top: 6px; letter-spacing: 0.05em; opacity: 0.9;">
+                  ⌨ PRESS ARROWS / WASD / ENTER
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. PAUSE OVERLAY -->
+            <div class="lcd-modal-overlay" id="overlayPause">
+              <h3 class="overlay-heading">⏸ PAUSED</h3>
+              <p class="overlay-subheading">Press P or Space to resume</p>
+              
+              <div class="menu-actions-list">
+                <button class="btn-retro btn-retro-primary" id="btnResumeGame">
+                  ▶ RESUME
+                </button>
+                <button class="btn-retro" id="btnRestartGame">
+                  ↺ RESTART
+                </button>
+                <button class="btn-retro" id="btnPauseMenu">
+                  🏠 MAIN MENU
+                </button>
+              </div>
+            </div>
+
+            <!-- 3. GAME OVER OVERLAY -->
+            <div class="lcd-modal-overlay" id="overlayGameOver">
+              <h3 class="overlay-heading" id="gameOverReason">GAME OVER</h3>
+              
+              <div class="new-high-badge" id="gameOverNewHighBanner" style="display: none;">
+                🏆 NEW HIGH SCORE!
+              </div>
+
+              <div class="score-summary-grid">
+                <div class="summary-row">
+                  <span>SCORE:</span>
+                  <span id="gameOverScore">0000</span>
+                </div>
+                <div class="summary-row">
+                  <span>HIGH:</span>
+                  <span id="gameOverHigh">0000</span>
+                </div>
+              </div>
+
+              <div class="menu-actions-list">
+                <button class="btn-retro btn-retro-primary" id="btnPlayAgain">
+                  ↺ PLAY AGAIN
+                </button>
+                <button class="btn-retro" id="btnGameOverMenu">
+                  🏠 MAIN MENU
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom In-Game HUD Bar -->
+          <div class="lcd-game-hud" id="screenGame">
+            <div class="hud-item">
+              <span>SCORE:</span>
+              <span id="hudScore">0000</span>
+            </div>
+            <div class="hud-item">
+              <span>FOOD:</span>
+              <span id="hudFood">000</span>
+            </div>
+            <div class="hud-item">
+              <span>HIGH:</span>
+              <span id="hudHighScore">0000</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Tactile Virtual Controls (On-Screen D-Pad & Actions) -->
+      <section class="controls-section" aria-label="Game Controls">
+        <div class="dpad-container">
+          <button class="dpad-btn dpad-up" id="dpadUp" aria-label="Move Up">▲</button>
+          <button class="dpad-btn dpad-left" id="dpadLeft" aria-label="Move Left">◀</button>
+          <div class="dpad-center"></div>
+          <button class="dpad-btn dpad-right" id="dpadRight" aria-label="Move Right">▶</button>
+          <button class="dpad-btn dpad-down" id="dpadDown" aria-label="Move Down">▼</button>
+        </div>
+
+        <div class="action-buttons-row">
+          <button class="btn-pill-action" id="dpadPause">❚❚ Pause</button>
+          <button class="btn-pill-action" id="dpadRestart">↺ Restart</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==========================================================================
+       HOW TO PLAY MODAL
+       ========================================================================== -->
+  <div class="retro-modal-backdrop" id="modalHowToPlay">
+    <div class="retro-modal-box">
+      <div class="retro-modal-header">
+        <h3 class="retro-modal-title"><span>📖</span> How To Play</h3>
+        <button class="retro-modal-close" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="retro-modal-body">
+        <div class="instruction-step">
+          <span>🎮</span>
+          <div><strong>Goal:</strong> Guide the hungry snake to eat as much food as possible and score maximum points.</div>
+        </div>
+
+        <div class="instruction-step">
+          <span>🍎</span>
+          <div><strong>Growth:</strong> Each food item awards <strong>+10 points</strong> and lengthens the snake by one segment.</div>
+        </div>
+
+        <div class="instruction-step">
+          <span>⚡</span>
+          <div><strong>Speed:</strong> As your score climbs, the snake gradually slithers faster!</div>
+        </div>
+
+        <div class="instruction-step">
+          <span>💥</span>
+          <div><strong>Hazards:</strong> Crashing into the border walls or biting your own tail results in <strong>Game Over</strong>.</div>
+        </div>
+
+        <div class="instruction-step">
+          <span>🕹️</span>
+          <div><strong>Controls:</strong>
+            <ul style="margin-top: 4px; padding-left: 18px; font-size: 0.82rem;">
+              <li><strong>Arrows / WASD:</strong> Change Direction</li>
+              <li><strong>P or Space:</strong> Pause / Resume</li>
+              <li><strong>R:</strong> Quick Restart</li>
+              <li><strong>Mobile:</strong> Swipe on screen or tap the on-screen D-Pad</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       SETTINGS MODAL
+       ========================================================================== -->
+  <div class="retro-modal-backdrop" id="modalSettings">
+    <div class="retro-modal-box">
+      <div class="retro-modal-header">
+        <h3 class="retro-modal-title"><span>⚙</span> Game Settings</h3>
+        <button class="retro-modal-close" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="retro-modal-body">
+        <div class="setting-row">
+          <div>
+            <strong style="color:#ffffff;display:block;">8-Bit Sound Effects</strong>
+            <span style="font-size:0.75rem;color:#94a3b8;">Authentic piezo square wave synthesizer</span>
+          </div>
+          <input type="checkbox" id="settingSoundToggle" class="switch-input" checked>
+        </div>
+
+        <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
+          <div>
+            <strong style="color:#ffffff;display:block;">Game Difficulty</strong>
+            <span style="font-size:0.75rem;color:#94a3b8;">Adjusts starting speed & progression curve</span>
+          </div>
+          <div class="setting-options-group">
+            <label class="setting-radio-label">
+              <input type="radio" name="difficulty" value="easy"> Easy
+            </label>
+            <label class="setting-radio-label">
+              <input type="radio" name="difficulty" value="classic" checked> Classic
+            </label>
+            <label class="setting-radio-label">
+              <input type="radio" name="difficulty" value="hard"> Hard
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
+          <div>
+            <strong style="color:#ffffff;display:block;">LCD Screen Color Palette</strong>
+            <span style="font-size:0.75rem;color:#94a3b8;">Customize retro monochrome hue</span>
+          </div>
+          <div class="setting-options-group">
+            <label class="setting-radio-label">
+              <input type="radio" name="theme" value="green" checked> Nokia Green
+            </label>
+            <label class="setting-radio-label">
+              <input type="radio" name="theme" value="amber"> Vintage Amber
+            </label>
+            <label class="setting-radio-label">
+              <input type="radio" name="theme" value="mono"> Dot Charcoal
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <strong style="color:#ffffff;display:block;">Scanline & Pixel Grid Texture</strong>
+            <span style="font-size:0.75rem;color:#94a3b8;">Old-school LCD dot matrix overlay</span>
+          </div>
+          <input type="checkbox" id="settingScanlinesToggle" class="switch-input" checked>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       STATISTICS MODAL
+       ========================================================================== -->
+  <div class="retro-modal-backdrop" id="modalStats">
+    <div class="retro-modal-box">
+      <div class="retro-modal-header">
+        <h3 class="retro-modal-title"><span>🏆</span> Game Statistics</h3>
+        <button class="retro-modal-close" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="retro-modal-body">
+        <div class="stats-table-grid">
+          <div class="stat-cell">
+            <div class="stat-cell-val" id="statGamesPlayed">0</div>
+            <div class="stat-cell-lbl">Games Played</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-cell-val" id="statGamesOver">0</div>
+            <div class="stat-cell-lbl">Games Over</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-cell-val" id="statHighestScore">0</div>
+            <div class="stat-cell-lbl">Highest Score</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-cell-val" id="statTotalFood">0</div>
+            <div class="stat-cell-lbl">Food Eaten</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-cell-val" id="statLongestSnake">3</div>
+            <div class="stat-cell-lbl">Longest Snake</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-cell-val" id="statBestScore">0</div>
+            <div class="stat-cell-lbl">Best Score</div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+          <button class="btn-retro" id="btnResetStats" style="font-size:0.72rem;color:#fca5a5;border-color:rgba(239,68,68,0.4);">
+            🗑 Reset All Stats
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       GAME SCRIPTS
+       ========================================================================== -->
+  <script src="js/storage.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/snake.js"></script>
+  <script src="js/food.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
