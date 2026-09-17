@@ -39,7 +39,7 @@ const categoriesData = [
     slug: 'Puzzle',
     icon: 'assets/categories/cat_puzzle_art.png',
     fullCard: 'assets/categories/cat_puzzle_full.png',
-    gameCount: 6,
+    gameCount: 7,
     gradient: 'linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(126, 34, 206, 0.05))',
     borderColor: 'rgba(168, 85, 247, 0.3)'
   },
