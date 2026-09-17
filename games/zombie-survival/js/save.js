@@ -32,6 +32,16 @@ const DEFAULT_SAVE_DATA_V2 = {
     damageResistance: 0, // Max 5 (V2 new)
     pickupRange: 0       // Max 5 (V2 new)
   },
+  upgrades: {
+    health: 0,
+    armor: 0,
+    speed: 0,
+    stamina: 0,
+    dashCooldown: 0,
+    critChance: 0,
+    damageResistance: 0,
+    pickupRange: 0
+  },
   skillTree: {
     // Survival branch
     ironFlesh: 0,       // +HP
@@ -127,6 +137,11 @@ class SaveManager {
     // Deep merge to preserve existing progress
     const merged = this._deepMerge(v2Default, oldData);
     merged.version = 2;
+
+    if (oldData.upgrades && !oldData.playerUpgrades) {
+      merged.playerUpgrades = Object.assign({}, merged.playerUpgrades, oldData.upgrades);
+    }
+    merged.upgrades = merged.playerUpgrades;
 
     // Ensure V1 weapon IDs map to V2 IDs if needed
     if (merged.unlockedWeapons && merged.unlockedWeapons.includes('rapid')) {

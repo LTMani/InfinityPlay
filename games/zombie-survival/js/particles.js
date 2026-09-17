@@ -163,6 +163,22 @@ class ParticleSystem {
     this.createShockwave(x, y, color, 35, 0.3);
   }
 
+  // Area explosion with spark particles, smoke, and shockwave
+  createExplosion(x, y, color = '#f97316', count = 20) {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2.0 + Math.random() * 5.0;
+      const vx = Math.cos(angle) * speed;
+      const vy = Math.sin(angle) * speed;
+      const size = 2 + Math.random() * 3.5;
+      const life = 0.3 + Math.random() * 0.35;
+      const pColor = Math.random() > 0.4 ? color : '#fbbf24';
+      this.particles.push(new Particle(x, y, vx, vy, pColor, size, life, 'spark'));
+    }
+    this.createSmokePuff(x, y, 'rgba(100, 116, 139, 0.5)', Math.max(3, Math.floor(count / 4)));
+    this.createShockwave(x, y, color, 50, 0.4);
+  }
+
   // Floating text (Damage, XP, Coins)
   addFloatingText(x, y, text, color = '#ffffff', fontSize = 16, isCrit = false) {
     if (this.texts.length > 30) this.texts.shift();

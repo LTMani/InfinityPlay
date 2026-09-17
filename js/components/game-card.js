@@ -120,7 +120,7 @@
      */
     bindCardEvents(container) {
       // Play buttons & card clicks
-      container.querySelectorAll('.top-play-btn, .compact-game-card').forEach(el => {
+      container.querySelectorAll('.top-game-card, .compact-game-card').forEach(el => {
         el.addEventListener('click', (e) => {
           // If favorite button was clicked inside card, don't trigger play
           if (e.target.closest('.card-fav-btn')) return;
