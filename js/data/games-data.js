@@ -5,6 +5,26 @@
 
 const gamesData = [
   {
+    id: 'zombie-survival',
+    name: 'Zombie Survival',
+    title: 'Zombie Survival',
+    category: 'Action',
+    rating: 5.0,
+    plays: 34800,
+    playsFormatted: '34.8K',
+    rank: 1,
+    badge: 'NEW ACTION',
+    isTop: true,
+    thumbnail: 'games/zombie-survival/assets/images/zombie-survival.png',
+    topThumbnail: 'games/zombie-survival/assets/images/zombie-survival.png',
+    description: 'The ultimate top-down zombie survival action game. Battle through 60 campaign levels across 10 worlds with 9 sci-fi weapons, upgrades, boss showdowns, and endless survival.',
+    tags: ['Action', 'Survival', 'Zombies', 'Shooter', 'Sci-Fi', 'Arcade'],
+    releaseDate: '2026-09-17',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/zombie-survival/index.html',
+    playMode: 'embed'
+  },
+  {
     id: 'nokia-snake',
     name: 'NOKIA SNAKE',
     category: 'Arcade',
@@ -21,6 +41,25 @@ const gamesData = [
     releaseDate: '2026-09-17',
     developer: 'InfinityPlay Studios',
     gameUrl: 'games/nokia-snake/index.html',
+    playMode: 'embed'
+  },
+  {
+    id: 'connecting',
+    name: 'CONNECTING',
+    category: 'Puzzle',
+    rating: 5.0,
+    plays: 19500,
+    playsFormatted: '19.5K',
+    rank: 1,
+    badge: 'NEW',
+    isTop: true,
+    thumbnail: 'assets/games/thumb_connecting.svg',
+    topThumbnail: 'assets/games/top_connecting.svg',
+    description: 'Connect matching colored dots with orthogonal paths without crossing and fill 100% of the board across 30 verified levels.',
+    tags: ['Puzzle', 'Logic', 'Flow', 'Brain Teaser', 'Casual'],
+    releaseDate: '2026-09-17',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/connecting/index.html',
     playMode: 'embed'
   },
   {

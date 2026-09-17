@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zombie Survival — InfinityPlay</title>
+  <meta name="description" content="Battle through 60 campaign levels across 10 worlds with high-tech energy weapons in the ultimate top-down zombie survival game on InfinityPlay.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../../assets/logos/favicon.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/game.css">
+  <link rel="stylesheet" href="css/hud.css">
+  <link rel="stylesheet" href="css/menus.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <div id="gameContainer">
+    <!-- Main Gameplay Canvas -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Wave Announcement Banner -->
+    <div class="hud-wave-banner" id="hudWaveBanner">WAVE 01</div>
+
+    <!-- In-Game HUD -->
+    <div id="gameHUD" style="display: none;">
+      <!-- Top Stats Bar -->
+      <div class="hud-top-bar">
+        <div class="hud-player-stats">
+          <!-- Health -->
+          <div class="hud-bar-container">
+            <div class="hud-bar-label-row">
+              <span style="color: #ef4444;">HEALTH</span>
+              <span id="hudHealthText" style="color: #ffffff;">100 / 100</span>
+            </div>
+            <div class="hud-bar-track">
+              <div class="hud-bar-fill-health" id="hudHealthFill" style="width: 100%;"></div>
+            </div>
+          </div>
+          <!-- Armor -->
+          <div class="hud-bar-container">
+            <div class="hud-bar-label-row">
+              <span style="color: #38bdf8;">ARMOR</span>
+              <span id="hudArmorText" style="color: #ffffff;">50 / 50</span>
+            </div>
+            <div class="hud-bar-track">
+              <div class="hud-bar-fill-armor" id="hudArmorFill" style="width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center: Wave & Objective -->
+        <div class="hud-center-stats">
+          <div class="hud-wave-title" id="hudWave">WAVE 01</div>
+          <div class="hud-objective-text" id="hudObjective">ELIMINATE: 0 / 25</div>
+        </div>
+
+        <!-- Right: Score & Ability Status -->
+        <div class="hud-right-stats">
+          <div class="hud-score-box">
+            <span class="hud-score-label">SCORE</span>
+            <span class="hud-score-value" id="hudScore">0</span>
+          </div>
+          <div class="hud-ability-badge" id="hudAbilityStatus">DASH READY (SPACE)</div>
+        </div>
+      </div>
+
+      <!-- Bottom Bar: Ammo & Combo -->
+      <div class="hud-bottom-bar">
+        <div class="hud-ammo-box">
+          <span style="font-size: 0.8rem; font-weight: 800; color: #f59e0b;">AMMO</span>
+          <span class="hud-ammo-count" id="hudAmmoCount">15</span>
+          <span class="hud-ammo-reserve" id="hudAmmoReserve">/ 120</span>
+        </div>
+
+        <div class="hud-combo-badge" id="hudCombo">COMBO x2</div>
+      </div>
+    </div>
+
+    <!-- Mobile Virtual Touch Controls Overlay -->
+    <div id="mobileControls">
+      <div class="touch-joystick-zone" id="touchJoystick">
+        <div class="touch-knob" id="touchKnob"></div>
+      </div>
+      <div class="touch-actions-zone">
+        <button class="btn-touch-action btn-touch-reload" id="btnTouchReload" title="Reload">🔄</button>
+        <button class="btn-touch-action btn-touch-dash" id="btnTouchDash" title="Ability">⚡</button>
+        <button class="btn-touch-action btn-touch-fire" id="btnTouchFire" title="Fire">🔫</button>
+      </div>
+    </div>
+
+    <!-- ========================================================================
+         SCREEN: MAIN MENU
+         ======================================================================== -->
+    <div class="game-screen active" id="screenMenu">
+      <div class="main-menu-container">
+        <div class="game-logo-box">
+          <h1 class="game-main-title">ZOMBIE <span>SURVIVAL</span></h1>
+          <p class="game-tagline">FIGHT • SURVIVE • UPGRADE • REPEAT</p>
+        </div>
+
+        <!-- Stats Overview Bar -->
+        <div class="menu-stats-bar">
+          <div class="stat-item">
+            <span>Highest Level</span>
+            <strong id="statHighestLevel">Level 1 / 60</strong>
+          </div>
+          <div class="stat-item">
+            <span>Best Score</span>
+            <strong id="statBestScore">0</strong>
+          </div>
+          <div class="stat-item">
+            <span>Total Kills</span>
+            <strong id="statTotalKills">0</strong>
+          </div>
+          <div class="stat-item">
+            <span>Best Survival</span>
+            <strong id="statSurvivalTime">0m 0s</strong>
+          </div>
+          <div class="stat-item">
+            <span>XP Level</span>
+            <strong id="menuXPDisplay" style="color: var(--color-cyan);">Lv 1 (0 XP)</strong>
+          </div>
+          <div class="stat-item">
+            <span>Coins</span>
+            <strong id="menuCoinDisplay" style="color: var(--color-gold);">500 🪙</strong>
+          </div>
+        </div>
+
+        <!-- 9 Working Menu Action Buttons -->
+        <div class="menu-buttons-grid">
+          <button class="btn-menu btn-menu-primary" id="btnPlay">▶ PLAY NOW</button>
+          <button class="btn-menu" id="btnLevels">🗺️ LEVELS (60)</button>
+          <button class="btn-menu" id="btnMissions">🎯 MISSIONS</button>
+          <button class="btn-menu" id="btnUpgrades">🧬 UPGRADES</button>
+          <button class="btn-menu" id="btnArsenal">🔫 ARSENAL (9)</button>
+          <button class="btn-menu" id="btnAchievements">🏆 ACHIEVEMENTS</button>
+          <button class="btn-menu" id="btnLeaderboard">📊 LEADERBOARD</button>
+          <button class="btn-menu" id="btnSettings">⚙️ SETTINGS</button>
+          <button class="btn-menu" id="btnBackToInfinity">🔙 BACK TO INFINITYPLAY</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================
+         SCREEN: MODE SELECT
+         ======================================================================== -->
+    <div class="game-screen" id="screenModeSelect">
+      <div class="screen-header">
+        <h2 class="screen-title">SELECT <span>GAME MODE</span></h2>
+        <button class="btn btn-ghost btn-back-menu">← Back to Menu</button>
+      </div>
+
+      <div class="modes-grid">
+        <div class="mode-card" data-mode="STORY">
+          <span class="mode-badge">CAMPAIGN</span>
+          <h3 class="mode-title">1. STORY SURVIVAL</h3>
+          <p class="mode-desc">Progress through 60 hand-crafted campaign levels and 10 worlds with distinct sector objectives.</p>
+        </div>
+        <div class="mode-card" data-mode="WAVE_SURVIVAL">
+          <span class="mode-badge">ARENA</span>
+          <h3 class="mode-title">2. WAVE SURVIVAL</h3>
+          <p class="mode-desc">Survive 10 increasingly heavy zombie assault waves in an industrial barricaded stronghold.</p>
+        </div>
+        <div class="mode-card" data-mode="TIME_ATTACK">
+          <span class="mode-badge">SPEEDRUN</span>
+          <h3 class="mode-title">3. TIME ATTACK</h3>
+          <p class="mode-desc">Eliminate required zombie quotas before the strict 90-second countdown expires!</p>
+        </div>
+        <div class="mode-card" data-mode="ENDLESS">
+          <span class="mode-badge">RANKED</span>
+          <h3 class="mode-title">4. ENDLESS (INFINITY)</h3>
+          <p class="mode-desc">Endless horde scaling with no limit. Climb the global InfinityPlay survival leaderboard.</p>
+        </div>
+        <div class="mode-card" data-mode="BOSS_CHALLENGE">
+          <span class="mode-badge">EXTREME</span>
+          <h3 class="mode-title">5. BOSS CHALLENGE</h3>
+          <p class="mode-desc">Direct encounter with multi-phase sector bosses: Abomination, Cyber-Titan, and Overlord.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================
+         SCREEN: LEVEL SELECT (60 LEVELS, 10 WORLDS)
+         ======================================================================== -->
+    <div class="game-screen" id="screenLevelSelect">
+      <div class="screen-header">
+        <h2 class="screen-title">CAMPAIGN <span>LEVELS</span></h2>
+        <button class="btn btn-ghost btn-back-menu">← Back to Menu</button>
+      </div>
+
+      <div class="level-select-container">
+        <!-- 10 World Navigation Tabs -->
+        <div class="world-tabs-bar" id="worldTabs"></div>
+
+        <!-- Active World Details -->
+        <div class="world-info-box">
+          <h3 id="worldTitle">World 1: Outbreak</h3>
+          <p id="worldDescription">Initial infection zone. Slow zombies and basic objectives.</p>
+        </div>
+
+        <!-- 6 Levels per World Grid -->
+        <div class="levels-grid" id="levelsGrid"></div>
+      </div>
+    </div>
+
+    <!-- ========================================================================
+         SCREEN: ARSENAL (9 WEAPONS & WORKSHOP)
+         ======================================================================== -->
+    <div class="game-screen" id="screenArsenal">
+      <div class="screen-header">
+        <h2 class="screen-title">WEAPONS <span>ARSENAL</span></h2>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <span style="font-weight: 800; color: var(--color-gold);">🪙 <span id="arsenalCoins">0</span> Coins</span>
+          <button class="btn btn-ghost btn-back-menu">← Back to Menu</button>
+        </div>
+      </div>
+
+      <div class="arsenal-grid" id="arsenalGrid"></div>
+    </div>
+
+    <!-- ========================================================================
+         SCREEN: PLAYER UPGRADES
+         ======================================================================== -->
+    <div class="game-screen" id="screenUpgrades">
+      <div class="screen-header">
+        <h2 class="screen-title">SURVIVOR <span>UPGRADES</span></h2>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <span style="font-weight: 800; color: var(--color-gold);">🪙 <span id="playerUpgradeCoins">0</span> Coins</span>
+          <button class="btn btn-ghost btn-back-menu">← Back to Menu</button>
+        </div>
+      </div>
+
+      <div class="player-upgrades-container" id="playerUpgradesList"></div>
+    </div>
+
+    <!-- ========================================================================
+         SCREEN: MISSIONS
+         ======================================================================== -->
+    <div class="game-screen" id="screenMissions">
+      <div class="screen-header">
+        <h2 class="screen-title">ACTIVE <span>MISSIONS</span></h2>
+        <button class="btn btn-ghost btn-back-menu">← Back to Menu</button>
+      </div>
+
+      <div class="missions-container" id="missionsList"></div>
+    </div>
+
+    <!-- ========================================================================
+         SCREEN: ACHIEVEMENTS
+         ======================================================================== -->
+    <div class="game-screen" id="screenAchievements">
+      <div class="screen-header">
+        <h2 class="screen-title">HALL OF <span>ACHIEVEMENTS</span></h2>
+        <button class="btn btn-ghost btn-back-menu">← Back to Menu</button>
+      </div>
+
+      <div class="achievements-grid" id="achievementsGrid"></div>
+    </div>
+
+    <!-- ========================================================================
+         SCREEN: LEADERBOARD
+         ======================================================================== -->
+    <div class="game-screen" id="screenLeaderboard">
+      <div class="screen-header">
+        <h2 class="screen-title">INFINITY <span>LEADERBOARD</span></h2>
+        <button class="btn btn-ghost btn-back-menu">← Back to Menu</button>
+      </div>
+
+      <div id="leaderboardList" style="width: 100%; display: flex; justify-content: center;"></div>
+    </div>
+
+    <!-- ========================================================================
+         SCREEN: SETTINGS
+         ======================================================================== -->
+    <div class="game-screen" id="screenSettings">
+      <div class="screen-header">
+        <h2 class="screen-title">GAME <span>SETTINGS</span></h2>
+        <button class="btn btn-ghost btn-back-menu">← Back to Menu</button>
+      </div>
+
+      <div class="settings-box">
+        <div class="setting-row">
+          <span class="setting-label">Sound Effects (SFX)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleSFX" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">Atmospheric Synth Music</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleMusic" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">Screen Shake Trauma</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleShake" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">Auto Reload on Empty</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleAutoReload" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================
+         MODAL: PAUSE
+         ======================================================================== -->
+    <div class="game-screen" id="screenPause">
+      <div class="modal-dialog">
+        <h2 class="modal-title">GAME PAUSED</h2>
+        <p style="color: #94a3b8; font-size: 0.9rem;">Simulation is frozen.</p>
+        <button class="btn btn-primary" id="btnResume" style="width: 100%;">▶ RESUME</button>
+        <button class="btn btn-ghost" id="btnRestart" style="width: 100%;">🔄 RESTART LEVEL</button>
+        <button class="btn btn-ghost" id="btnPauseSettings" style="width: 100%;">⚙️ SETTINGS</button>
+        <button class="btn btn-danger" id="btnPauseExit" style="width: 100%;">🚪 EXIT TO MENU</button>
+      </div>
+    </div>
+
+    <!-- ========================================================================
+         MODAL: RESULTS / GAME OVER
+         ======================================================================== -->
+    <div class="game-screen" id="screenResults">
+      <div class="modal-dialog" style="max-width: 520px;">
+        <h2 class="modal-title" id="resultsTitle">MISSION COMPLETE</h2>
+        <div class="results-stars-row" id="resultsStars">
+          <span class="star-filled">★</span>
+          <span class="star-filled">★</span>
+          <span class="star-filled">★</span>
+        </div>
+
+        <div class="results-stats-list">
+          <div class="results-stat-item">
+            <span>FINAL SCORE</span>
+            <strong id="resScore">0</strong>
+          </div>
+          <div class="results-stat-item">
+            <span>ZOMBIES DEFEATED</span>
+            <strong id="resKills">0</strong>
+          </div>
+          <div class="results-stat-item">
+            <span>ACCURACY</span>
+            <strong id="resAccuracy">0%</strong>
+          </div>
+          <div class="results-stat-item">
+            <span>BEST COMBO</span>
+            <strong id="resCombo">x1</strong>
+          </div>
+          <div class="results-stat-item">
+            <span>SURVIVAL TIME</span>
+            <strong id="resTime">00:00</strong>
+          </div>
+        </div>
+
+        <div class="results-rewards-box">
+          <span id="resRewardXP">+250 XP</span>
+          <span id="resRewardCoins">+100 COINS</span>
+        </div>
+
+        <div class="results-buttons-group">
+          <button class="btn btn-primary" id="btnNextLevel">NEXT SECTOR →</button>
+          <button class="btn btn-ghost" id="btnRetryLevel">🔄 RETRY</button>
+          <button class="btn btn-ghost" id="btnResultsLevelSelect">🗺️ LEVELS</button>
+          <button class="btn btn-ghost" id="btnResultsArsenal">🔫 ARSENAL</button>
+          <button class="btn btn-ghost" id="btnResultsMenu">MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JavaScript Modules in Strict Dependency Order -->
+  <script src="js/audio.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/collision.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/weapons.js"></script>
+  <script src="js/upgrades.js"></script>
+  <script src="js/zombies.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/waves.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/missions.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/test-runner.js"></script>
+</body>
+</html>

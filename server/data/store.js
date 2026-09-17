@@ -23,6 +23,25 @@ const games = [
     playMode: 'embed'
   },
   {
+    id: 'connecting',
+    name: 'CONNECTING',
+    category: 'Puzzle',
+    rating: 5.0,
+    plays: 19500,
+    playsFormatted: '19.5K',
+    rank: 1,
+    badge: 'NEW',
+    isTop: true,
+    thumbnail: 'assets/games/thumb_connecting.svg',
+    topThumbnail: 'assets/games/top_connecting.svg',
+    description: 'Connect matching colored dots with orthogonal paths without crossing and fill 100% of the board across 30 verified levels.',
+    tags: ['Puzzle', 'Logic', 'Flow', 'Brain Teaser', 'Casual'],
+    releaseDate: '2026-09-17',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/connecting/index.html',
+    playMode: 'embed'
+  },
+  {
     id: 'snake-and-ladders',
     name: 'Snake & Ladders 3D',
     category: 'Strategy',

@@ -1,0 +1,174 @@
+<svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="topConnBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#080d1a"/>
+      <stop offset="50%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#050811"/>
+    </linearGradient>
+
+    <filter id="heroGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Radial Gradients for Endpoints -->
+    <radialGradient id="topRed" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#fca5a5"/>
+      <stop offset="60%" style="stop-color:#ef4444"/>
+      <stop offset="100%" style="stop-color:#991b1b"/>
+    </radialGradient>
+    <radialGradient id="topBlue" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#93c5fd"/>
+      <stop offset="60%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#1e40af"/>
+    </radialGradient>
+    <radialGradient id="topGreen" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#86efac"/>
+      <stop offset="60%" style="stop-color:#10b981"/>
+      <stop offset="100%" style="stop-color:#065f46"/>
+    </radialGradient>
+    <radialGradient id="topYellow" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#fef08a"/>
+      <stop offset="60%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#92400e"/>
+    </radialGradient>
+    <radialGradient id="topPurple" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#d8b4fe"/>
+      <stop offset="60%" style="stop-color:#8b5cf6"/>
+      <stop offset="100%" style="stop-color:#5b21b6"/>
+    </radialGradient>
+    <radialGradient id="topOrange" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#fdba74"/>
+      <stop offset="60%" style="stop-color:#f97316"/>
+      <stop offset="100%" style="stop-color:#9a3412"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="640" height="360" fill="url(#topConnBg)"/>
+
+  <!-- Subtle Cyber Grid -->
+  <g stroke="rgba(168, 85, 247, 0.06)" stroke-width="1">
+    <line x1="0" y1="60" x2="640" y2="60"/>
+    <line x1="0" y1="120" x2="640" y2="120"/>
+    <line x1="0" y1="180" x2="640" y2="180"/>
+    <line x1="0" y1="240" x2="640" y2="240"/>
+    <line x1="0" y1="300" x2="640" y2="300"/>
+    <line x1="120" y1="0" x2="120" y2="360"/>
+    <line x1="240" y1="0" x2="240" y2="360"/>
+    <line x1="360" y1="0" x2="360" y2="360"/>
+    <line x1="480" y1="0" x2="480" y2="360"/>
+    <line x1="600" y1="0" x2="600" y2="360"/>
+  </g>
+
+  <!-- Left: Puzzle Board Art (6x6 Grid, 260x260 px) -->
+  <rect x="45" y="45" width="270" height="270" rx="16" fill="#111827" stroke="rgba(255,255,255,0.12)" stroke-width="2" filter="drop-shadow(0 16px 32px rgba(0,0,0,0.7))"/>
+
+  <!-- 6x6 Grid Lines (cellSize = 45) -->
+  <g stroke="rgba(255,255,255,0.05)" stroke-width="1.5">
+    <line x1="90" y1="45" x2="90" y2="315"/>
+    <line x1="135" y1="45" x2="135" y2="315"/>
+    <line x1="180" y1="45" x2="180" y2="315"/>
+    <line x1="225" y1="45" x2="225" y2="315"/>
+    <line x1="270" y1="45" x2="270" y2="315"/>
+
+    <line x1="45" y1="90" x2="315" y2="90"/>
+    <line x1="45" y1="135" x2="315" y2="135"/>
+    <line x1="45" y1="180" x2="315" y2="180"/>
+    <line x1="45" y1="225" x2="315" y2="225"/>
+    <line x1="45" y1="270" x2="315" y2="270"/>
+  </g>
+
+  <!-- Centers: col 0: 67.5, col 1: 112.5, col 2: 157.5, col 3: 202.5, col 4: 247.5, col 5: 292.5 -->
+  <!-- Rows: row 0: 67.5, row 1: 112.5, row 2: 157.5, row 3: 202.5, row 4: 247.5, row 5: 292.5 -->
+  <!-- Glowing Connection Pipes -->
+  <!-- Red Path: (0,0) -> (0,2) -> (2,2) -->
+  <path d="M 67.5 67.5 L 157.5 67.5 L 157.5 157.5" fill="none" stroke="#ef4444" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" filter="url(#softGlow)"/>
+
+  <!-- Blue Path: (0,3) -> (0,5) -> (5,5) -->
+  <path d="M 202.5 67.5 L 292.5 67.5 L 292.5 292.5" fill="none" stroke="#3b82f6" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" filter="url(#softGlow)"/>
+
+  <!-- Green Path: (1,0) -> (5,0) -> (5,2) -->
+  <path d="M 67.5 112.5 L 67.5 292.5 L 157.5 292.5" fill="none" stroke="#10b981" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" filter="url(#softGlow)"/>
+
+  <!-- Yellow Path: (1,1) -> (4,1) -> (4,3) -->
+  <path d="M 112.5 112.5 L 112.5 247.5 L 202.5 247.5" fill="none" stroke="#f59e0b" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" filter="url(#softGlow)"/>
+
+  <!-- Purple Path: (1,3) -> (1,4) -> (3,4) -> (3,2) -->
+  <path d="M 202.5 112.5 L 247.5 112.5 L 247.5 202.5 L 157.5 202.5" fill="none" stroke="#8b5cf6" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" filter="url(#softGlow)"/>
+
+  <!-- Orange Path: (2,3) -> (2,4) -> (4,4) -> (5,4) -> (5,3) -->
+  <path d="M 202.5 157.5 L 202.5 157.5 L 247.5 247.5 L 247.5 292.5 L 202.5 292.5" fill="none" stroke="#f97316" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" filter="url(#softGlow)"/>
+
+  <!-- Endpoint Circles -->
+  <!-- Red -->
+  <circle cx="67.5" cy="67.5" r="11" fill="url(#topRed)" filter="url(#softGlow)"/>
+  <circle cx="157.5" cy="157.5" r="11" fill="url(#topRed)" filter="url(#softGlow)"/>
+
+  <!-- Blue -->
+  <circle cx="202.5" cy="67.5" r="11" fill="url(#topBlue)" filter="url(#softGlow)"/>
+  <circle cx="292.5" cy="292.5" r="11" fill="url(#topBlue)" filter="url(#softGlow)"/>
+
+  <!-- Green -->
+  <circle cx="67.5" cy="112.5" r="11" fill="url(#topGreen)" filter="url(#softGlow)"/>
+  <circle cx="157.5" cy="292.5" r="11" fill="url(#topGreen)" filter="url(#softGlow)"/>
+
+  <!-- Yellow -->
+  <circle cx="112.5" cy="112.5" r="11" fill="url(#topYellow)" filter="url(#softGlow)"/>
+  <circle cx="202.5" cy="247.5" r="11" fill="url(#topYellow)" filter="url(#softGlow)"/>
+
+  <!-- Purple -->
+  <circle cx="202.5" cy="112.5" r="11" fill="url(#topPurple)" filter="url(#softGlow)"/>
+  <circle cx="157.5" cy="202.5" r="11" fill="url(#topPurple)" filter="url(#softGlow)"/>
+
+  <!-- Orange -->
+  <circle cx="202.5" cy="157.5" r="11" fill="url(#topOrange)" filter="url(#softGlow)"/>
+  <circle cx="202.5" cy="292.5" r="11" fill="url(#topOrange)" filter="url(#softGlow)"/>
+
+  <!-- Right: Typography & Highlights -->
+  <g transform="translate(365, 42)">
+    <!-- Badge -->
+    <rect x="0" y="0" width="128" height="26" rx="13" fill="rgba(168, 85, 247, 0.15)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.2"/>
+    <text x="64" y="17" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="800" fill="#c084fc" text-anchor="middle" letter-spacing="0.08em">🧩 PURE PUZZLE</text>
+
+    <!-- Main Title -->
+    <text x="0" y="66" font-family="'Inter', system-ui, sans-serif" font-size="34" font-weight="900" fill="#ffffff" letter-spacing="0.04em">CONNECTING</text>
+    <line x1="0" y1="78" x2="235" y2="78" stroke="#a855f7" stroke-width="3" filter="url(#heroGlow)"/>
+
+    <!-- Tagline -->
+    <text x="0" y="104" font-family="'Inter', system-ui, sans-serif" font-size="14" font-weight="700" fill="#e9d5ff" letter-spacing="0.04em">"Connect the dots. Fill the board."</text>
+
+    <!-- Description -->
+    <text x="0" y="132" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="400" fill="#94a3b8">
+      <tspan x="0" dy="0">Link matching colors with non-overlapping</tspan>
+      <tspan x="0" dy="18">paths and fill every single cell on the board.</tspan>
+      <tspan x="0" dy="18">30 progressive levels from 5×5 to 9×9 grids.</tspan>
+    </text>
+
+    <!-- Feature Highlights -->
+    <g transform="translate(0, 195)">
+      <rect x="0" y="0" width="105" height="42" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>
+      <text x="12" y="18" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="600" fill="#64748b">LEVELS</text>
+      <text x="12" y="34" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="800" fill="#ffffff">30 STAGES</text>
+
+      <rect x="115" y="0" width="115" height="42" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>
+      <text x="127" y="18" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="600" fill="#64748b">GRIDS</text>
+      <text x="127" y="34" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="800" fill="#c084fc">5×5 TO 9×9</text>
+    </g>
+
+    <g transform="translate(0, 252)">
+      <text x="0" y="16" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="700" fill="#cbd5e1">🖱️ Drag &amp; Connect • 💡 Smart Hints • 📱 Touch</text>
+    </g>
+  </g>
+</svg>
