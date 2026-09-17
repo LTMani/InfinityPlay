@@ -111,6 +111,22 @@
       clockwise: true
     },
 
+    // Phase 10B Task 17: centralized traffic-signal configuration.
+    // TrafficSignalSystem is the sole owner of phase timing; these
+    // values drive red/green/yellow durations and light placement.
+    signals: {
+      // Master toggle — when false, no intersection is signalized and
+      // TrafficSignalSystem becomes a no-op.
+      enabled: true,
+      // Phase durations in seconds.
+      greenTime: 8.0,
+      yellowTime: 2.0,
+      redTime: 8.0,
+      // Probability (0.0 - 1.0) that a generated intersection gets
+      // traffic lights. 1.0 = every intersection; 0.0 = none.
+      lightProbability: 0.5
+    },
+
     // Optimization settings
     optimization: {
       // Only update vehicles within this distance of the camera

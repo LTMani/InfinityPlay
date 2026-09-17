@@ -271,6 +271,31 @@
         doorSystem.updateVehicle(bus, dt);
       }
 
+      // Phase 10B Task 17: centralized red-light gate for the player bus.
+      // TrafficSignalSystem is the sole owner of signal timing. When the
+      // bus is approaching a signalized intersection with a red signal,
+      // targetSpeed is forced to 0 so the existing BrakeSystem/physics
+      // path decelerates and stops the bus. This is NOT a second braking
+      // implementation — BrakeSystem remains the sole braking authority.
+      const signalSystem = this.modules.TrafficSignalSystem;
+      if (signalSystem && typeof signalSystem.isRed === 'function') {
+        const map = this.modules.Map;
+        if (map && map.intersections) {
+          for (let i = 0; i < map.intersections.length; i++) {
+            const int = map.intersections[i];
+            if (!int || !int.hasTrafficLights) continue;
+            if (signalSystem.isRed(int)) {
+              const dist = Math.sqrt(Math.pow(bus.x - int.x, 2) + Math.pow(bus.y - int.y, 2));
+              const stopRadius = (int.radius || 8) + (bus.length || 8) + 20;
+              if (dist <= stopRadius) {
+                bus.targetSpeed = 0;
+                break;
+              }
+            }
+          }
+        }
+      }
+
       // Reverse detection: brake when stopped enters reverse mode
       if (inputState.brake > 0 && Math.abs(bus.speed) < 2 && !bus.reverseMode) {
         bus.reverseMode = true;

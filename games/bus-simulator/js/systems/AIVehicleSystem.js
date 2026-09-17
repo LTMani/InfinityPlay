@@ -401,6 +401,27 @@
     },
 
     _handleStandardIntersection(vehicle, intersection, map, cfg) {
+      // Phase 10B Task 17: centralized red-light gate.
+      // TrafficSignalSystem is the sole owner of signal timing. When the
+      // intersection has traffic lights and the signal is red, the AI
+      // vehicle must wait regardless of its turn/straight decision. This
+      // does NOT duplicate braking — it only sets targetSpeed = 0, which
+      // the existing physics/BrakeSystem path already honors.
+      const signalSystem = this._modules ? this._modules.TrafficSignalSystem : null;
+      if (intersection && intersection.hasTrafficLights && signalSystem) {
+        if (signalSystem.isRed(intersection)) {
+          vehicle.targetSpeed = 0;
+          vehicle._aiState = 'waiting';
+          vehicle._aiWaitTimer = vehicle._aiWaitTimer || 0;
+          vehicle._aiWaitTimer += vehicle._dt || 0.016;
+          // Re-evaluate the turn decision only after the light turns green.
+          if (vehicle._intersectionDecisionMade) {
+            vehicle._intersectionDecisionMade = false;
+          }
+          return;
+        }
+      }
+
       if (vehicle._aiState === 'waiting') {
         // Already waiting — keep the vehicle stopped and advance the wait
         // timer using the real dt so timing is frame-rate independent.

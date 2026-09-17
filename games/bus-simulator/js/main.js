@@ -46,6 +46,7 @@ const GarageConfig = window.BusSim.GarageConfig;
     const EngineTemperatureSystem = window.BusSim.EngineTemperatureSystem;
     const ElectricalSystem = window.BusSim.ElectricalSystem;
     const DoorSystem = window.BusSim.DoorSystem;
+    const TrafficSignalSystem = window.BusSim.TrafficSignalSystem;
 
   // UI
   const UIManager = window.BusSim.UIManager;
@@ -122,6 +123,7 @@ const GarageConfig = window.BusSim.GarageConfig;
         ['CollisionSystem', CollisionSystem],
         ['RoadSystem', RoadSystem],
         ['DayNightSystem', DayNightSystem],
+        ['TrafficSignalSystem', TrafficSignalSystem],
         ['TrafficSystem', TrafficSystem],
         ['AIVehicleSystem', AIVehicleSystem],
         ['RouteSystem', RouteSystem],
