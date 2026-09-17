@@ -1,0 +1,161 @@
+/* ==========================================================================
+   Zombie Survival - Core Stylesheet & Theme Variables
+   ========================================================================== */
+
+:root {
+  --color-cyan: #00f0ff;
+  --color-cyan-glow: rgba(0, 240, 255, 0.4);
+  --color-pink: #f43f5e;
+  --color-pink-glow: rgba(244, 63, 94, 0.4);
+  --color-gold: #facc15;
+  --color-green: #22c55e;
+  --color-purple: #a855f7;
+  --color-amber: #f97316;
+  
+  --bg-dark: #060913;
+  --panel-bg: rgba(15, 23, 42, 0.88);
+  --panel-border: rgba(56, 189, 248, 0.25);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-dark);
+  font-family: var(--font-main);
+  color: #f8fafc;
+}
+
+#gameContainer {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-dark);
+}
+
+#gameCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+  z-index: 1;
+}
+
+/* Toast Notifications */
+.game-toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--color-cyan);
+  box-shadow: 0 8px 32px var(--color-cyan-glow);
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.game-toast.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.game-toast.success {
+  border-color: var(--color-green);
+  box-shadow: 0 8px 32px rgba(34, 197, 94, 0.4);
+}
+
+.game-toast.achievement {
+  border-color: var(--color-gold);
+  box-shadow: 0 8px 32px rgba(250, 204, 21, 0.4);
+}
+
+.game-toast.error {
+  border-color: var(--color-pink);
+  box-shadow: 0 8px 32px var(--color-pink-glow);
+}
+
+/* Standard Button Component */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-family: var(--font-main);
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 100%);
+  color: #04101e;
+  box-shadow: 0 0 20px var(--color-cyan-glow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 28px rgba(0, 240, 255, 0.6);
+  filter: brightness(1.1);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
+  color: #ffffff;
+  box-shadow: 0 0 20px var(--color-pink-glow);
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 28px rgba(244, 63, 94, 0.6);
+}
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn:disabled, .btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none !important;
+  box-shadow: none !important;
+}
+

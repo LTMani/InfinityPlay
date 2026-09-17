@@ -1,0 +1,133 @@
+/* ==========================================================================
+   Zombie Survival - Responsive & Mobile Layout
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .menu-stats-bar {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .menu-buttons-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .btn-menu-primary {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+  /* Show Mobile Touch Controls */
+  #mobileControls {
+    display: block !important;
+  }
+
+  /* Compact HUD */
+  #gameHUD {
+    padding: 12px 14px;
+  }
+
+  .hud-player-stats {
+    min-width: 150px;
+  }
+
+  .hud-bar-track {
+    height: 8px;
+  }
+
+  .hud-wave-title {
+    font-size: 0.95rem;
+  }
+
+  .hud-score-value {
+    font-size: 1.15rem;
+  }
+
+  .hud-ammo-count {
+    font-size: 1.4rem;
+  }
+
+  /* Main Menu Adjustments */
+  .game-main-title {
+    font-size: 2.5rem;
+    letter-spacing: 0.08em;
+  }
+
+  .game-tagline {
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+  }
+
+  .menu-stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .menu-buttons-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-menu-primary {
+    grid-column: span 1;
+  }
+
+  .btn-menu {
+    padding: 14px;
+    font-size: 0.95rem;
+  }
+
+  /* Modals */
+  .modal-dialog {
+    padding: 24px 20px;
+    width: 92%;
+  }
+
+  .modal-title {
+    font-size: 1.8rem;
+  }
+
+  .results-stats-list {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-main-title {
+    font-size: 2rem;
+  }
+
+  .hud-center-stats {
+    padding: 6px 12px;
+  }
+
+  .hud-objective-text {
+    font-size: 0.72rem;
+  }
+
+  .touch-joystick-zone {
+    width: 100px;
+    height: 100px;
+    bottom: 20px;
+    left: 20px;
+  }
+
+  .touch-knob {
+    width: 40px;
+    height: 40px;
+  }
+
+  .btn-touch-action {
+    width: 55px;
+    height: 55px;
+    font-size: 1.2rem;
+  }
+
+  .touch-actions-zone {
+    bottom: 20px;
+    right: 20px;
+    gap: 8px;
+  }
+}
+
