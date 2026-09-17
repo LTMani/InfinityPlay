@@ -1,219 +1,327 @@
 /**
- * Zombie Survival - Weapons System
- * 9 Arcade Energy Weapons with unique ballistic mechanics, upgrades, and projectile behaviors.
+ * Zombie Survival V2 - Weapons & Modifiers System
+ * 10 Fictional Arcade Energy Weapons with distinctive ballistic behaviors and 8 modular upgrades.
  */
 
-const WEAPON_DEFINITIONS = {
+const WEAPON_DEFINITIONS_V2 = {
   starter: {
     id: 'starter',
     name: 'Starter Blaster',
     category: 'Pistol',
-    damage: 32,
-    fireRate: 3.5, // Shots/sec
-    range: 550,
-    ammo: 15,
-    maxAmmo: 15,
-    reserveAmmo: 120,
-    reloadTime: 1.2, // Seconds
-    spread: 0.04,
-    speed: 720,
+    damage: 35,
+    fireRate: 3.8,
+    range: 560,
+    ammo: 16,
+    maxAmmo: 16,
+    reserveAmmo: 140,
+    reloadTime: 1.1,
+    spread: 0.03,
+    speed: 760,
     bulletRadius: 4,
     bulletColor: '#00f0ff',
     trailColor: 'rgba(0, 240, 255, 0.4)',
+    criticalChance: 0.08,
+    critMultiplier: 1.8,
     pierce: 0,
     soundType: 'starter',
     unlockCost: 0,
     unlockLevel: 1,
-    description: 'Standard issue military plasma sidearm. Highly accurate with fast reload cycle.'
-  },
-  rapid: {
-    id: 'rapid',
-    name: 'Rapid Energy Pistol',
-    category: 'SMG',
-    damage: 22,
-    fireRate: 8.5,
-    range: 480,
-    ammo: 32,
-    maxAmmo: 32,
-    reserveAmmo: 250,
-    reloadTime: 1.4,
-    spread: 0.09,
-    speed: 780,
-    bulletRadius: 3,
-    bulletColor: '#38bdf8',
-    trailColor: 'rgba(56, 189, 248, 0.4)',
-    pierce: 0,
-    soundType: 'rapid',
-    unlockCost: 600,
-    unlockLevel: 4,
-    description: 'Twin-cycle plasma repeater capable of shredding approaching swarms at close to medium range.'
+    description: 'Precision sidearm with high baseline accuracy and rapid charge cycles.'
   },
   pulse: {
     id: 'pulse',
     name: 'Pulse Rifle',
     category: 'Rifle',
     damage: 48,
-    fireRate: 4.8,
+    fireRate: 5.0,
     burstCount: 3,
-    burstDelay: 0.07,
-    range: 750,
+    burstDelay: 0.06,
+    range: 780,
     ammo: 30,
     maxAmmo: 30,
-    reserveAmmo: 210,
-    reloadTime: 1.6,
-    spread: 0.03,
-    speed: 950,
-    bulletRadius: 4,
+    reserveAmmo: 240,
+    reloadTime: 1.5,
+    spread: 0.025,
+    speed: 980,
+    bulletRadius: 4.5,
     bulletColor: '#818cf8',
     trailColor: 'rgba(129, 140, 248, 0.5)',
+    criticalChance: 0.12,
+    critMultiplier: 2.0,
     pierce: 1,
     soundType: 'pulse',
-    unlockCost: 1200,
+    unlockCost: 900,
+    unlockLevel: 5,
+    description: '3-round burst tactical energy rifle delivering armor-piercing kinetic rounds.'
+  },
+  shocksmg: {
+    id: 'shocksmg',
+    name: 'Shock SMG',
+    category: 'SMG',
+    damage: 24,
+    fireRate: 9.5,
+    range: 460,
+    ammo: 36,
+    maxAmmo: 36,
+    reserveAmmo: 280,
+    reloadTime: 1.3,
+    spread: 0.08,
+    speed: 820,
+    bulletRadius: 3.5,
+    bulletColor: '#facc15',
+    trailColor: 'rgba(250, 204, 21, 0.4)',
+    criticalChance: 0.10,
+    critMultiplier: 1.7,
+    pierce: 0,
+    soundType: 'rapid',
+    unlockCost: 1500,
     unlockLevel: 10,
-    description: 'High-velocity 3-round burst precision battle rifle with armor-penetrating energy cells.'
+    description: 'High-cycle submachine gun spraying electrifying ionized needles at blistering velocity.'
   },
   scatter: {
     id: 'scatter',
-    name: 'Scatter Blaster',
+    name: 'Plasma Scatter',
     category: 'Shotgun',
-    damage: 24, // Per pellet (6 pellets)
-    pellets: 6,
-    fireRate: 1.5,
-    range: 380,
+    damage: 26, // Per pellet (7 pellets)
+    pellets: 7,
+    fireRate: 1.6,
+    range: 400,
     ammo: 8,
     maxAmmo: 8,
-    reserveAmmo: 72,
+    reserveAmmo: 80,
     reloadTime: 1.8,
-    spread: 0.26,
-    speed: 640,
-    bulletRadius: 3.5,
+    spread: 0.24,
+    speed: 680,
+    bulletRadius: 4,
     bulletColor: '#fb923c',
     trailColor: 'rgba(251, 146, 60, 0.4)',
+    criticalChance: 0.08,
+    critMultiplier: 1.9,
     pierce: 0,
     soundType: 'scatter',
-    unlockCost: 1800,
+    unlockCost: 2400,
     unlockLevel: 16,
-    description: 'Heavy wide-bore kinetic scattergun firing lethal multi-pellet cones of compressed energy.'
-  },
-  plasma: {
-    id: 'plasma',
-    name: 'Plasma Cannon',
-    category: 'Heavy',
-    damage: 130,
-    fireRate: 1.1,
-    range: 650,
-    ammo: 6,
-    maxAmmo: 6,
-    reserveAmmo: 42,
-    reloadTime: 2.2,
-    spread: 0.02,
-    speed: 460,
-    bulletRadius: 10,
-    bulletColor: '#22c55e',
-    trailColor: 'rgba(34, 197, 94, 0.5)',
-    splashRadius: 75,
-    pierce: 0,
-    soundType: 'plasma',
-    unlockCost: 2800,
-    unlockLevel: 22,
-    description: 'Devastating heavy ordnance launcher that detonates in a corrosive green plasma shockwave.'
-  },
-  shock: {
-    id: 'shock',
-    name: 'Shock Launcher',
-    category: 'Energy',
-    damage: 65,
-    fireRate: 2.0,
-    range: 520,
-    ammo: 12,
-    maxAmmo: 12,
-    reserveAmmo: 96,
-    reloadTime: 1.7,
-    spread: 0.05,
-    speed: 680,
-    bulletRadius: 5,
-    bulletColor: '#facc15',
-    trailColor: 'rgba(250, 204, 21, 0.5)',
-    chainCount: 3,
-    chainRange: 130,
-    soundType: 'shock',
-    unlockCost: 3800,
-    unlockLevel: 28,
-    description: 'Electrified Tesla projector whose discharges leap violently across up to 3 adjacent zombies.'
+    description: 'Wide-bore scatter blaster releasing high-density cones of superheated kinetic plasma.'
   },
   arc: {
     id: 'arc',
     name: 'Arc Cannon',
     category: 'Beam',
-    damage: 18, // Continuous per tick
-    fireRate: 15.0, // Ticks/sec
-    range: 420,
+    damage: 22, // Continuous tick
+    fireRate: 14.0,
+    range: 440,
     ammo: 60,
     maxAmmo: 60,
     reserveAmmo: 360,
     reloadTime: 2.0,
     spread: 0.01,
-    speed: 1400,
+    speed: 1500,
     isBeam: true,
     bulletRadius: 6,
     bulletColor: '#c084fc',
     trailColor: 'rgba(192, 132, 252, 0.6)',
-    pierce: 99, // Pierces all enemies in beam
+    criticalChance: 0.15,
+    critMultiplier: 1.8,
+    pierce: 99,
     soundType: 'arc',
-    unlockCost: 5200,
-    unlockLevel: 36,
-    description: 'Focused singularity stream that channels high-voltage laser radiation through entire hordes.'
-  },
-  burst: {
-    id: 'burst',
-    name: 'Energy Burst',
-    category: 'Exotic',
-    damage: 110,
-    fireRate: 1.3,
-    range: 320,
-    ammo: 8,
-    maxAmmo: 8,
-    reserveAmmo: 56,
-    reloadTime: 2.0,
-    spread: 0,
-    speed: 400,
-    isRadial: true,
-    pellets: 12, // 12 orbs in 360 degree circle
-    bulletRadius: 5,
-    bulletColor: '#f43f5e',
-    trailColor: 'rgba(244, 63, 94, 0.5)',
-    soundType: 'burst',
-    unlockCost: 6800,
-    unlockLevel: 44,
-    description: 'Radial defense emitter discharging a 360-degree perimeter ring of high-explosive energy charges.'
+    unlockCost: 3600,
+    unlockLevel: 22,
+    description: 'Focused electromagnetic singularity stream channeling continuous voltage through multiple foes.'
   },
   freeze: {
     id: 'freeze',
     name: 'Freeze Blaster',
     category: 'Cryo',
-    damage: 40,
-    fireRate: 4.0,
-    range: 520,
+    damage: 42,
+    fireRate: 4.2,
+    range: 540,
     ammo: 24,
     maxAmmo: 24,
-    reserveAmmo: 180,
+    reserveAmmo: 190,
     reloadTime: 1.5,
-    spread: 0.06,
-    speed: 620,
+    spread: 0.05,
+    speed: 640,
     bulletRadius: 6,
     bulletColor: '#67e8f9',
     trailColor: 'rgba(103, 232, 249, 0.5)',
     slowDuration: 3.0,
-    slowFactor: 0.4, // Slows enemy by 60%
+    slowFactor: 0.35,
+    criticalChance: 0.10,
+    critMultiplier: 1.75,
     soundType: 'freeze',
-    unlockCost: 8500,
-    unlockLevel: 52,
-    description: 'Sub-zero cryo projector that flash-freezes zombie tissues, drastically reducing enemy velocity.'
+    unlockCost: 4800,
+    unlockLevel: 28,
+    description: 'Cryogenic projector flash-freezing zombie flesh to severely retard enemy advance.'
+  },
+  energy: {
+    id: 'energy',
+    name: 'Energy Cannon',
+    category: 'Heavy',
+    damage: 150,
+    fireRate: 1.2,
+    range: 680,
+    ammo: 6,
+    maxAmmo: 6,
+    reserveAmmo: 48,
+    reloadTime: 2.1,
+    spread: 0.02,
+    speed: 480,
+    bulletRadius: 11,
+    bulletColor: '#22c55e',
+    trailColor: 'rgba(34, 197, 94, 0.5)',
+    splashRadius: 85,
+    criticalChance: 0.15,
+    critMultiplier: 2.2,
+    soundType: 'plasma',
+    unlockCost: 6200,
+    unlockLevel: 35,
+    description: 'Heavy artillery projector firing compressed plasma bombs that detonate in lethal shockwaves.'
+  },
+  rail: {
+    id: 'rail',
+    name: 'Rail Pulse',
+    category: 'Sniper',
+    damage: 220,
+    fireRate: 1.0,
+    range: 1100,
+    ammo: 5,
+    maxAmmo: 5,
+    reserveAmmo: 35,
+    reloadTime: 2.2,
+    spread: 0.005,
+    speed: 2200,
+    bulletRadius: 5,
+    bulletColor: '#ec4899',
+    trailColor: 'rgba(236, 72, 153, 0.7)',
+    pierce: 5, // Pierces straight through 5 zombies in a line
+    criticalChance: 0.25,
+    critMultiplier: 2.8,
+    soundType: 'pulse',
+    unlockCost: 8000,
+    unlockLevel: 42,
+    description: 'Hyper-accelerated rail accelerator driving hyperdense slugs through entire columns of mutants.'
+  },
+  nova: {
+    id: 'nova',
+    name: 'Nova Blaster',
+    category: 'Exotic',
+    damage: 120,
+    fireRate: 1.4,
+    range: 350,
+    ammo: 8,
+    maxAmmo: 8,
+    reserveAmmo: 64,
+    reloadTime: 2.0,
+    spread: 0,
+    speed: 420,
+    isRadial: true,
+    pellets: 16, // 16 radiating orbs
+    bulletRadius: 5,
+    bulletColor: '#f43f5e',
+    trailColor: 'rgba(244, 63, 94, 0.5)',
+    criticalChance: 0.12,
+    critMultiplier: 1.8,
+    soundType: 'burst',
+    unlockCost: 10500,
+    unlockLevel: 50,
+    description: 'Multi-directional nova core that erupts into a 360-degree perimeter wave of concussive plasma.'
+  },
+  infinity: {
+    id: 'infinity',
+    name: 'Infinity Cannon',
+    category: 'Legendary',
+    damage: 280,
+    fireRate: 2.5,
+    range: 900,
+    ammo: 20,
+    maxAmmo: 20,
+    reserveAmmo: 160,
+    reloadTime: 1.8,
+    spread: 0.015,
+    speed: 1600,
+    bulletRadius: 8,
+    bulletColor: '#38bdf8',
+    trailColor: 'rgba(56, 189, 248, 0.8)',
+    splashRadius: 70,
+    pierce: 3,
+    criticalChance: 0.30,
+    critMultiplier: 3.0,
+    soundType: 'plasma',
+    unlockCost: 15000,
+    unlockLevel: 60,
+    description: 'Legendary InfinityPlay antimatter emitter delivering cataclysmic energy discharges.'
   }
 };
 
-class Projectile {
-  constructor(x, y, angle, weapon, isCrit = false, owner = 'player') {
+const WEAPON_MODIFIERS = {
+  rapid: {
+    id: 'rapid',
+    name: 'Rapid Cycler',
+    icon: '⚡',
+    rarity: 'Common',
+    color: '#38bdf8',
+    desc: '+25% Fire Rate'
+  },
+  power: {
+    id: 'power',
+    name: 'Power Core',
+    icon: '💥',
+    rarity: 'Common',
+    color: '#fb7185',
+    desc: '+25% Damage'
+  },
+  precision: {
+    id: 'precision',
+    name: 'Precision Sight',
+    icon: '🎯',
+    rarity: 'Common',
+    color: '#34d399',
+    desc: '-50% Spread'
+  },
+  extended: {
+    id: 'extended',
+    name: 'Extended Mag',
+    icon: '🔋',
+    rarity: 'Common',
+    color: '#facc15',
+    desc: '+40% Magazine Size'
+  },
+  vampiric: {
+    id: 'vampiric',
+    name: 'Vampiric Nano',
+    icon: '🩸',
+    rarity: 'Rare',
+    color: '#ec4899',
+    desc: 'Restores 4% Health on hit'
+  },
+  chain: {
+    id: 'chain',
+    name: 'Chain Conduit',
+    icon: '⚡',
+    rarity: 'Rare',
+    color: '#a855f7',
+    desc: '25% chance to chain lightning'
+  },
+  freeze: {
+    id: 'freeze',
+    name: 'Cryo Infusion',
+    icon: '❄️',
+    rarity: 'Epic',
+    color: '#67e8f9',
+    desc: 'Slows enemies by 45%'
+  },
+  explosive: {
+    id: 'explosive',
+    name: 'Explosive Payload',
+    icon: '💣',
+    rarity: 'Legendary',
+    color: '#f97316',
+    desc: 'Bullets explode on impact'
+  }
+};
+
+class ProjectileV2 {
+  constructor(x, y, angle, weapon, isCrit = false, owner = 'player', activeModifier = null) {
     this.x = x;
     this.y = y;
     this.startX = x;
@@ -222,19 +330,24 @@ class Projectile {
     this.weapon = weapon;
     this.isCrit = isCrit;
     this.owner = owner;
+    this.modifier = activeModifier;
 
-    this.speed = weapon.speed || 700;
-    this.damage = weapon.damage * (isCrit ? 1.75 : 1);
+    this.speed = weapon.speed || 750;
+    this.damage = weapon.damage * (isCrit ? (weapon.critMultiplier || 1.8) : 1);
     this.radius = weapon.bulletRadius || 4;
     this.color = weapon.bulletColor || '#00f0ff';
     this.trailColor = weapon.trailColor || 'rgba(0, 240, 255, 0.4)';
-    this.range = weapon.range || 500;
+    this.range = weapon.range || 550;
     this.pierceLeft = weapon.pierce || 0;
-    this.hitEntities = new Set(); // Prevent multi-hits from same frame
+    this.hitEntities = new Set();
     this.life = this.range / this.speed;
     this.alive = true;
 
-    // Trail history
+    // Apply modifier perks
+    if (this.modifier === 'power') {
+      this.damage *= 1.25;
+    }
+
     this.history = [];
     this.maxHistory = 4;
   }
@@ -245,9 +358,9 @@ class Projectile {
     this.history.push({ x: this.x, y: this.y });
     if (this.history.length > this.maxHistory) this.history.shift();
 
-    const moveStep = this.speed * dt;
-    this.x += Math.cos(this.angle) * moveStep;
-    this.y += Math.sin(this.angle) * moveStep;
+    const step = this.speed * dt;
+    this.x += Math.cos(this.angle) * step;
+    this.y += Math.sin(this.angle) * step;
 
     const traveled = Math.hypot(this.x - this.startX, this.y - this.startY);
     if (traveled >= this.range) {
@@ -261,7 +374,7 @@ class Projectile {
     if (!this.alive) return;
 
     ctx.save();
-    // Render fading trail
+    // Trail
     if (this.history.length > 1) {
       ctx.strokeStyle = this.trailColor;
       ctx.lineWidth = this.radius * 1.5;
@@ -273,7 +386,7 @@ class Projectile {
       ctx.stroke();
     }
 
-    // Render glowing bullet head
+    // Glowing bullet head
     ctx.shadowColor = this.color;
     ctx.shadowBlur = 8;
     ctx.fillStyle = this.isCrit ? '#ffb703' : this.color;
@@ -291,6 +404,7 @@ class Projectile {
   }
 }
 
-window.WEAPON_DEFINITIONS = WEAPON_DEFINITIONS;
-window.Projectile = Projectile;
-
+// Global registry mapping
+window.WEAPON_DEFINITIONS = WEAPON_DEFINITIONS_V2;
+window.WEAPON_MODIFIERS = WEAPON_MODIFIERS;
+window.Projectile = ProjectileV2;

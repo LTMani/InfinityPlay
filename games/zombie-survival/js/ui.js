@@ -1,6 +1,7 @@
 /**
- * Zombie Survival - UI & Screen Controller
- * Orchestrates menu transitions, HUD updates, Arsenal, Upgrades, Level Select, and Results screens.
+ * Zombie Survival V2 - UI & Screen Controller
+ * Orchestrates menu transitions, Level Briefing modal, 3-2-1-GO Countdown,
+ * Skill Tree allocation, Player Profile screen, Arsenal with 10 weapons & 8 modifiers, and real-time HUD.
  */
 
 class UIManager {
@@ -8,6 +9,8 @@ class UIManager {
     this.currentScreen = 'MENU';
     this.currentWorldTab = 1;
     this.toastTimer = null;
+    this.pendingLevelId = 1;
+    this.countdownTimer = null;
   }
 
   init() {
@@ -32,6 +35,14 @@ class UIManager {
       this.renderPlayerUpgrades();
       this.showScreen('UPGRADES');
     });
+    this._bind('btnSkillTree', () => {
+      this.renderSkillTree();
+      this.showScreen('SKILL_TREE');
+    });
+    this._bind('btnProfile', () => {
+      this.renderProfile();
+      this.showScreen('PROFILE');
+    });
     this._bind('btnArsenal', () => {
       this.renderArsenal();
       this.showScreen('ARSENAL');
@@ -49,6 +60,14 @@ class UIManager {
       this.showScreen('SETTINGS');
     });
     this._bind('btnBackToInfinity', () => this.exitToInfinityPlay());
+
+    // Briefing Modal buttons
+    this._bind('btnStartMission', () => {
+      this.startMissionWithCountdown(this.pendingLevelId);
+    });
+    this._bind('btnBriefingCancel', () => {
+      this.showScreen('LEVEL_SELECT');
+    });
 
     // Back Buttons inside screens
     document.querySelectorAll('.btn-back-menu').forEach(b => {
@@ -160,7 +179,7 @@ class UIManager {
     const secs = Math.floor(totalSeconds % 60);
     this._setText('statSurvivalTime', `${mins}m ${secs}s`);
 
-    this._setText('menuCoinDisplay', st.coins.toLocaleString());
+    this._setText('menuCoinDisplay', `${st.coins.toLocaleString()} 🪙`);
     this._setText('menuXPDisplay', `Lv ${st.playerLevel} (${st.xp} XP)`);
   }
 
@@ -195,7 +214,7 @@ class UIManager {
     this._setText('worldTitle', `World ${currentWorld.id}: ${currentWorld.name}`);
     this._setText('worldDescription', `${currentWorld.theme} — ${currentWorld.desc}`);
 
-    // Render levels 1-6 for this world
+    // Render 6 levels for this world
     const [startLvl, endLvl] = currentWorld.levels;
     const highest = window.Storage.data.highestLevelUnlocked || 1;
     const completed = window.Storage.data.completedLevels || {};
@@ -233,16 +252,253 @@ class UIManager {
 
     levelsGrid.innerHTML = html;
 
+    // Clicking unlocked level opens Briefing Modal!
     levelsGrid.querySelectorAll('.level-card.unlocked').forEach(card => {
       card.addEventListener('click', () => {
         const lvlId = parseInt(card.getAttribute('data-level'), 10);
         window.Sound.playClick();
-        window.gameInstance.startStoryLevel(lvlId);
+        this.openLevelBriefing(lvlId);
       });
     });
   }
 
-  // --- RENDER ARSENAL SCREEN ---
+  // --- LEVEL BRIEFING MODAL ---
+  openLevelBriefing(levelId) {
+    const lvl = window.LEVELS[levelId - 1];
+    if (!lvl) return;
+    this.pendingLevelId = levelId;
+
+    this._setText('briefingWorldTag', `WORLD ${lvl.worldId}: ${lvl.worldName.toUpperCase()} • SECTOR ${lvl.id}`);
+    this._setText('briefingTitle', lvl.name);
+    this._setText('briefingDesc', lvl.objectiveDesc);
+
+    this._setText('briefingObjective', `${lvl.objective}: ${lvl.objectiveTarget} ${lvl.objective === 'SURVIVE' ? 'SECONDS' : (lvl.objective === 'COLLECT' ? 'BEACONS' : 'MUTANTS')}`);
+    this._setText('briefingDifficulty', lvl.difficulty.toUpperCase());
+    this._setText('briefingEnvironment', `${lvl.timeOfDay.toUpperCase()} • ${lvl.weather.toUpperCase()}`);
+    this._setText('briefingWaves', `${lvl.waveCount} ASSAULT WAVES`);
+
+    // Expected enemies badges
+    const enemiesBox = document.getElementById('briefingEnemiesList');
+    if (enemiesBox) {
+      enemiesBox.innerHTML = lvl.enemyTypes.map(t => {
+        const arch = window.ZOMBIE_TYPES[t] || { name: t };
+        return `<span class="enemy-badge">${arch.name}</span>`;
+      }).join('') + (lvl.isBossLevel ? `<span class="enemy-badge boss-badge">⚠️ ${lvl.bossType ? lvl.bossType.toUpperCase() : 'BOSS'}</span>` : '');
+    }
+
+    // Rewards
+    const rewardsBox = document.getElementById('briefingRewards');
+    if (rewardsBox) {
+      rewardsBox.innerHTML = `
+        <span>+${lvl.reward ? lvl.reward.xp : 200} XP</span>
+        <span>+${lvl.reward ? lvl.reward.coins : 100} 🪙</span>
+        ${lvl.isBossLevel ? '<span style="border-color: #ec4899; color: #ec4899;">WEAPON MODIFIER</span>' : ''}
+      `;
+    }
+
+    this.showScreen('BRIEFING');
+  }
+
+  // --- 3-2-1-GO COUNTDOWN BEFORE MATCH ---
+  startMissionWithCountdown(levelId) {
+    const overlay = document.getElementById('countdownOverlay');
+    const numEl = document.getElementById('countdownNum');
+    const labelEl = document.getElementById('countdownLabel');
+    if (!overlay || !numEl) {
+      window.gameInstance.startStoryLevel(levelId);
+      return;
+    }
+
+    overlay.style.display = 'flex';
+    let step = 3;
+    numEl.textContent = '3';
+    if (labelEl) labelEl.textContent = 'PREPARE FOR BATTLE';
+    window.Sound.playClick();
+
+    if (this.countdownTimer) clearInterval(this.countdownTimer);
+
+    this.countdownTimer = setInterval(() => {
+      step--;
+      if (step === 2) {
+        numEl.textContent = '2';
+        window.Sound.playClick();
+      } else if (step === 1) {
+        numEl.textContent = '1';
+        window.Sound.playClick();
+      } else if (step === 0) {
+        numEl.textContent = 'GO!';
+        if (labelEl) labelEl.textContent = 'ENGAGE HOSTILES';
+        window.Sound.playWaveStart();
+      } else {
+        clearInterval(this.countdownTimer);
+        this.countdownTimer = null;
+        overlay.style.display = 'none';
+        window.gameInstance.startStoryLevel(levelId);
+      }
+    }, 850);
+  }
+
+  // --- RENDER SKILL TREE SCREEN ---
+  renderSkillTree() {
+    const container = document.getElementById('skillTreeContainer');
+    if (!container) return;
+
+    const availableSP = window.Storage.data.skillPoints || 0;
+    this._setText('skillPointsCount', availableSP.toString());
+
+    const branches = window.SKILL_TREE_DEFINITIONS;
+    const unlocked = window.Storage.data.unlockedSkills || [];
+
+    let html = '';
+    for (let branchKey of Object.keys(branches)) {
+      const branch = branches[branchKey];
+      html += `
+        <div class="skill-branch-col">
+          <div class="branch-title-box">
+            <h3 class="branch-name" style="color: ${branch.color};">${branch.name.toUpperCase()}</h3>
+            <p class="branch-desc">${branch.description}</p>
+          </div>
+          <div class="skill-nodes-list">
+            ${branch.skills.map(node => {
+              const isUnlocked = unlocked.includes(node.id);
+              const meetsReq = !node.requires || unlocked.includes(node.requires);
+              const canAfford = availableSP >= node.cost;
+
+              let btnHtml;
+              if (isUnlocked) {
+                btnHtml = `<button class="btn-skill-action unlocked" disabled>✓ ACTIVE</button>`;
+              } else if (meetsReq && canAfford) {
+                btnHtml = `<button class="btn-skill-action can-unlock" data-node="${node.id}">UNLOCK (${node.cost} SP)</button>`;
+              } else if (!meetsReq) {
+                btnHtml = `<button class="btn-skill-action locked" disabled>REQUIRES PREVIOUS NODE</button>`;
+              } else {
+                btnHtml = `<button class="btn-skill-action locked" disabled>NEED ${node.cost} SP</button>`;
+              }
+
+              return `
+                <div class="skill-node-card ${isUnlocked ? 'unlocked' : ''}">
+                  <div class="skill-node-header">
+                    <span class="skill-node-name">${node.name}</span>
+                    <span class="skill-node-cost">⭐ ${node.cost} SP</span>
+                  </div>
+                  <p class="skill-node-desc">${node.desc}</p>
+                  ${btnHtml}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    container.innerHTML = html;
+
+    // Node unlock clicks
+    container.querySelectorAll('.btn-skill-action.can-unlock').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const nodeId = btn.getAttribute('data-node');
+        const res = window.Upgrades.unlockSkillNode(nodeId);
+        if (res.success) {
+          window.Sound.playLevelComplete();
+          this.showToast(`Unlocked Skill: ${res.node.name}!`, 'success');
+          this.renderSkillTree();
+        } else {
+          this.showToast(res.msg, 'error');
+        }
+      });
+    });
+  }
+
+  // --- RENDER OPERATIVE PROFILE SCREEN ---
+  renderProfile() {
+    const container = document.getElementById('profileContent');
+    if (!container) return;
+
+    const st = window.Storage.data;
+    const stats = st.stats;
+
+    // Determine Rank Title
+    let rankTitle = 'Cadet Survivor';
+    let rankBadge = 'RANK I • RECRUIT';
+    if (st.playerLevel >= 46) {
+      rankTitle = 'Apex Sovereign';
+      rankBadge = 'RANK VI • LEGENDARY GRANDMASTER';
+    } else if (st.playerLevel >= 31) {
+      rankTitle = 'Citadel Commander';
+      rankBadge = 'RANK V • APEX OPERATIVE';
+    } else if (st.playerLevel >= 21) {
+      rankTitle = 'Veteran Mutator';
+      rankBadge = 'RANK IV • SPECIAL FORCES';
+    } else if (st.playerLevel >= 13) {
+      rankTitle = 'Hardened Ranger';
+      rankBadge = 'RANK III • FRONTLINE VETERAN';
+    } else if (st.playerLevel >= 6) {
+      rankTitle = 'Frontline Scout';
+      rankBadge = 'RANK II • OPERATIONAL AGENT';
+    }
+
+    // Calculate total stars
+    let totalStars = 0;
+    for (let k in st.completedLevels) {
+      totalStars += (st.completedLevels[k].stars || 0);
+    }
+
+    // Format survival time
+    const mins = Math.floor((stats.totalSurvivalTime || 0) / 60);
+    const secs = Math.floor((stats.totalSurvivalTime || 0) % 60);
+
+    container.innerHTML = `
+      <div class="profile-identity-card">
+        <div class="profile-avatar-circle">☣️</div>
+        <div class="profile-identity-info">
+          <span class="profile-rank-badge">${rankBadge}</span>
+          <h2 class="profile-rank-title">${rankTitle}</h2>
+          <div style="font-size: 0.85rem; color: #cbd5e1;">
+            Survivor Level <strong style="color: var(--color-cyan);">${st.playerLevel}</strong> • 
+            Experience: <strong style="color: var(--color-gold);">${st.xp} XP</strong> • 
+            Skill Points Available: <strong style="color: var(--color-gold);">${st.skillPoints || 0}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-stats-grid">
+        <div class="profile-stat-box">
+          <span>MUTANTS DEFEATED</span>
+          <strong>${stats.totalKills.toLocaleString()}</strong>
+        </div>
+        <div class="profile-stat-box">
+          <span>CAMPAIGN PROGRESS</span>
+          <strong>${st.highestLevelUnlocked} / 60</strong>
+        </div>
+        <div class="profile-stat-box">
+          <span>STARS EARNED</span>
+          <strong style="color: var(--color-gold);">${totalStars} / 180 ★</strong>
+        </div>
+        <div class="profile-stat-box">
+          <span>HIGHEST ENDLESS WAVE</span>
+          <strong style="color: var(--color-cyan);">${st.endlessStats.highestWave || 0}</strong>
+        </div>
+        <div class="profile-stat-box">
+          <span>TOTAL SURVIVAL TIME</span>
+          <strong>${mins}m ${secs}s</strong>
+        </div>
+        <div class="profile-stat-box">
+          <span>BEST COMBAT COMBO</span>
+          <strong style="color: var(--color-gold);">x${stats.maxCombo || 1}</strong>
+        </div>
+        <div class="profile-stat-box">
+          <span>WEAPONS UNLOCKED</span>
+          <strong>${st.unlockedWeapons.length} / 10</strong>
+        </div>
+        <div class="profile-stat-box">
+          <span>MODIFIERS COLLECTED</span>
+          <strong style="color: var(--color-pink);">${(st.inventory && st.inventory.modifiers) ? st.inventory.modifiers.length : 0} / 8</strong>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- RENDER ARSENAL SCREEN (10 WEAPONS & WORKSHOP) ---
   renderArsenal() {
     const grid = document.getElementById('arsenalGrid');
     if (!grid) return;
@@ -251,7 +507,6 @@ class UIManager {
 
     const unlocked = window.Storage.data.unlockedWeapons;
     const equipped = window.Storage.data.equippedWeapon;
-    const playerLevel = window.Storage.data.playerLevel;
 
     let html = '';
     for (let key of Object.keys(window.WEAPON_DEFINITIONS)) {
@@ -358,8 +613,8 @@ class UIManager {
     const cost = isMax ? 'MAX' : `🪙 ${cfg.costs[curLevel]}`;
     return `
       <button class="btn btn-upgrade-stat ${isMax ? 'maxed' : ''}" data-weapon="${weaponId}" data-stat="${statKey}" ${isMax ? 'disabled' : ''}>
-        <span>${label} (Lv ${curLevel})</span>
-        <small>${cost}</small>
+        <span>${label}</span>
+        <small>${isMax ? 'MAX' : cost}</small>
       </button>
     `;
   }
@@ -371,18 +626,16 @@ class UIManager {
 
     this._setText('playerUpgradeCoins', window.Storage.data.coins.toLocaleString());
 
-    const up = window.Storage.data.playerUpgrades;
     let html = '';
-
     for (let key of Object.keys(window.PLAYER_UPGRADE_CONFIG)) {
       const cfg = window.PLAYER_UPGRADE_CONFIG[key];
-      const curLvl = up[key] || 0;
+      const curLvl = window.Storage.data.upgrades[key] || 0;
       const isMax = curLvl >= cfg.maxLevel;
-      const nextCost = isMax ? 'MAX' : `🪙 ${cfg.costs[curLvl]} Coins`;
+      const cost = isMax ? 0 : cfg.costs[curLvl];
 
-      let progressBars = '';
-      for (let b = 1; b <= cfg.maxLevel; b++) {
-        progressBars += `<span class="pip ${b <= curLvl ? 'filled' : ''}"></span>`;
+      let pips = '';
+      for (let i = 0; i < cfg.maxLevel; i++) {
+        pips += `<div class="pip ${i < curLvl ? 'filled' : ''}"></div>`;
       }
 
       html += `
@@ -391,13 +644,13 @@ class UIManager {
           <div class="upgrade-info">
             <div class="upgrade-title-row">
               <h4>${cfg.name}</h4>
-              <span class="upgrade-level">Level ${curLvl} / ${cfg.maxLevel}</span>
+              <span class="upgrade-level">Lv ${curLvl} / ${cfg.maxLevel}</span>
             </div>
             <p class="upgrade-desc">${cfg.description}</p>
-            <div class="upgrade-pips">${progressBars}</div>
+            <div class="upgrade-pips">${pips}</div>
           </div>
-          <button class="btn btn-player-upgrade ${isMax ? 'maxed' : ''}" data-key="${key}" ${isMax ? 'disabled' : ''}>
-            ${isMax ? 'MAXED OUT' : `Upgrade (${nextCost})`}
+          <button class="btn btn-player-upgrade ${isMax ? 'disabled' : ''}" data-key="${key}" ${isMax ? 'disabled' : ''}>
+            ${isMax ? 'MAX LEVEL' : `🪙 ${cost.toLocaleString()} Coins`}
           </button>
         </div>
       `;
@@ -421,54 +674,38 @@ class UIManager {
 
   // --- RENDER MISSIONS SCREEN ---
   renderMissions() {
-    const list = document.getElementById('missionsList');
-    if (!list) return;
+    const container = document.getElementById('missionsList');
+    if (!container) return;
 
-    const saved = window.Storage.data.missions;
     let html = '';
-
-    for (let m of window.MISSIONS_LIST) {
-      const state = saved[m.id] || { progress: 0, completed: false, claimed: false };
-      const pct = Math.min(100, Math.round((state.progress / m.target) * 100));
+    for (let key of Object.keys(window.MISSIONS_CONFIG)) {
+      const m = window.MISSIONS_CONFIG[key];
+      const prog = window.Missions.getProgress(key);
+      const isCompleted = window.Missions.isCompleted(key);
+      const pct = Math.min(100, Math.round((prog / m.target) * 100));
 
       html += `
-        <div class="mission-card ${state.claimed ? 'claimed' : (state.completed ? 'ready' : '')}">
-          <div class="mission-left">
+        <div class="mission-card ${isCompleted ? 'completed' : ''}">
+          <div class="mission-info">
             <div class="mission-header">
-              <span class="mission-title">${m.title}</span>
-              <span class="mission-reward-tag">+${m.reward.coins} 🪙 / +${m.reward.xp} ⭐</span>
+              <span class="mission-badge">${m.badge}</span>
+              <h4 class="mission-title">${m.title}</h4>
             </div>
-            <p class="mission-desc">${m.desc}</p>
+            <p class="mission-desc">${m.description}</p>
             <div class="mission-progress-bar">
-              <div class="mission-fill" style="width: ${pct}%;"></div>
+              <div class="mission-progress-fill" style="width: ${pct}%;"></div>
             </div>
-            <span class="mission-tracker-text">${state.progress} / ${m.target} ${m.unit}</span>
+            <div class="mission-footer">
+              <span>Progress: ${prog} / ${m.target}</span>
+              <span style="color: var(--color-gold);">Reward: +${m.reward.xp} XP, 🪙 ${m.reward.coins}</span>
+            </div>
           </div>
-          <div class="mission-right">
-            ${state.claimed ? `
-              <span class="claimed-badge">✓ Claimed</span>
-            ` : (state.completed ? `
-              <button class="btn btn-claim-reward" data-mission="${m.id}">CLAIM</button>
-            ` : `
-              <span class="in-progress-badge">${pct}%</span>
-            `)}
-          </div>
+          ${isCompleted ? '<div class="mission-check">✓ DONE</div>' : ''}
         </div>
       `;
     }
 
-    list.innerHTML = html;
-
-    list.querySelectorAll('.btn-claim-reward').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const mid = btn.getAttribute('data-mission');
-        if (window.Missions.claimReward(mid)) {
-          this.showToast('Rewards Claimed!', 'success');
-          this.renderMissions();
-          this.updateMainMenuStats();
-        }
-      });
-    });
+    container.innerHTML = html;
   }
 
   // --- RENDER ACHIEVEMENTS SCREEN ---
@@ -476,18 +713,18 @@ class UIManager {
     const grid = document.getElementById('achievementsGrid');
     if (!grid) return;
 
-    const achs = window.Storage.data.achievements;
     let html = '';
+    for (let key of Object.keys(window.ACHIEVEMENTS_CONFIG)) {
+      const a = window.ACHIEVEMENTS_CONFIG[key];
+      const isUnlocked = window.Storage.data.achievements.includes(key);
 
-    for (let a of window.ACHIEVEMENTS_LIST) {
-      const isUnlocked = !!achs[a.id];
       html += `
         <div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'}">
           <div class="achievement-icon">${a.icon}</div>
           <div class="achievement-info">
-            <h4>${a.title}</h4>
-            <p>${a.desc}</p>
-            <span class="ach-status">${isUnlocked ? '✓ Unlocked' : '🔒 Locked'}</span>
+            <h4 class="achievement-title">${a.title}</h4>
+            <p class="achievement-desc">${a.description}</p>
+            <span class="achievement-status">${isUnlocked ? '✓ UNLOCKED' : '🔒 LOCKED'}</span>
           </div>
         </div>
       `;
@@ -498,41 +735,30 @@ class UIManager {
 
   // --- RENDER LEADERBOARD SCREEN ---
   renderLeaderboard() {
-    const container = document.getElementById('leaderboardList');
-    if (!container) return;
+    const list = document.getElementById('leaderboardList');
+    if (!list) return;
 
-    const curStats = window.Storage.data.endlessStats;
-    const rows = [
-      { rank: 1, name: 'CyberSurvivor (You)', wave: curStats.highestWave || 12, score: curStats.bestScore || 148200, kills: curStats.mostKills || 640 },
-      { rank: 2, name: 'VortexPilot', wave: 18, score: 135000, kills: 580 },
-      { rank: 3, name: 'ApexPhantom', wave: 15, score: 112000, kills: 490 },
-      { rank: 4, name: 'NeonSamurai', wave: 14, score: 98400,  kills: 420 },
-      { rank: 5, name: 'GlitchBreaker', wave: 11, score: 76500, kills: 310 }
-    ];
+    const entries = window.Storage.getLeaderboard();
 
-    container.innerHTML = `
-      <table class="leaderboard-table">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Survivor</th>
-            <th>Highest Wave</th>
-            <th>Score</th>
-            <th>Zombies</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map(r => `
-            <tr class="${r.rank === 1 ? 'player-row' : ''}">
-              <td><strong>#${r.rank}</strong></td>
-              <td>${r.name}</td>
-              <td>Wave ${r.wave}</td>
-              <td><span style="color: var(--color-gold); font-weight: 700;">${r.score.toLocaleString()}</span></td>
-              <td>${r.kills}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
+    let rows = entries.map(entry => `
+      <div class="leaderboard-row ${entry.isPlayer ? 'player-entry' : ''}">
+        <span class="lb-rank">#${entry.rank}</span>
+        <span class="lb-name">${entry.name} ${entry.isPlayer ? '(YOU)' : ''}</span>
+        <span class="lb-wave">Wave ${entry.wave}</span>
+        <span class="lb-score">${entry.score.toLocaleString()} PTS</span>
+      </div>
+    `).join('');
+
+    list.innerHTML = `
+      <div class="leaderboard-container">
+        <div class="leaderboard-header">
+          <span>RANK</span>
+          <span>OPERATIVE</span>
+          <span>WAVE</span>
+          <span>SCORE</span>
+        </div>
+        ${rows}
+      </div>
     `;
   }
 
@@ -578,7 +804,7 @@ class UIManager {
   }
 
   // --- HUD REAL-TIME UPDATES ---
-  updateHUD(player, waveManager, levelConfig, currentCombo, comboTimer, objectiveProgress) {
+  updateHUD(player, waveManager, levelConfig, currentCombo, comboTimer, objectiveProgress, distObjective = null) {
     if (!player) return;
 
     // Health bar
@@ -633,12 +859,33 @@ class UIManager {
     if (objEl && levelConfig) {
       objEl.textContent = `${levelConfig.objective}: ${objectiveProgress}`;
     }
+
+    // In-game distance marker
+    const distMarker = document.getElementById('hudDistMarker');
+    const distText = document.getElementById('hudDistText');
+    if (distMarker && distText) {
+      if (distObjective !== null && distObjective !== undefined) {
+        distMarker.style.display = 'flex';
+        distText.textContent = `${distObjective.label}: ${distObjective.distance}m`;
+      } else {
+        distMarker.style.display = 'none';
+      }
+    }
   }
 
-  showWaveBanner(text) {
+  showWaveBanner(text, color = null) {
     const banner = document.getElementById('hudWaveBanner');
     if (!banner) return;
     banner.textContent = text;
+    if (color) {
+      banner.style.color = color;
+      banner.style.borderColor = color;
+      banner.style.textShadow = `0 0 30px ${color}`;
+    } else {
+      banner.style.color = '#ffffff';
+      banner.style.borderColor = 'var(--color-cyan)';
+      banner.style.textShadow = '0 0 30px var(--color-cyan)';
+    }
     banner.classList.add('visible');
     setTimeout(() => {
       banner.classList.remove('visible');
@@ -712,4 +959,3 @@ class UIManager {
 }
 
 window.UIManager = UIManager;
-

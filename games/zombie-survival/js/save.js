@@ -1,16 +1,19 @@
 /**
- * Zombie Survival - Save / Load Storage Manager
- * Handles persistent player profile, progress, weapon upgrades, achievements, and settings.
+ * Zombie Survival V2 - Save / Load Storage Manager
+ * Handles persistent player profile, progress, weapon upgrades, skill tree, modifiers, loot, and settings.
  * Namespace: infinityplay_zombie_survival
+ * Backward-compatible: automatically migrates V1 save data without resetting player progression.
  */
 
 const STORAGE_KEY = 'infinityplay_zombie_survival';
 
-const DEFAULT_SAVE_DATA = {
-  version: 1,
-  coins: 500, // Starting bonus coins to get first upgrade
+const DEFAULT_SAVE_DATA_V2 = {
+  version: 2,
+  schemaVersion: 2,
+  coins: 500,
   xp: 0,
   playerLevel: 1,
+  skillPoints: 0,
   highestLevelUnlocked: 1,
   completedLevels: {}, // levelId -> { stars: 3, score: 12000, time: 65, kills: 42, accuracy: 92 }
   endlessStats: {
@@ -20,44 +23,78 @@ const DEFAULT_SAVE_DATA = {
     longestTime: 0
   },
   playerUpgrades: {
-    health: 0,     // Max Level 5 (+20 HP each)
-    armor: 0,      // Max Level 5 (+15 Armor each)
-    speed: 0,      // Max Level 5 (+5% speed each)
-    stamina: 0,    // Max Level 5 (+15 stamina)
-    dashCooldown: 0, // Max Level 5 (-10% cooldown)
-    critChance: 0  // Max Level 5 (+3% crit)
+    health: 0,           // Max 5
+    armor: 0,            // Max 5
+    speed: 0,            // Max 5
+    stamina: 0,          // Max 5
+    dashCooldown: 0,     // Max 5
+    critChance: 0,       // Max 5
+    damageResistance: 0, // Max 5 (V2 new)
+    pickupRange: 0       // Max 5 (V2 new)
+  },
+  skillTree: {
+    // Survival branch
+    ironFlesh: 0,       // +HP
+    nanitePlating: 0,   // +Armor
+    bioRecovery: 0,     // +Pickup Healing
+    // Combat branch
+    overcharge: 0,      // +Damage
+    lethalTargeting: 0, // +Crit Chance
+    comboSurge: 0,      // +Combo Score Bonus
+    // Mobility branch
+    kineticDrive: 0,    // +Move Speed
+    phaseDash: 0,       // +Dash Distance
+    hyperCoolant: 0     // -Dash Cooldown
   },
   unlockedWeapons: ['starter'],
   equippedWeapon: 'starter',
   weaponUpgrades: {
-    starter: { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0 },
-    rapid:   { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0 },
-    pulse:   { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0 },
-    scatter: { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0 },
-    plasma:  { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0 },
-    shock:   { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0 },
-    arc:     { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0 },
-    burst:   { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0 },
-    freeze:  { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0 }
+    starter:  { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0, critDmg: 0 },
+    pulse:    { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0, critDmg: 0 },
+    shocksmg: { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0, critDmg: 0 },
+    scatter:  { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0, critDmg: 0 },
+    arc:      { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0, critDmg: 0 },
+    freeze:   { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0, critDmg: 0 },
+    energy:   { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0, critDmg: 0 },
+    rail:     { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0, critDmg: 0 },
+    nova:     { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0, critDmg: 0 },
+    infinity: { damage: 0, fireRate: 0, mag: 0, reload: 0, range: 0, critDmg: 0 }
   },
+  weaponModifiers: {
+    starter: null,
+    pulse: null,
+    shocksmg: null,
+    scatter: null,
+    arc: null,
+    freeze: null,
+    energy: null,
+    rail: null,
+    nova: null,
+    infinity: null
+  },
+  unlockedModifiers: ['rapid'], // Starter modifier available
+  lootInventory: [],            // Dropped loot tokens & modifiers
   equippedSkill: 'dash',
   unlockedSkills: ['dash'],
-  missions: {}, // missionId -> { progress: 0, completed: false, claimed: false }
-  achievements: {}, // achievementId -> { unlocked: true, date: '...' }
+  missions: {},
+  achievements: {},
   stats: {
     totalKills: 0,
     totalCoinsEarned: 0,
     totalGamesPlayed: 0,
     totalSurvivalTime: 0,
     bestCombo: 0,
-    bossesDefeated: 0
+    bossesDefeated: 0,
+    totalMissionsCompleted: 0
   },
   settings: {
     sfx: true,
     music: true,
     screenShake: true,
     showDamageNumbers: true,
-    autoReload: true
+    autoReload: true,
+    highContrast: false,
+    reducedMotion: false
   }
 };
 
@@ -66,17 +103,52 @@ class SaveManager {
     this.data = this.load();
   }
 
+  init() {
+    this.data = this.load();
+    return this.data;
+  }
+
   load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return JSON.parse(JSON.stringify(DEFAULT_SAVE_DATA));
+      if (!raw) return JSON.parse(JSON.stringify(DEFAULT_SAVE_DATA_V2));
       const parsed = JSON.parse(raw);
-      // Merge with defaults to prevent undefined on new fields
-      return this._deepMerge(JSON.parse(JSON.stringify(DEFAULT_SAVE_DATA)), parsed);
+      return this.migrate(parsed);
     } catch (e) {
-      console.warn('[SaveManager] Failed to read save data, restoring defaults:', e);
-      return JSON.parse(JSON.stringify(DEFAULT_SAVE_DATA));
+      console.warn('[SaveManager] Failed to read save data, restoring V2 defaults:', e);
+      return JSON.parse(JSON.stringify(DEFAULT_SAVE_DATA_V2));
     }
+  }
+
+  migrate(oldData) {
+    const v2Default = JSON.parse(JSON.stringify(DEFAULT_SAVE_DATA_V2));
+    if (!oldData || typeof oldData !== 'object') return v2Default;
+
+    // Deep merge to preserve existing progress
+    const merged = this._deepMerge(v2Default, oldData);
+    merged.version = 2;
+
+    // Ensure V1 weapon IDs map to V2 IDs if needed
+    if (merged.unlockedWeapons && merged.unlockedWeapons.includes('rapid')) {
+      if (!merged.unlockedWeapons.includes('shocksmg')) merged.unlockedWeapons.push('shocksmg');
+    }
+    if (merged.unlockedWeapons && merged.unlockedWeapons.includes('plasma')) {
+      if (!merged.unlockedWeapons.includes('energy')) merged.unlockedWeapons.push('energy');
+    }
+
+    // Award retroactive skill points based on player level
+    const expectedPoints = Math.max(0, (merged.playerLevel || 1) - 1);
+    let spentPoints = 0;
+    if (merged.skillTree) {
+      for (let k in merged.skillTree) {
+        spentPoints += merged.skillTree[k] || 0;
+      }
+    }
+    merged.skillPoints = Math.max(0, expectedPoints - spentPoints);
+
+    this.data = merged;
+    this.save();
+    return merged;
   }
 
   save() {
@@ -88,11 +160,9 @@ class SaveManager {
   }
 
   reset() {
-    this.data = JSON.parse(JSON.stringify(DEFAULT_SAVE_DATA));
+    this.data = JSON.parse(JSON.stringify(DEFAULT_SAVE_DATA_V2));
     this.save();
   }
-
-  // --- PROGRESS HELPERS ---
 
   isLevelUnlocked(levelId) {
     if (levelId === 1) return true;
@@ -138,18 +208,29 @@ class SaveManager {
   addXP(amt) {
     if (typeof amt !== 'number' || isNaN(amt) || amt < 0) return;
     this.data.xp += Math.round(amt);
-    // Level scaling: lvl 1 = 200, lvl 2 = 500, lvl 3 = 900, etc.
     const needed = this.getXPForNextLevel(this.data.playerLevel);
     if (this.data.xp >= needed) {
       this.data.playerLevel++;
-      // Bonus coins on player level up
+      this.data.skillPoints++; // Award skill point on level up!
       this.data.coins += this.data.playerLevel * 100;
+      if (window.gameInstance && window.gameInstance.ui) {
+        window.gameInstance.ui.showToast(`LEVEL UP! Rank ${this.data.playerLevel} (+1 Skill Point, +${this.data.playerLevel * 100} Coins)`, 'achievement');
+      }
     }
     this.save();
   }
 
   getXPForNextLevel(lvl) {
-    return Math.floor(200 * Math.pow(lvl, 1.35));
+    return Math.floor(250 * Math.pow(lvl, 1.35));
+  }
+
+  spendSkillPoint() {
+    if (this.data.skillPoints > 0) {
+      this.data.skillPoints--;
+      this.save();
+      return true;
+    }
+    return false;
   }
 
   unlockWeapon(weaponId) {
@@ -168,20 +249,35 @@ class SaveManager {
     return false;
   }
 
-  unlockSkill(skillId) {
-    if (!this.data.unlockedSkills.includes(skillId)) {
-      this.data.unlockedSkills.push(skillId);
-      this.save();
-    }
-  }
-
-  equipSkill(skillId) {
-    if (this.data.unlockedSkills.includes(skillId)) {
-      this.data.equippedSkill = skillId;
+  equipModifier(weaponId, modifierId) {
+    if (this.data.weaponModifiers && (this.data.unlockedModifiers.includes(modifierId) || modifierId === null)) {
+      this.data.weaponModifiers[weaponId] = modifierId;
       this.save();
       return true;
     }
     return false;
+  }
+
+  addModifier(modifierId) {
+    this.data.unlockedModifiers = this.data.unlockedModifiers || [];
+    if (!this.data.unlockedModifiers.includes(modifierId)) {
+      this.data.unlockedModifiers.push(modifierId);
+    }
+    this.data.inventory = this.data.inventory || { modifiers: [] };
+    this.data.inventory.modifiers = this.data.inventory.modifiers || [];
+    if (!this.data.inventory.modifiers.includes(modifierId)) {
+      this.data.inventory.modifiers.push(modifierId);
+    }
+    this.save();
+  }
+
+  addLoot(lootItem) {
+    this.data.lootInventory = this.data.lootInventory || [];
+    this.data.lootInventory.push(lootItem);
+    if (lootItem.type === 'modifier' && !this.data.unlockedModifiers.includes(lootItem.id)) {
+      this.data.unlockedModifiers.push(lootItem.id);
+    }
+    this.save();
   }
 
   recordEndlessStats(wave, score, kills, time) {
@@ -216,4 +312,3 @@ class SaveManager {
 
 // Global Save Instance
 window.Storage = new SaveManager();
-
