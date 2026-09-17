@@ -140,6 +140,34 @@
         this._handleIntersection(vehicle, intersection, map, cfg);
       }
 
+      // Phase 10B Task 18: assign/refresh the vehicle's lane on its current
+      // road before road-following. LaneSystem owns lane state; it never
+      // writes steering or speed directly.
+      const laneSystem = this._modules ? this._modules.LaneSystem : null;
+      if (laneSystem && typeof laneSystem.assignLane === 'function' && currentRoad) {
+        laneSystem.assignLane(vehicle, currentRoad);
+      }
+
+      // Phase 10B Task 18: correct wrong-way lane assignment.
+      // With left-side driving, lane 0 is the leftmost. A vehicle
+      // travelling forward should never be in the rightmost lane unless
+      // overtaking is explicitly enabled and safe.
+      if (laneSystem && typeof laneSystem.correctWrongWay === 'function' && currentRoad) {
+        laneSystem.correctWrongWay(vehicle, currentRoad);
+      }
+
+      // Phase 10B Task 18: simple safe overtaking decision.
+      // Only moves when there is a slower vehicle ahead in our lane and
+      // the target lane is clear. Never switches lanes randomly.
+      if (laneSystem && typeof laneSystem.considerOvertaking === 'function' && currentRoad) {
+        const otherVehicles = this._vehicles || [];
+        const ahead = this._findVehicleAhead(vehicle, currentRoad, otherVehicles);
+        const target = laneSystem.considerOvertaking(vehicle, currentRoad, otherVehicles, ahead);
+        if (target !== null) {
+          laneSystem.changeLane(vehicle, target, currentRoad);
+        }
+      }
+
       // Apply steering to follow the road
       this._applyRoadFollowing(vehicle, currentRoad, dt, cfg);
 
@@ -587,8 +615,25 @@ _handleRoundabout(vehicle, roundabout, map, cfg) {
         pathPoints = [startPt, endPt];
       }
 
-      // Find the target point ahead on the path
-      const targetPoint = this._findTargetPoint(vehicle, pathPoints, vehicle._aiTravelDirection);
+      // Phase 10B Task 18: steer toward the assigned lane center instead
+      // of the road centerline. LaneSystem owns lane state; it never
+      // writes steering or speed directly — SteeringSystem remains the
+      // sole authority for steering forces.
+      const laneSystem = this._modules ? this._modules.LaneSystem : null;
+      let targetPoint = this._findTargetPoint(vehicle, pathPoints, vehicle._aiTravelDirection);
+
+      if (targetPoint && laneSystem && typeof laneSystem.getLane === 'function'
+        && typeof road.getLaneCenter === 'function') {
+        const laneIdx = laneSystem.getLane(vehicle);
+        if (typeof laneIdx === 'number') {
+          // Determine t along the road for the target point.
+          const nearest = road.getNearestPoint(targetPoint.x, targetPoint.y);
+          const laneCenter = road.getLaneCenter(laneIdx, vehicle._aiTravelDirection || 1, nearest.t);
+          if (laneCenter) {
+            targetPoint = laneCenter;
+          }
+        }
+      }
 
       if (targetPoint) {
         // Calculate steering to reach target point
@@ -781,6 +826,30 @@ _handleRoundabout(vehicle, roundabout, map, cfg) {
 
     clear() {
       this._vehicles = [];
+    },
+
+    // Phase 10B Task 18: find the nearest vehicle ahead on the same road
+    // in the current lane. Used by the overtaking decision.
+    _findVehicleAhead(vehicle, road, otherVehicles) {
+      if (!vehicle || !road || !otherVehicles) return null;
+      let nearest = null;
+      let nearestDist = Infinity;
+      for (let i = 0; i < otherVehicles.length; i++) {
+        const other = otherVehicles[i];
+        if (other === vehicle || !other || !other.active) continue;
+        if (!other._aiRoad || other._aiRoad.id !== road.id) continue;
+        const dx = other.x - vehicle.x;
+        const dy = other.y - vehicle.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        // Only consider vehicles ahead in the travel direction.
+        const dir = vehicle._aiTravelDirection || 1;
+        const ahead = (dir === 1) ? (dy < 0) : (dy > 0);
+        if (ahead && dist < nearestDist) {
+          nearestDist = dist;
+          nearest = other;
+        }
+      }
+      return nearest;
     },
 
     destroy() {
