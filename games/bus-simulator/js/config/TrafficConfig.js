@@ -127,6 +127,24 @@
       lightProbability: 0.5
     },
 
+    // Phase 10B Task 18: centralized lane-discipline configuration.
+    // LaneSystem is the sole owner of vehicle lane state; these values
+    // drive lane assignment, lane-change speed, and optional lane assist.
+    lanes: {
+      // Master toggle — when false LaneSystem is a no-op.
+      enabled: true,
+      // Default lane preference: 'left' (India), 'right', or 'center'.
+      defaultLanePreference: 'left',
+      // Lane-change interpolation speed (0..1 per second, higher = faster).
+      laneChangeSpeed: 1.0,
+      // Minimum distance required before a safe lane change.
+      safeLaneChangeDistance: 25,
+      // Allow AI overtaking via lane change when enabled.
+      overtakingEnabled: true,
+      // Optional player-bus lane assist (does NOT override steering).
+      laneAssistEnabled: false
+    },
+
     // Optimization settings
     optimization: {
       // Only update vehicles within this distance of the camera

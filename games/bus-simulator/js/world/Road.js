@@ -107,6 +107,56 @@
     renderer.context.restore();
   };
 
+Road.prototype.getLaneCenter = function (laneIndex, direction, t) {
+    // Phase 10B Task 18: compute the world-space center of a specific lane
+    // at parameter t (0..1 along the road). Lane 0 is the leftmost lane
+    // when travelling in the road's forward direction (x1,y1 -> x2,y2).
+    // direction = 1 for forward, -1 for reverse.
+    // Invalid inputs fall back to the road centerline safely.
+    const laneCount = this.lanes || 1;
+    const safeLane = LaneSystem_isFiniteInt(laneIndex) ? Math.floor(laneIndex) : 0;
+    let clamped = safeLane;
+    if (clamped < 0) clamped = 0;
+    if (clamped >= laneCount) clamped = laneCount - 1;
+
+    const safeT = LaneSystem_isFiniteNum(t) ? Math.max(0, Math.min(1, t)) : 0.5;
+    const safeDir = (direction === -1) ? -1 : 1;
+
+    // Base centerline point at t.
+    const cx = this.x1 + (this.x2 - this.x1) * safeT;
+    const cy = this.y1 + (this.y2 - this.y1) * safeT;
+
+    // Perpendicular offset. Road direction vector:
+    const dx = this.x2 - this.x1;
+    const dy = this.y2 - this.y1;
+    const len = Math.sqrt(dx * dx + dy * dy) || 1;
+    // Unit perpendicular (left of forward direction):
+    const px = -dy / len;
+    const py = dx / len;
+
+    // Lane offset from centerline. Leftmost lane (index 0) sits on the
+    // left side when travelling forward. With left-side driving, lane 0
+    // is the leftmost lane.
+    const laneWidth = (this.width || 0) / Math.max(1, laneCount);
+    const offsetFromCenter = (clamped - (laneCount - 1) / 2) * laneWidth;
+    // When travelling in reverse, left/right swap.
+    const sign = safeDir;
+    return {
+      x: cx + px * offsetFromCenter * sign,
+      y: cy + py * offsetFromCenter * sign,
+      laneIndex: clamped,
+      t: safeT
+    };
+  };
+
+  // Local helper — avoids depending on LaneSystem module at load time.
+  function LaneSystem_isFiniteNum(v) {
+    return typeof v === 'number' && isFinite(v);
+  }
+  function LaneSystem_isFiniteInt(v) {
+    return typeof v === 'number' && isFinite(v);
+  }
+
   if (typeof window !== 'undefined') {
     window.BusSim = window.BusSim || {};
     window.BusSim.Road = Road;
