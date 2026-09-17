@@ -79,7 +79,7 @@ const categoriesData = [
     slug: 'Survival',
     icon: 'assets/categories/cat_survival_art.png',
     fullCard: 'assets/categories/cat_survival_full.png',
-    gameCount: 0,
+    gameCount: 1,
     gradient: 'linear-gradient(135deg, rgba(249, 115, 22, 0.25), rgba(194, 65, 12, 0.05))',
     borderColor: 'rgba(249, 115, 22, 0.3)'
   }

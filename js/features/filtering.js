@@ -1,4 +1,4 @@
-﻿/**
+/**
  * InfinityPlay - Category & Filter Feature
  */
 
@@ -74,7 +74,8 @@
 
       // Filter games
       const filtered = window.InfinityPlay.gamesData.filter(g => 
-        g.category.toLowerCase() === category.toLowerCase()
+        g.category.toLowerCase() === category.toLowerCase() ||
+        (g.tags && g.tags.some(t => t.toLowerCase() === category.toLowerCase()))
       );
 
       this.updateActiveFilterUI(`Category: ${category}`);

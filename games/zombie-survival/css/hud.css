@@ -1,0 +1,294 @@
+/* ==========================================================================
+   Zombie Survival - Heads-Up Display (HUD)
+   ========================================================================== */
+
+#gameHUD {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 24px;
+}
+
+/* Top Stats Header */
+.hud-top-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.hud-player-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 240px;
+}
+
+.hud-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.hud-bar-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hud-bar-track {
+  width: 100%;
+  height: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hud-bar-fill-health {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #ef4444 0%, #22c55e 100%);
+  transition: width 0.15s ease-out;
+}
+
+.hud-bar-fill-armor {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
+  transition: width 0.15s ease-out;
+}
+
+/* Top Center Objective / Wave */
+.hud-center-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle);
+  padding: 8px 20px;
+  border-radius: 12px;
+}
+
+.hud-wave-title {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--color-cyan);
+  letter-spacing: 0.1em;
+}
+
+.hud-objective-text {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+/* Top Right Score & Ability */
+.hud-right-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.hud-score-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.hud-score-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--color-gold);
+  letter-spacing: 0.1em;
+}
+
+.hud-score-value {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-ability-badge {
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid var(--color-cyan);
+  color: var(--color-cyan);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 12px var(--color-cyan-glow);
+}
+
+.hud-ability-badge.cooling {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: var(--color-pink);
+  color: var(--color-pink);
+  box-shadow: none;
+}
+
+/* Bottom Bar Ammo & Combo */
+.hud-bottom-bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.hud-ammo-box {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle);
+  padding: 8px 18px;
+  border-radius: 10px;
+}
+
+.hud-ammo-count {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-ammo-reserve {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.hud-combo-badge {
+  display: none;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--color-gold);
+  text-shadow: 0 0 16px rgba(250, 204, 21, 0.8);
+  letter-spacing: 0.05em;
+  animation: pulseCombo 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes pulseCombo {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
+}
+
+/* Wave Banner */
+.hud-wave-banner {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.7);
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 0 30px var(--color-cyan);
+  background: rgba(15, 23, 42, 0.85);
+  border: 2px solid var(--color-cyan);
+  padding: 16px 40px;
+  border-radius: 12px;
+  letter-spacing: 0.15em;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 20;
+}
+
+.hud-wave-banner.visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Mobile Virtual Touch Controls */
+#mobileControls {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.touch-joystick-zone {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+}
+
+.touch-knob {
+  width: 50px;
+  height: 50px;
+  background: var(--color-cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 16px var(--color-cyan-glow);
+  pointer-events: none;
+}
+
+.touch-actions-zone {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  gap: 14px;
+  pointer-events: auto;
+}
+
+.btn-touch-action {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.btn-touch-fire {
+  background: rgba(244, 63, 94, 0.4);
+  border-color: var(--color-pink);
+  box-shadow: 0 0 16px var(--color-pink-glow);
+}
+
+.btn-touch-dash {
+  background: rgba(0, 240, 255, 0.3);
+  border-color: var(--color-cyan);
+}
+
+.btn-touch-reload {
+  background: rgba(250, 204, 21, 0.3);
+  border-color: var(--color-gold);
+}
+

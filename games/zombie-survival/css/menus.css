@@ -1,0 +1,932 @@
+/* ==========================================================================
+   Zombie Survival - Menus, Modals & Screens
+   ========================================================================== */
+
+.game-screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.94) 0%, rgba(6, 9, 19, 0.98) 100%);
+  z-index: 100;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.game-screen.active {
+  display: flex;
+}
+
+/* Screen Title Header */
+.screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1000px;
+  margin-bottom: 24px;
+}
+
+.screen-title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.screen-title span {
+  color: var(--color-cyan);
+}
+
+/* ==========================================================================
+   1. MAIN MENU SCREEN
+   ========================================================================== */
+.main-menu-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 900px;
+  width: 100%;
+  gap: 24px;
+}
+
+.game-logo-box {
+  text-align: center;
+}
+
+.game-main-title {
+  font-size: 3.6rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 0 40px var(--color-cyan-glow);
+  margin-bottom: 4px;
+}
+
+.game-main-title span {
+  color: var(--color-cyan);
+}
+
+.game-tagline {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-gold);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}
+
+/* Stats Overview Bar */
+.menu-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  width: 100%;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.stat-item span:first-child {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-item strong {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+/* Main Menu Buttons Grid */
+.menu-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  width: 100%;
+}
+
+.btn-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 20px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  color: #f8fafc;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-menu:hover {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px var(--color-cyan-glow);
+}
+
+.btn-menu-primary {
+  grid-column: span 3;
+  padding: 22px;
+  font-size: 1.35rem;
+  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 100%);
+  color: #04101e;
+  border: none;
+  box-shadow: 0 0 30px var(--color-cyan-glow);
+}
+
+.btn-menu-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 0 40px rgba(0, 240, 255, 0.7);
+}
+
+#btnBackToInfinity {
+  grid-column: span 2;
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+#btnBackToInfinity:hover {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: var(--color-pink);
+  color: var(--color-pink);
+  box-shadow: 0 0 20px var(--color-pink-glow);
+}
+
+/* ==========================================================================
+   2. MODE SELECT SCREEN
+   ========================================================================== */
+.modes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.mode-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  padding: 24px;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.mode-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-cyan);
+  box-shadow: 0 10px 30px var(--color-cyan-glow);
+}
+
+.mode-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--color-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.mode-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.mode-desc {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   3. LEVEL SELECT SCREEN (60 LEVELS, 10 WORLDS)
+   ========================================================================== */
+.level-select-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1000px;
+  gap: 20px;
+}
+
+.world-tabs-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  width: 100%;
+}
+
+.world-tab-btn {
+  padding: 10px 18px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.world-tab-btn:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.world-tab-btn.active {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+  box-shadow: 0 0 16px var(--color-cyan-glow);
+}
+
+.world-info-box {
+  background: rgba(15, 23, 42, 0.6);
+  border-left: 4px solid var(--color-cyan);
+  padding: 12px 18px;
+  border-radius: 0 8px 8px 0;
+}
+
+.world-info-box h3 {
+  font-size: 1.2rem;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.world-info-box p {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.levels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.level-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 18px;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.level-card.unlocked {
+  cursor: pointer;
+}
+
+.level-card.unlocked:hover {
+  border-color: var(--color-cyan);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--color-cyan-glow);
+}
+
+.level-card.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.level-card.boss-level {
+  border-color: rgba(244, 63, 94, 0.4);
+}
+
+.level-card.boss-level:hover {
+  border-color: var(--color-pink);
+  box-shadow: 0 6px 20px var(--color-pink-glow);
+}
+
+.level-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.level-num {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--color-cyan);
+}
+
+.level-diff {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.level-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.level-objective {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+}
+
+.level-stars {
+  display: flex;
+  gap: 4px;
+  font-size: 1.1rem;
+}
+
+.star-filled {
+  color: var(--color-gold);
+  text-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
+}
+
+.star-empty {
+  color: rgba(255, 255, 255, 0.15);
+}
+
+.btn-play-level {
+  margin-top: 6px;
+  padding: 8px 16px;
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid var(--color-cyan);
+  color: var(--color-cyan);
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+
+.level-lock-badge {
+  font-size: 0.82rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   4. ARSENAL & UPGRADES SCREEN
+   ========================================================================== */
+.arsenal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.arsenal-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+  gap: 12px;
+}
+
+.arsenal-card.equipped {
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 20px var(--color-cyan-glow);
+}
+
+.arsenal-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.arsenal-category {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--color-cyan);
+  text-transform: uppercase;
+}
+
+.arsenal-weapon-name {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.equipped-badge {
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid var(--color-cyan);
+  color: var(--color-cyan);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.arsenal-desc {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.arsenal-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.arsenal-stats-grid span {
+  color: #94a3b8;
+}
+
+.arsenal-stats-grid strong {
+  color: #ffffff;
+}
+
+.btn-equip {
+  width: 100%;
+  background: var(--color-cyan);
+  color: #04101e;
+  font-weight: 800;
+}
+
+.btn-unlock-weapon {
+  width: 100%;
+  background: var(--color-gold);
+  color: #04101e;
+  font-weight: 800;
+}
+
+.weapon-upgrades-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 10px;
+}
+
+.upgrade-buttons-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.btn-upgrade-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  color: #f8fafc;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-upgrade-stat:hover {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: var(--color-cyan);
+}
+
+.btn-upgrade-stat small {
+  color: var(--color-gold);
+  font-weight: 800;
+}
+
+/* Player Upgrades Tree */
+.player-upgrades-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 800px;
+}
+
+.player-upgrade-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.upgrade-icon {
+  font-size: 2rem;
+}
+
+.upgrade-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.upgrade-title-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.upgrade-title-row h4 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.upgrade-level {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-cyan);
+}
+
+.upgrade-desc {
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.upgrade-pips {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.pip {
+  width: 24px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+
+.pip.filled {
+  background: var(--color-cyan);
+  box-shadow: 0 0 6px var(--color-cyan-glow);
+}
+
+.btn-player-upgrade {
+  padding: 10px 18px;
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid var(--color-cyan);
+  color: var(--color-cyan);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.btn-player-upgrade.maxed {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #64748b;
+}
+
+/* ==========================================================================
+   5. MISSIONS & ACHIEVEMENTS
+   ========================================================================= */
+.missions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 800px;
+}
+
+.mission-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.mission-card.ready {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 16px rgba(250, 204, 21, 0.3);
+}
+
+.mission-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.mission-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mission-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.mission-reward-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.mission-desc {
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.mission-progress-bar {
+  width: 80%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.mission-fill {
+  height: 100%;
+  background: var(--color-cyan);
+}
+
+.mission-tracker-text {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.btn-claim-reward {
+  padding: 8px 18px;
+  background: var(--color-gold);
+  color: #04101e;
+  border-radius: 6px;
+  font-weight: 900;
+  font-size: 0.82rem;
+}
+
+.claimed-badge {
+  font-size: 0.82rem;
+  color: #22c55e;
+  font-weight: 800;
+}
+
+.in-progress-badge {
+  font-size: 0.82rem;
+  color: #64748b;
+  font-weight: 800;
+}
+
+/* Achievements Grid */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 900px;
+}
+
+.achievement-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.achievement-card.unlocked {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 16px rgba(250, 204, 21, 0.25);
+}
+
+.achievement-icon {
+  font-size: 2.2rem;
+}
+
+.achievement-info h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.achievement-info p {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.ach-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+/* ==========================================================================
+   6. LEADERBOARD & SETTINGS
+   ========================================================================== */
+.leaderboard-table {
+  width: 100%;
+  max-width: 800px;
+  border-collapse: collapse;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.leaderboard-table th, .leaderboard-table td {
+  padding: 14px 18px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.leaderboard-table th {
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--color-cyan);
+  text-transform: uppercase;
+}
+
+.leaderboard-table td {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.leaderboard-table tr.player-row td {
+  color: #ffffff;
+  font-weight: 700;
+  background: rgba(0, 240, 255, 0.08);
+}
+
+/* Settings Options */
+.settings-box {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 500px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  padding: 24px;
+  border-radius: 12px;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.setting-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #334155;
+  transition: 0.3s;
+  border-radius: 26px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: var(--color-cyan);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(22px);
+}
+
+/* ==========================================================================
+   7. PAUSE & RESULTS MODAL
+   ========================================================================== */
+.modal-dialog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 32px 40px;
+  gap: 20px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+}
+
+.modal-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.08em;
+}
+
+.results-stars-row {
+  display: flex;
+  gap: 8px;
+  font-size: 2.2rem;
+}
+
+.results-stats-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.results-stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.results-stat-item span {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.results-stat-item strong {
+  font-size: 1.1rem;
+  color: #ffffff;
+}
+
+.results-rewards-box {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  padding: 12px;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid var(--color-cyan);
+  border-radius: 8px;
+  color: var(--color-cyan);
+  font-weight: 800;
+}
+
+.results-buttons-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+}

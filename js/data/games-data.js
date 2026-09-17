@@ -5,6 +5,26 @@
 
 const gamesData = [
   {
+    id: 'zombie-survival',
+    name: 'Zombie Survival',
+    title: 'Zombie Survival',
+    category: 'Action',
+    rating: 5.0,
+    plays: 34800,
+    playsFormatted: '34.8K',
+    rank: 1,
+    badge: 'NEW ACTION',
+    isTop: true,
+    thumbnail: 'games/zombie-survival/assets/images/zombie-survival.png',
+    topThumbnail: 'games/zombie-survival/assets/images/zombie-survival.png',
+    description: 'The ultimate top-down zombie survival action game. Battle through 60 campaign levels across 10 worlds with 9 sci-fi weapons, upgrades, boss showdowns, and endless survival.',
+    tags: ['Action', 'Survival', 'Zombies', 'Shooter', 'Sci-Fi', 'Arcade'],
+    releaseDate: '2026-09-17',
+    developer: 'InfinityPlay Studios',
+    gameUrl: 'games/zombie-survival/index.html',
+    playMode: 'embed'
+  },
+  {
     id: 'nokia-snake',
     name: 'NOKIA SNAKE',
     category: 'Arcade',
