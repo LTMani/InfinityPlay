@@ -56,6 +56,10 @@
       window.UIManager.updateLives(lives);
     };
 
+    game.onPhaseChange = (phase, title, subtitle) => {
+      window.UIManager.showPhaseBanner(phase, title, subtitle);
+    };
+
     game.onLevelComplete = (summary) => {
       window.UIManager.renderVictoryModal(
         summary,
