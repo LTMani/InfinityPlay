@@ -17,7 +17,7 @@ const gamesData = [
     isTop: true,
     thumbnail: 'games/zombie-survival/assets/images/zombie-survival.png',
     topThumbnail: 'games/zombie-survival/assets/images/zombie-survival.png',
-    description: 'The ultimate top-down zombie survival action game. Battle through 60 campaign levels across 10 worlds with 9 sci-fi weapons, upgrades, boss showdowns, and endless survival.',
+    description: 'The ultimate top-down zombie survival action game. Battle through 60 campaign levels across 10 worlds with 10 energy weapons, 8 modular weapon modifiers, 3-branch skill tree, 10 zombie archetypes, 5 multi-phase boss showdowns, and endless survival.',
     tags: ['Action', 'Survival', 'Zombies', 'Shooter', 'Sci-Fi', 'Arcade'],
     releaseDate: '2026-09-17',
     developer: 'InfinityPlay Studios',

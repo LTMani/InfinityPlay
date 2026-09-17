@@ -629,7 +629,7 @@ class UIManager {
     let html = '';
     for (let key of Object.keys(window.PLAYER_UPGRADE_CONFIG)) {
       const cfg = window.PLAYER_UPGRADE_CONFIG[key];
-      const curLvl = window.Storage.data.upgrades[key] || 0;
+      const curLvl = (window.Storage.data.playerUpgrades && window.Storage.data.playerUpgrades[key]) || (window.Storage.data.upgrades && window.Storage.data.upgrades[key]) || 0;
       const isMax = curLvl >= cfg.maxLevel;
       const cost = isMax ? 0 : cfg.costs[curLvl];
 
