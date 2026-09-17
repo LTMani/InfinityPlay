@@ -1,0 +1,108 @@
+<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="connCardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0b0f19"/>
+      <stop offset="50%" style="stop-color:#111827"/>
+      <stop offset="100%" style="stop-color:#080b12"/>
+    </linearGradient>
+
+    <filter id="pipeGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <radialGradient id="redNode" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#fca5a5"/>
+      <stop offset="60%" style="stop-color:#ef4444"/>
+      <stop offset="100%" style="stop-color:#991b1b"/>
+    </radialGradient>
+
+    <radialGradient id="blueNode" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#93c5fd"/>
+      <stop offset="60%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#1e40af"/>
+    </radialGradient>
+
+    <radialGradient id="greenNode" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#86efac"/>
+      <stop offset="60%" style="stop-color:#10b981"/>
+      <stop offset="100%" style="stop-color:#065f46"/>
+    </radialGradient>
+
+    <radialGradient id="yellowNode" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#fef08a"/>
+      <stop offset="60%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#92400e"/>
+    </radialGradient>
+
+    <radialGradient id="purpleNode" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#d8b4fe"/>
+      <stop offset="60%" style="stop-color:#8b5cf6"/>
+      <stop offset="100%" style="stop-color:#5b21b6"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Card Background -->
+  <rect width="320" height="180" fill="url(#connCardBg)"/>
+  <rect x="6" y="6" width="308" height="168" rx="10" fill="none" stroke="rgba(168, 85, 247, 0.3)" stroke-width="1.2"/>
+
+  <!-- Puzzle Board Frame (5x5 grid mockup) -->
+  <rect x="95" y="14" width="130" height="130" rx="12" fill="#131b2e" stroke="rgba(255,255,255,0.08)" stroke-width="2" filter="drop-shadow(0 8px 16px rgba(0,0,0,0.6))"/>
+
+  <!-- Grid lines -->
+  <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+    <line x1="121" y1="14" x2="121" y2="144"/>
+    <line x1="147" y1="14" x2="147" y2="144"/>
+    <line x1="173" y1="14" x2="173" y2="144"/>
+    <line x1="199" y1="14" x2="199" y2="144"/>
+
+    <line x1="95" y1="40" x2="225" y2="40"/>
+    <line x1="95" y1="66" x2="225" y2="66"/>
+    <line x1="95" y1="92" x2="225" y2="92"/>
+    <line x1="95" y1="118" x2="225" y2="118"/>
+  </g>
+
+  <!-- Glowing Paths (Cell centers: x=108, 134, 160, 186, 212; y=27, 53, 79, 105, 131) -->
+  <!-- Red Path: (0,0) -> (0,1) -> (0,2) -> (1,2) -> (2,2) -->
+  <path d="M 108 27 L 160 27 L 160 79" fill="none" stroke="#ef4444" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#pipeGlow)"/>
+
+  <!-- Blue Path: (0,3) -> (0,4) -> (1,4) -> (2,4) -> (3,4) -> (4,4) -->
+  <path d="M 186 27 L 212 27 L 212 131" fill="none" stroke="#3b82f6" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#pipeGlow)"/>
+
+  <!-- Green Path: (1,0) -> (2,0) -> (3,0) -> (4,0) -> (4,1) -> (4,2) -->
+  <path d="M 108 53 L 108 131 L 160 131" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#pipeGlow)"/>
+
+  <!-- Yellow Path: (1,1) -> (2,1) -> (3,1) -> (3,2) -> (3,3) -->
+  <path d="M 134 53 L 134 105 L 186 105" fill="none" stroke="#f59e0b" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#pipeGlow)"/>
+
+  <!-- Purple Path: (1,3) -> (2,3) -> (4,3) -->
+  <path d="M 186 53 L 186 79 L 186 79 L 186 131" fill="none" stroke="#8b5cf6" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#pipeGlow)"/>
+
+  <!-- Pulsing Endpoint Dots -->
+  <!-- Red Endpoints -->
+  <circle cx="108" cy="27" r="7" fill="url(#redNode)"/>
+  <circle cx="160" cy="79" r="7" fill="url(#redNode)"/>
+
+  <!-- Blue Endpoints -->
+  <circle cx="186" cy="27" r="7" fill="url(#blueNode)"/>
+  <circle cx="212" cy="131" r="7" fill="url(#blueNode)"/>
+
+  <!-- Green Endpoints -->
+  <circle cx="108" cy="53" r="7" fill="url(#greenNode)"/>
+  <circle cx="160" cy="131" r="7" fill="url(#greenNode)"/>
+
+  <!-- Yellow Endpoints -->
+  <circle cx="134" cy="53" r="7" fill="url(#yellowNode)"/>
+  <circle cx="186" cy="105" r="7" fill="url(#yellowNode)"/>
+
+  <!-- Purple Endpoints -->
+  <circle cx="186" cy="53" r="7" fill="url(#purpleNode)"/>
+  <circle cx="186" cy="131" r="7" fill="url(#purpleNode)"/>
+
+  <!-- Game Label & Tagline -->
+  <text x="160" y="158" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="900" fill="#a855f7" text-anchor="middle" letter-spacing="0.12em">CONNECTING</text>
+  <text x="160" y="171" font-family="'Inter', system-ui, sans-serif" font-size="8.5" font-weight="600" fill="#94a3b8" text-anchor="middle" letter-spacing="0.05em">CONNECT THE DOTS • FILL THE BOARD</text>
+</svg>
