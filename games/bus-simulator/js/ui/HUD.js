@@ -405,6 +405,26 @@
         ctx.fillText(`🔋 ${Math.round(electrical.batteryCharge)}% ${electrical.batteryVoltage}V`, batX + 4, barY + 13);
       }
 
+      // Phase 10B Task 16: door status indicator.
+      // DoorSystem owns door state; HUD only reads the existing vehicle
+      // hook. No door math is duplicated here.
+      const doors = (typeof bus.getDoors === 'function') ? bus.getDoors() : null;
+      if (doors && doors.doors) {
+        const doorX = 710;
+        const frontOpen = doors.doors.frontDoor && doors.doors.frontDoor.open;
+        const rearOpen = doors.doors.rearDoor && doors.doors.rearDoor.open;
+        const anyOpen = frontOpen || rearOpen;
+        ctx.fillStyle = anyOpen ? 'rgba(16, 185, 129, 0.85)' : 'rgba(100, 100, 100, 0.5)';
+        ctx.fillRect(doorX, barY, 14, 18);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.strokeRect(doorX, barY, 14, 18);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '10px Inter, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(frontOpen ? '🚪F' : '🚪c', doorX + 2, barY + 13);
+        ctx.fillText(rearOpen ? '🚪R' : '-door', doorX + 16, barY + 13);
+      }
+
       // Boarding indicator
       const boardingSystem = this.modules.BoardingSystem;
       if (boardingSystem && boardingSystem.isBoarding && boardingSystem.isBoarding()) {

@@ -161,7 +161,11 @@
         lights: inputSystem.getAction('toggleLights'),
         interiorLights: inputSystem.getAction('interiorLights'),
         horn: inputSystem.getAction('horn'),
-        wipers: inputSystem.getAction('wipers')
+        wipers: inputSystem.getAction('wipers'),
+        // Phase 10B Task 16: door input actions.
+        doors: inputSystem.getAction('toggleDoors'),
+        rearDoor: inputSystem.getAction('toggleRearDoor'),
+        driverDoor: inputSystem.getAction('toggleDriverDoor')
       };
 
       if (!bus.canMove()) return;
@@ -195,6 +199,13 @@
       bus._interiorLightsOn = inputState.interiorLights > 0;
       bus._hornActive = inputState.horn > 0;
       bus._wipersOn = inputState.wipers > 0;
+
+      // Phase 10B Task 16: feed door inputs into the bus so the
+      // DoorSystem (the single authoritative door owner) can read them
+      // during its update. No input mapping is duplicated here.
+      bus._doorFront = inputState.doors > 0;
+      bus._doorRear = inputState.rearDoor > 0;
+      bus._doorDriver = inputState.driverDoor > 0;
       const brakeSystem = this.modules.BrakeSystem;
       if (brakeSystem && typeof brakeSystem.updateVehicle === 'function') {
         brakeSystem.updateVehicle(bus, dt);
@@ -249,6 +260,15 @@
       const electricalSystem = this.modules.ElectricalSystem;
       if (electricalSystem && typeof electricalSystem.updateVehicle === 'function') {
         electricalSystem.updateVehicle(bus, dt);
+      }
+
+      // Phase 10B Task 16: update door state once per frame before the
+      // physics step. DoorSystem owns door state; it never writes
+      // acceleration, braking, or steering — it only exposes the
+      // door-open gate that BoardingSystem/DropOffSystem consult.
+      const doorSystem = this.modules.DoorSystem;
+      if (doorSystem && typeof doorSystem.updateVehicle === 'function') {
+        doorSystem.updateVehicle(bus, dt);
       }
 
       // Reverse detection: brake when stopped enters reverse mode
