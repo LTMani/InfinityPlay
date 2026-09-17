@@ -1,0 +1,739 @@
+/**
+ * Nokia Snake - Classic Retro Mobile LCD Stylesheet
+ */
+
+:root {
+  --color-bg: #070a12;
+  --color-chassis: #1e293b;
+  --color-chassis-border: #334155;
+  --color-bezel: #252e20;
+  --color-bezel-border: #141a11;
+  --color-accent: #4ade80;
+  --color-accent-dim: rgba(74, 222, 128, 0.15);
+
+  --lcd-bg: #9ba88d;
+  --lcd-pixel: #1f271b;
+  --lcd-border: #1f271b;
+  --lcd-ghost: rgba(31, 39, 27, 0.06);
+
+  --font-retro: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+  --font-system: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-bg);
+  background-image: 
+    radial-gradient(ellipse at 50% 10%, rgba(74, 222, 128, 0.08) 0%, transparent 60%),
+    linear-gradient(180deg, #0b111e 0%, #05070c 100%);
+  color: #f1f5f9;
+  font-family: var(--font-system);
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   TOP BAR
+   ========================================================================== */
+.nokia-top-bar {
+  width: 100%;
+  height: 52px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.brand-icon {
+  font-size: 1.4rem;
+  filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.5));
+}
+
+.brand-title {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.08em;
+}
+
+.brand-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  background: var(--color-accent-dim);
+  color: var(--color-accent);
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  letter-spacing: 0.05em;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-top {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-top:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-exit {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.btn-exit:hover {
+  background: rgba(239, 68, 68, 0.25);
+  color: #ffffff;
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+/* ==========================================================================
+   APP CONTAINER & PHONE CHASSIS
+   ========================================================================== */
+.nokia-main-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.nokia-phone-casing {
+  width: 100%;
+  max-width: 440px;
+  background: linear-gradient(180deg, #273549 0%, #172130 50%, #0f1724 100%);
+  border: 2px solid var(--color-chassis-border);
+  border-radius: 36px;
+  padding: 24px 20px 20px 20px;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 2px 4px rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* Speaker Ear Grill */
+.phone-speaker {
+  width: 56px;
+  height: 6px;
+  background: #090e17;
+  border-radius: 3px;
+  margin-bottom: 18px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* ==========================================================================
+   RETRO LCD SCREEN FRAME
+   ========================================================================== */
+.lcd-screen-bezel {
+  width: 100%;
+  background: linear-gradient(180deg, #323d2e 0%, #1a2217 100%);
+  border: 3px solid var(--color-bezel-border);
+  border-radius: 16px;
+  padding: 10px;
+  box-shadow: 
+    inset 0 4px 10px rgba(0, 0, 0, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.lcd-screen-inner {
+  width: 100%;
+  background-color: var(--lcd-bg);
+  border: 2px solid var(--lcd-border);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Top LCD Header Bar (Signal, Battery, Title) */
+.lcd-header-bar {
+  width: 100%;
+  background: rgba(31, 39, 27, 0.08);
+  border-bottom: 1.5px dashed var(--lcd-pixel);
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-retro);
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: var(--lcd-pixel);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.lcd-header-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lcd-header-title {
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.lcd-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ==========================================================================
+   CANVAS & OVERLAYS CONTAINER
+   ========================================================================== */
+.lcd-viewport {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  background: var(--lcd-bg);
+  overflow: hidden;
+}
+
+#gameCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Optional Scanlines & Pixel Grid Texture Overlay */
+.lcd-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    rgba(31, 39, 27, 0.04) 50%, 
+    rgba(0, 0, 0, 0.02) 50%
+  );
+  background-size: 100% 4px;
+  z-index: 5;
+}
+
+.lcd-overlay.no-scanlines {
+  display: none;
+}
+
+/* ==========================================================================
+   LCD SCREENS (MENU, GAME HUD, OVERLAYS)
+   ========================================================================== */
+
+/* 1. Main Menu Screen */
+.lcd-screen-layer {
+  position: absolute;
+  inset: 0;
+  background: var(--lcd-bg);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  z-index: 10;
+  text-align: center;
+  font-family: var(--font-retro);
+  color: var(--lcd-pixel);
+}
+
+.lcd-screen-layer.active {
+  display: flex;
+}
+
+.retro-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+}
+
+.retro-tagline {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+  margin-bottom: 12px;
+}
+
+.menu-high-score-box {
+  background: rgba(31, 39, 27, 0.1);
+  border: 1.5px solid var(--lcd-pixel);
+  padding: 4px 14px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+}
+
+.menu-actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 220px;
+}
+
+.btn-retro {
+  background: transparent;
+  border: 2px solid var(--lcd-pixel);
+  color: var(--lcd-pixel);
+  font-family: var(--font-retro);
+  font-size: 0.82rem;
+  font-weight: 900;
+  padding: 7px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background 0.1s, transform 0.1s;
+}
+
+.btn-retro:hover,
+.btn-retro:active {
+  background: var(--lcd-pixel);
+  color: var(--lcd-bg);
+}
+
+.btn-retro-primary {
+  background: var(--lcd-pixel);
+  color: var(--lcd-bg);
+}
+
+.btn-retro-primary:hover,
+.btn-retro-primary:active {
+  background: transparent;
+  color: var(--lcd-pixel);
+}
+
+/* 2. In-Game HUD Bar */
+.lcd-game-hud {
+  width: 100%;
+  background: rgba(31, 39, 27, 0.08);
+  border-top: 1.5px dashed var(--lcd-pixel);
+  padding: 4px 8px;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-retro);
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: var(--lcd-pixel);
+  flex-shrink: 0;
+}
+
+.hud-item {
+  display: flex;
+  gap: 4px;
+}
+
+/* 3. Pause & Game Over Overlays */
+.lcd-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(155, 168, 141, 0.94);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 20;
+  text-align: center;
+  font-family: var(--font-retro);
+  color: var(--lcd-pixel);
+}
+
+.lcd-modal-overlay.active {
+  display: flex;
+}
+
+.overlay-heading {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.overlay-subheading {
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  opacity: 0.85;
+}
+
+.new-high-badge {
+  background: var(--lcd-pixel);
+  color: var(--lcd-bg);
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  letter-spacing: 0.08em;
+  animation: pulseBadge 1.2s infinite ease-in-out;
+}
+
+@keyframes pulseBadge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.score-summary-grid {
+  background: rgba(31, 39, 27, 0.1);
+  border: 1.5px solid var(--lcd-pixel);
+  padding: 8px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 220px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ==========================================================================
+   VIRTUAL D-PAD & CONTROLS
+   ========================================================================== */
+.controls-section {
+  width: 100%;
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Cross D-Pad */
+.dpad-container {
+  width: 160px;
+  height: 160px;
+  position: relative;
+  touch-action: none;
+}
+
+.dpad-btn {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 10px;
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  transition: all 0.08s ease;
+  touch-action: none;
+}
+
+.dpad-btn:active {
+  background: #0f172a;
+  transform: scale(0.94);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.dpad-up {
+  top: 4px;
+  left: 56px;
+}
+
+.dpad-down {
+  bottom: 4px;
+  left: 56px;
+}
+
+.dpad-left {
+  top: 56px;
+  left: 4px;
+}
+
+.dpad-right {
+  top: 56px;
+  right: 4px;
+}
+
+.dpad-center {
+  position: absolute;
+  top: 56px;
+  left: 56px;
+  width: 48px;
+  height: 48px;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+/* Secondary Action Buttons (Pause, Restart) */
+.action-buttons-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-pill-action {
+  background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  transition: all 0.1s ease;
+  touch-action: none;
+}
+
+.btn-pill-action:active {
+  transform: scale(0.95);
+  background: #0f172a;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* ==========================================================================
+   RETRO MODAL DIALOGS (HOW TO PLAY, SETTINGS, STATS)
+   ========================================================================== */
+.retro-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.retro-modal-backdrop.active {
+  display: flex;
+}
+
+.retro-modal-box {
+  width: 100%;
+  max-width: 420px;
+  background: #1e293b;
+  border: 2px solid #334155;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.retro-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 12px;
+}
+
+.retro-modal-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.retro-modal-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.retro-modal-close:hover {
+  color: #ffffff;
+}
+
+.retro-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+.instruction-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.instruction-step strong {
+  color: var(--color-accent);
+}
+
+/* Settings Form Controls */
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
+.setting-options-group {
+  display: flex;
+  gap: 8px;
+}
+
+.setting-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Switch toggle */
+.switch-input {
+  width: 40px;
+  height: 22px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+/* Stats Grid */
+.stats-table-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.stat-cell {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-cell-val {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--color-accent);
+}
+
+.stat-cell-lbl {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================================================== */
+@media (max-width: 480px) {
+  .nokia-phone-casing {
+    padding: 16px 14px 14px 14px;
+    border-radius: 28px;
+  }
+
+  .dpad-container {
+    width: 140px;
+    height: 140px;
+  }
+
+  .dpad-btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .dpad-up { left: 49px; }
+  .dpad-down { left: 49px; }
+  .dpad-left { top: 49px; }
+  .dpad-right { top: 49px; }
+  .dpad-center { top: 49px; left: 49px; width: 42px; height: 42px; }
+}
